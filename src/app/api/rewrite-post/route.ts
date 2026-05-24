@@ -216,11 +216,12 @@ export async function POST(req: Request) {
     }
 
     // Try to update new columns (may not exist yet)
-    const newColumns: Record<string, unknown> = {}
-    if (quickBrief.length > 0) newColumns.quick_brief = quickBrief
-    if (blizineScore !== null) newColumns.blizine_score = blizineScore
-    if (Object.keys(newColumns).length > 0) {
-      try { await supabase.from("posts").update(newColumns).eq("id", post_id) } catch {}
+    if (quickBrief.length > 0 || blizineScore !== null) {
+      const newCols: Record<string, unknown> = {}
+      if (quickBrief.length > 0) newCols.quick_brief = quickBrief
+      if (blizineScore !== null) newCols.blizine_score = blizineScore
+      const { error: colErr } = await supabase.from("posts").update(newCols).eq("id", post_id)
+      if (colErr) console.error("newColumns error:", colErr.message)
     }
 
     return NextResponse.json({ success: true, blizine_score: blizineScore })
