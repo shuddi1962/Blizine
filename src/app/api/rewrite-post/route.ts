@@ -196,14 +196,12 @@ export async function POST(req: Request) {
 
     const updateData: Record<string, unknown> = {
       content: rewrittenContent,
-      quick_brief: quickBrief.length > 0 ? quickBrief : [],
       ai_rewritten: true,
     }
 
     if (seoData.seo_title) updateData.seo_title = seoData.seo_title
     if (seoData.seo_description) updateData.seo_description = seoData.seo_description
     if (seoData.seo_keywords?.length) updateData.seo_keywords = seoData.seo_keywords
-    if (blizineScore !== null) updateData.blizine_score = blizineScore
 
     const { error: updateError } = await supabase
       .from("posts")
@@ -212,6 +210,14 @@ export async function POST(req: Request) {
 
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 })
+    }
+
+    // Try to update new columns (may not exist yet)
+    const newColumns: Record<string, unknown> = {}
+    if (quickBrief.length > 0) newColumns.quick_brief = quickBrief
+    if (blizineScore !== null) newColumns.blizine_score = blizineScore
+    if (Object.keys(newColumns).length > 0) {
+      await supabase.from("posts").update(newColumns).eq("id", post_id).catch(() => {})
     }
 
     return NextResponse.json({ success: true, blizine_score: blizineScore })
