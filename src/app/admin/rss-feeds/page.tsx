@@ -48,10 +48,40 @@ export default function AdminRssFeedsPage() {
     await supabase.from("rss_feeds").update({ is_active: active }).eq("id", id)
   }
 
+  const [fetching, setFetching] = useState<string | null>(null)
+
   const fetchNow = async (feed: RssFeed) => {
-    const supabase = createClient()
-    await supabase.from("rss_feeds").update({ last_fetched_at: new Date().toISOString() }).eq("id", feed.id)
-    alert(`Fetch triggered for ${feed.feed_name}`)
+    setFetching(feed.id)
+    try {
+      const res = await fetch("/api/fetch-rss?feed_id=" + feed.id)
+      const data = await res.json()
+      alert(data.message || data.error || "Done")
+      const { data: refreshed } = await createClient()
+        .from("rss_feeds")
+        .select("*, category:categories(name)")
+        .order("feed_name")
+      if (refreshed) setFeeds(refreshed as any)
+    } catch (err: any) {
+      alert("Error: " + err.message)
+    }
+    setFetching(null)
+  }
+
+  const fetchAll = async () => {
+    setFetching("all")
+    try {
+      const res = await fetch("/api/fetch-rss")
+      const data = await res.json()
+      alert(data.message || data.error || "Done")
+      const { data: refreshed } = await createClient()
+        .from("rss_feeds")
+        .select("*, category:categories(name)")
+        .order("feed_name")
+      if (refreshed) setFeeds(refreshed as any)
+    } catch (err: any) {
+      alert("Error: " + err.message)
+    }
+    setFetching(null)
   }
 
   return (
@@ -74,6 +104,14 @@ export default function AdminRssFeedsPage() {
         </CardContent>
       </Card>
 
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">All Feeds</h2>
+        <Button onClick={fetchAll} disabled={fetching === "all"}>
+          <RefreshCw className={"h-4 w-4 mr-2" + (fetching === "all" ? " animate-spin" : "")} />
+          Fetch All Now
+        </Button>
+      </div>
+
       <div className="space-y-3">
         {feeds.map((feed: any) => (
           <Card key={feed.id}>
@@ -91,8 +129,9 @@ export default function AdminRssFeedsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => fetchNow(feed)}>
-                  <RefreshCw className="h-3 w-3 mr-1" />Fetch
+                <Button variant="outline" size="sm" onClick={() => fetchNow(feed)} disabled={fetching === feed.id}>
+                  <RefreshCw className={"h-3 w-3 mr-1" + (fetching === feed.id ? " animate-spin" : "")} />
+                  {fetching === feed.id ? "Fetching..." : "Fetch"}
                 </Button>
                 <Switch checked={feed.is_active} onCheckedChange={(v) => toggleActive(feed.id, v)} />
               </div>

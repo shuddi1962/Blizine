@@ -6,23 +6,27 @@ import { Sidebar } from "@/components/layout/sidebar"
 
 export default function HomePage() {
   return (
-    <div className="container py-6">
+    <div>
       <HeroSection />
       
-      {/* Ad Banner */}
-      <div className="ad-container min-h-[90px] mb-10 rounded-lg">
-        <span className="ad-label">Advertisement</span>
-        <p className="text-xs text-muted-foreground">728 × 90 Leaderboard</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <CategoryTabs />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3">
-          <CategoryTabs />
+      <div className="bg-muted/30 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SecondaryRow />
-          <TrendingGrid />
         </div>
-        <div className="lg:col-span-1">
-          <Sidebar />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
+            <TrendingGrid />
+          </div>
+          <div className="lg:col-span-1">
+            <Sidebar />
+          </div>
         </div>
       </div>
     </div>

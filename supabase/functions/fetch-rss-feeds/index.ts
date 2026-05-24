@@ -1,39 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
-import Parser from "rss-parser";
-
-interface RssFeed {
-  id: string;
-  url: string;
-  source_name: string;
-  source_slug: string;
-  auto_rewrite: boolean;
-  default_status: string;
-  posts_fetched: number;
-  last_fetched_at: string | null;
-  last_error: string | null;
-  active: boolean;
-}
-
-interface Post {
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  featured_image: string | null;
-  original_source_url: string;
-  source_name: string;
-  source_slug: string;
-  status: string;
-  reading_time: number;
-  created_at: string;
-}
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const openRouterKey = Deno.env.get("OPENROUTER_API_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-const parser = new Parser();
 
 function generateSlug(title: string): string {
   return title
@@ -65,10 +36,7 @@ function extractFeaturedImage(item: any): string | null {
   return null;
 }
 
-async function rewriteWithOpenRouter(
-  title: string,
-  content: string
-): Promise<string> {
+async function rewriteWithOpenRouter(title: string, content: string): Promise<string> {
   const prompt = `Rewrite the following tech article in an engaging, SEO-optimized style for the blog Blizine. Keep facts accurate. Add a compelling intro, structured H2/H3 subheadings, and a conclusion. Output HTML only, no markdown. Article title: ${title}. Original content: ${content}`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -78,7 +46,7 @@ async function rewriteWithOpenRouter(
       Authorization: `Bearer ${openRouterKey}`,
     },
     body: JSON.stringify({
-      model: "mistralai/mixtral-8x7b-instruct",
+      model: "mistralai/mistral-7b-instruct",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 4096,
     }),
@@ -93,115 +61,12 @@ async function rewriteWithOpenRouter(
   return data.choices?.[0]?.message?.content?.trim() || content;
 }
 
-async function processFeed(feed: RssFeed): Promise<void> {
-  try {
-    const parsed = await parser.parseURL(feed.url);
-
-    if (!parsed.items?.length) return;
-
-    const feedItemUrls = parsed.items
-      .map((item) => item.link || item.guid)
-      .filter(Boolean) as string[];
-
-    const { data: existingPosts } = await supabase
-      .from("posts")
-      .select("original_source_url")
-      .in("original_source_url", feedItemUrls);
-
-    const existingUrls = new Set(
-      (existingPosts || []).map((p) => p.original_source_url)
-    );
-
-    const newItems = parsed.items.filter(
-      (item) => !existingUrls.has(item.link || item.guid)
-    );
-
-    if (!newItems.length) {
-      await supabase
-        .from("rss_feeds")
-        .update({ last_fetched_at: new Date().toISOString() })
-        .eq("id", feed.id);
-      return;
-    }
-
-    for (const item of newItems) {
-      const title = item.title || "Untitled";
-      const content = item.content || item.contentSnippet || "";
-      const featuredImage = extractFeaturedImage(item);
-      let finalContent = content;
-
-      if (feed.auto_rewrite && content.length > 50) {
-        try {
-          finalContent = await rewriteWithOpenRouter(title, content);
-        } catch (err: any) {
-          console.error(
-            `[${feed.source_name}] Rewrite failed for "${title}": ${err.message}`
-          );
-        }
-      }
-
-      const slug = generateSlug(title);
-
-      const post: Post = {
-        title,
-        slug,
-        content: finalContent,
-        excerpt: extractExcerpt(finalContent),
-        featured_image: featuredImage,
-        original_source_url: item.link || item.guid || "",
-        source_name: feed.source_name,
-        source_slug: feed.source_slug,
-        status: feed.default_status,
-        reading_time: calculateReadingTime(finalContent),
-        created_at: item.isoDate
-          ? new Date(item.isoDate).toISOString()
-          : new Date().toISOString(),
-      };
-
-      const { error: insertError } = await supabase
-        .from("posts")
-        .insert(post);
-
-      if (insertError) {
-        console.error(
-          `[${feed.source_name}] Insert failed for "${title}": ${insertError.message}`
-        );
-        continue;
-      }
-
-      await supabase.rpc("increment_feed_posts_count", {
-        feed_id: feed.id,
-      });
-    }
-
-    await supabase
-      .from("rss_feeds")
-      .update({
-        last_fetched_at: new Date().toISOString(),
-        last_error: null,
-      })
-      .eq("id", feed.id);
-  } catch (err: any) {
-    const errorMessage = err.message || "Unknown error";
-
-    await supabase
-      .from("rss_feeds")
-      .update({
-        last_error: errorMessage,
-        last_fetched_at: new Date().toISOString(),
-      })
-      .eq("id", feed.id);
-
-    console.error(`[${feed.source_name}] Feed error: ${errorMessage}`);
-  }
-}
-
 Deno.serve(async (req) => {
   try {
     const { data: feeds, error: fetchError } = await supabase
       .from("rss_feeds")
-      .select("*")
-      .eq("active", true);
+      .select("id, category_id, feed_url, feed_name, auto_rewrite, is_active, last_fetched_at, posts_fetched")
+      .eq("is_active", true);
 
     if (fetchError) {
       throw new Error(`Failed to fetch feeds: ${fetchError.message}`);
@@ -214,18 +79,121 @@ Deno.serve(async (req) => {
       });
     }
 
-    await Promise.all(feeds.map((feed: RssFeed) => processFeed(feed)));
+    // Get default admin profile for author_id
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .limit(1);
+
+    const defaultAuthorId = profiles?.[0]?.id;
+    if (!defaultAuthorId) {
+      throw new Error("No author profile found. Create an admin user first.");
+    }
+
+    const parser = new (await import("npm:rss-parser")).default();
+    let totalNewPosts = 0;
+
+    for (const feed of feeds) {
+      try {
+        const parsed = await parser.parseURL(feed.feed_url);
+        if (!parsed.items?.length) continue;
+
+        const feedItemUrls = parsed.items
+          .map((item: any) => item.link || item.guid)
+          .filter(Boolean) as string[];
+
+        const { data: existingPosts } = await supabase
+          .from("posts")
+          .select("original_source_url")
+          .in("original_source_url", feedItemUrls);
+
+        const existingUrls = new Set(
+          (existingPosts || []).map((p: any) => p.original_source_url)
+        );
+
+        const newItems = parsed.items.filter(
+          (item: any) => !existingUrls.has(item.link || item.guid)
+        );
+
+        if (!newItems.length) {
+          await supabase
+            .from("rss_feeds")
+            .update({ last_fetched_at: new Date().toISOString() })
+            .eq("id", feed.id);
+          continue;
+        }
+
+        for (const item of newItems) {
+          const title = item.title || "Untitled";
+          const content = item.content || item.contentSnippet || "";
+          const featuredImage = extractFeaturedImage(item);
+          let finalContent = content;
+
+          if (feed.auto_rewrite && content.length > 50 && openRouterKey) {
+            try {
+              finalContent = await rewriteWithOpenRouter(title, content);
+            } catch (err: any) {
+              console.error(`[${feed.feed_name}] Rewrite failed: ${err.message}`);
+            }
+          }
+
+          const slug = generateSlug(title);
+
+          const post = {
+            title,
+            slug,
+            content: finalContent,
+            excerpt: extractExcerpt(finalContent),
+            featured_image: featuredImage,
+            category_id: feed.category_id,
+            author_id: defaultAuthorId,
+            status: "published",
+            rss_source_url: feed.feed_url,
+            original_source_url: item.link || item.guid || "",
+            ai_rewritten: feed.auto_rewrite,
+            reading_time: calculateReadingTime(finalContent),
+            tags: item.categories?.slice(0, 5) || [],
+            published_at: item.isoDate
+              ? new Date(item.isoDate).toISOString()
+              : new Date().toISOString(),
+          };
+
+          const { error: insertError } = await supabase
+            .from("posts")
+            .insert(post);
+
+          if (insertError) {
+            console.error(`[${feed.feed_name}] Insert failed: ${insertError.message}`);
+            continue;
+          }
+
+          totalNewPosts++;
+
+          await supabase
+            .from("rss_feeds")
+            .update({ posts_fetched: (feed.posts_fetched || 0) + 1 })
+            .eq("id", feed.id);
+        }
+
+        await supabase
+          .from("rss_feeds")
+          .update({ last_fetched_at: new Date().toISOString(), last_error: null })
+          .eq("id", feed.id);
+      } catch (err: any) {
+        await supabase
+          .from("rss_feeds")
+          .update({ last_error: err.message?.slice(0, 500), last_fetched_at: new Date().toISOString() })
+          .eq("id", feed.id);
+        console.error(`[${feed.feed_name}] Error: ${err.message}`);
+      }
+    }
 
     return new Response(
-      JSON.stringify({ message: `Processed ${feeds.length} feeds` }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ message: `Processed ${feeds.length} feeds, imported ${totalNewPosts} new posts` }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err: any) {
-    console.error(`Fatal error: ${err.message}`);
-
+    console.error(`Fatal: ${err.message}`);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
