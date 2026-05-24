@@ -26,8 +26,18 @@ export function HeroSection() {
         .order("published_at", { ascending: false })
         .limit(3),
       supabase.from("categories").select("*"),
-    ]).then(([postsRes, catsRes]) => {
-      if (postsRes.data) setFeatured(postsRes.data as any)
+    ]).then(async ([postsRes, catsRes]) => {
+      let data = postsRes.data as any[]
+      if (!data || data.length === 0) {
+        const { data: latest } = await supabase
+          .from("posts")
+          .select("*, category:categories(*), author:profiles(*)")
+          .eq("status", "published")
+          .order("published_at", { ascending: false })
+          .limit(3)
+        data = (latest || []) as any
+      }
+      if (data) setFeatured(data)
       if (catsRes.data) {
         const map = new Map()
         catsRes.data.forEach((c) => map.set(c.id, c))
@@ -65,8 +75,11 @@ export function HeroSection() {
       >
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-          style={{ backgroundImage: `url(${main.featured_image || "/api/placeholder/800/600"})` }}
+          style={{ backgroundImage: main.featured_image ? `url(${main.featured_image})` : undefined }}
         />
+        {!main.featured_image && (
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-800" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <Badge variant="indigo" className="mb-3">
@@ -100,8 +113,11 @@ export function HeroSection() {
           >
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{ backgroundImage: `url(${post.featured_image || "/api/placeholder/400/300"})` }}
+              style={{ backgroundImage: post.featured_image ? `url(${post.featured_image})` : undefined }}
             />
+            {!post.featured_image && (
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-700" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <Badge variant="indigo" className="mb-2 text-[10px]">

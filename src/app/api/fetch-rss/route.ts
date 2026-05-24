@@ -32,10 +32,21 @@ function extractExcerpt(html: string, maxLength = 300): string {
   return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + "..."
 }
 
-function extractFeaturedImage(item: any): string | null {
+function extractFirstImageFromHtml(html: string): string | null {
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i)
+  return match ? match[1] : null
+}
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim()
+}
+
+function extractFeaturedImage(item: any, content: string): string | null {
   if (item["media:content"]?.$?.url) return item["media:content"].$.url
   if (item.enclosure?.url) return item.enclosure.url
   if (item["media:thumbnail"]?.$?.url) return item["media:thumbnail"].$.url
+  const fromContent = extractFirstImageFromHtml(content)
+  if (fromContent) return fromContent
   return null
 }
 
@@ -43,7 +54,8 @@ async function rewriteWithOpenRouter(title: string, content: string): Promise<st
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) return content
 
-  const prompt = "Rewrite the following tech article in an engaging, SEO-optimized style for the blog Blizine. Keep facts accurate. Add a compelling intro, structured H2/H3 subheadings, and a conclusion. Output HTML only, no markdown. Article title: " + title + ". Original content: " + content
+  const textContent = stripHtml(content)
+  const prompt = "Rewrite the following tech article in an engaging, SEO-optimized style for the blog Blizine. Write a FULL, complete article - at least 500 words. Keep facts accurate. Add a compelling intro, structured H2/H3 subheadings, and a conclusion. The rewrite must be complete so readers don't need to visit the original source. Output HTML only, no markdown. Article title: " + title + ". Original content: " + textContent
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -141,7 +153,7 @@ export async function GET(req: Request) {
         for (const item of newItems) {
           const title = item.title || "Untitled"
           const content = item.content || item.contentSnippet || ""
-          const featuredImage = extractFeaturedImage(item)
+          const featuredImage = extractFeaturedImage(item, content)
           let finalContent = content
 
           if (feed.auto_rewrite && content.length > 50 && process.env.OPENROUTER_API_KEY) {
