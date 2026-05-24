@@ -40,8 +40,8 @@ export async function GET() {
 
     const { data: posts, error: fetchError } = await supabase
       .from("posts")
-      .select("id, title, content, quick_brief")
-      .or("quick_brief.eq.[],quick_brief.is.null")
+      .select("id, title, content")
+      .is("blizine_score", null)
       .limit(10)
 
     if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
@@ -97,10 +97,12 @@ export async function GET() {
           if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) blizineScore = parsed
         } catch { /* skip */ }
 
-        // Update post
-        const updateData: Record<string, unknown> = { ai_rewritten: true }
-        if (quickBrief.length > 0) updateData.quick_brief = quickBrief
-        if (blizineScore !== null) updateData.blizine_score = blizineScore
+        // Update post - always write so it's never reprocessed
+        const updateData: Record<string, unknown> = {
+          ai_rewritten: true,
+          quick_brief: quickBrief.length > 0 ? quickBrief : ([] as { text: string }[]),
+          blizine_score: blizineScore ?? 0,
+        }
 
         const { error: updateError } = await supabase.from("posts").update(updateData).eq("id", post.id)
         if (updateError) {
