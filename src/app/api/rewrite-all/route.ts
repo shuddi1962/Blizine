@@ -12,7 +12,7 @@ export async function GET() {
       .from("posts")
       .select("id, title, content")
       .eq("ai_rewritten", false)
-      .limit(5)
+      .limit(50)
 
     if (fetchError) {
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
