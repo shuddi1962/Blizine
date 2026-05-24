@@ -217,7 +217,7 @@ export async function POST(req: Request) {
     if (quickBrief.length > 0) newColumns.quick_brief = quickBrief
     if (blizineScore !== null) newColumns.blizine_score = blizineScore
     if (Object.keys(newColumns).length > 0) {
-      await supabase.from("posts").update(newColumns).eq("id", post_id).catch(() => {})
+      try { await supabase.from("posts").update(newColumns).eq("id", post_id) } catch {}
     }
 
     return NextResponse.json({ success: true, blizine_score: blizineScore })
