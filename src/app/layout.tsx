@@ -1,9 +1,6 @@
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
-import { BreakingNews } from "@/components/layout/breaking-news"
-import { Header } from "@/components/layout/header"
-import { Nav } from "@/components/layout/nav"
-import { Footer } from "@/components/layout/footer"
+import { LayoutWrapper } from "@/components/layout/layout-wrapper"
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants"
 import "./globals.css"
 
@@ -52,11 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-background antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <BreakingNews />
-          <Header />
-          <Nav />
-          <main>{children}</main>
-          <Footer />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </ThemeProvider>
       </body>
     </html>
