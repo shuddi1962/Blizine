@@ -254,7 +254,10 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
             rss_source_url: feed.feed_url,
             original_source_url: link,
             ai_rewritten: false,
-            published_at: new Date(item.pubDate as string || Date.now()).toISOString(),
+            published_at: (() => {
+              const d = new Date(item.pubDate as string || Date.now())
+              return d > new Date() ? new Date().toISOString() : d.toISOString()
+            })(),
             reading_time: Math.max(1, Math.round((articleText.split(' ').length || 50) / 200)),
             views: 0,
             created_at: new Date().toISOString(),

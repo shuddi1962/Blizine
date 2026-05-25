@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Sidebar } from "@/components/layout/sidebar"
-import { formatDate, readingTime } from "@/lib/utils"
-import { Clock, Eye, ExternalLink, Bookmark } from "lucide-react"
+import { formatDate, formatDateFull, readingTime } from "@/lib/utils"
+import { Clock, Eye, ArrowLeft, ExternalLink, Bookmark, ChevronRight } from "lucide-react"
 import type { Metadata } from "next"
 import { ReadingProgress } from "@/components/post/reading-progress"
 import { ShareButtons } from "@/components/social/share-buttons"
@@ -66,7 +66,7 @@ export default async function PostPage({ params }: Props) {
   await supabase.rpc("increment_post_views", { post_id: post.id })
 
   const quickBrief = (post as any).quick_brief
-  const sourceUrl = post.rss_source_url || post.original_source_url
+  const sourceUrl = post.original_source_url
   const popularPosts = popularRes.data || []
   const sidebarCategories = categoriesRes.data || []
   const recentPosts = recentRes.data || []
@@ -75,54 +75,85 @@ export default async function PostPage({ params }: Props) {
     <>
       <ReadingProgress />
 
-      {/* Hero Image */}
-      <div className="relative w-full h-[250px] md:h-[350px] overflow-hidden">
+      {/* Hero Section */}
+      <div className="relative w-full h-[400px] md:h-[500px] lg:h-[560px] overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
           style={{ backgroundImage: `url(${post.featured_image || "/api/placeholder/1200/600"})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/60 to-[#0a0a1a]/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+
+        {/* Back link */}
+        <div className="relative z-10 container pt-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </div>
       </div>
 
-      <article className="container py-6 -mt-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Post Content */}
+      <article className="container relative z-20 -mt-32">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           <div className="lg:col-span-3">
-            {/* Post Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-3">
+            {/* Post Header Card */}
+            <div className="bg-card border rounded-2xl p-6 md:p-8 mb-8 shadow-xl">
+              <div className="flex items-center gap-2 mb-4">
                 <Link href={`/category/${(post as any).category?.slug}`}>
-                  <Badge variant="indigo">{(post as any).category?.name}</Badge>
+                  <Badge variant="indigo" className="px-3 py-1 text-xs uppercase tracking-wider font-semibold">
+                    {(post as any).category?.name}
+                  </Badge>
                 </Link>
-                {post.is_sponsored && <Badge variant="amber">Sponsored</Badge>}
+                {post.is_sponsored && (
+                  <Badge variant="amber" className="px-3 py-1 text-xs uppercase tracking-wider font-semibold">
+                    Sponsored
+                  </Badge>
+                )}
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4 text-foreground">
                 {post.title}
               </h1>
-              <p className="text-lg text-gray-300 mb-4">{post.excerpt}</p>
 
-              <div className="flex items-center justify-between flex-wrap gap-4">
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">{post.excerpt}</p>
+
+              <div className="flex items-center justify-between flex-wrap gap-4 pb-2">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 ring-2 ring-white/20">
+                  <Avatar className="h-11 w-11 ring-2 ring-primary/20">
                     <AvatarImage src={(post as any).author?.avatar_url} />
-                    <AvatarFallback>{(post as any).author?.full_name?.[0] || "B"}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      {(post as any).author?.full_name?.[0] || "B"}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Link href={`/author/${(post as any).author?.username}`} className="font-semibold text-white hover:text-brand-indigo">
+                    <Link
+                      href={`/author/${(post as any).author?.username}`}
+                      className="font-semibold text-foreground hover:text-primary transition-colors"
+                    >
                       {(post as any).author?.full_name || "Blizine"}
                     </Link>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <span>{post.published_at ? formatDate(post.published_at) : ""}</span>
-                      <span>·</span>
-                      <Clock className="h-3 w-3" />
-                      <span>{post.reading_time} min read</span>
-                      <span>·</span>
-                      <Eye className="h-3 w-3" />
-                      <span>{post.views} views</span>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <time dateTime={post.published_at}>
+                        {post.published_at ? formatDateFull(post.published_at) : ""}
+                      </time>
+                      <span className="text-muted-foreground/40">·</span>
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{post.reading_time || readingTime(post.content || "")} min read</span>
+                      <span className="text-muted-foreground/40">·</span>
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>{post.views || 0} views</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white" title="Save">
+                <div className="flex items-center gap-1">
+                  <button
+                    className="p-2.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    title="Save"
+                  >
                     <Bookmark className="h-5 w-5" />
                   </button>
                   <ShareButtons
@@ -134,16 +165,17 @@ export default async function PostPage({ params }: Props) {
               </div>
             </div>
 
-            <Separator className="mb-8" />
-
             {/* Quick Brief */}
             {quickBrief && Array.isArray(quickBrief) && quickBrief.length > 0 && (
-              <div className="mb-8 p-4 rounded-lg bg-[#1a1a3e] border border-[#2a2a5e]">
-                <h3 className="text-sm font-bold text-brand-amber uppercase tracking-wider mb-2">Quick Brief</h3>
-                <ul className="space-y-2">
+              <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20">
+                <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Key Takeaways
+                </h3>
+                <ul className="space-y-3">
                   {quickBrief.map((item: { text: string }, i: number) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-amber shrink-0" />
+                    <li key={i} className="text-[15px] leading-relaxed text-foreground/90 flex items-start gap-3">
+                      <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
                       {item.text}
                     </li>
                   ))}
@@ -152,17 +184,36 @@ export default async function PostPage({ params }: Props) {
             )}
 
             {/* Post Content */}
-            <div
-              className="prose prose-lg prose-invert max-w-none mb-8 prose-headings:text-white prose-a:text-brand-indigo prose-blockquote:border-brand-indigo prose-blockquote:text-gray-300 prose-strong:text-white prose-code:text-brand-amber"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            <div className="mb-10">
+              <div
+                className="prose prose-lg max-w-none
+                  prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+                  prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5
+                  prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+                  prose-p:text-[17px] prose-p:leading-[1.8] prose-p:text-foreground/90 prose-p:mb-5
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:font-medium
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:text-foreground/80 prose-blockquote:italic
+                  prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
+                  prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-border prose-pre:rounded-xl
+                  prose-img:rounded-xl prose-img:shadow-lg
+                  prose-li:text-[17px] prose-li:leading-[1.8] prose-li:text-foreground/90
+                  prose-hr:border-border"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            </div>
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {post.tags.map((tag: string) => (
                   <Link key={tag} href={`/tag/${tag}`}>
-                    <Badge variant="secondary" className="cursor-pointer hover:bg-brand-indigo hover:text-white transition-colors">#{tag}</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="px-3 py-1.5 text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                    >
+                      #{tag}
+                    </Badge>
                   </Link>
                 ))}
               </div>
@@ -170,52 +221,86 @@ export default async function PostPage({ params }: Props) {
 
             {/* Source Attribution */}
             {sourceUrl && (
-              <div className="mb-8 p-4 rounded-lg bg-muted/50 border">
-                <p className="text-sm text-muted-foreground">
-                  Source:{" "}
+              <div className="mb-8 p-5 rounded-xl bg-muted/50 border border-border">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="text-lg">📰</span>
+                  Originally published at{" "}
                   <a
                     href={sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-brand-indigo hover:underline inline-flex items-center gap-1"
+                    className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
                   >
-                    {new URL(sourceUrl).hostname}
-                    <ExternalLink className="h-3 w-3" />
+                    {new URL(sourceUrl).hostname.replace("www.", "")}
+                    <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 </p>
               </div>
             )}
 
             {/* Author Bio */}
-            <div className="bg-muted rounded-xl p-6 mb-8">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14">
+            <div className="bg-gradient-to-br from-muted to-muted/50 rounded-2xl p-6 md:p-8 mb-8 border border-border">
+              <div className="flex flex-col sm:flex-row items-start gap-5">
+                <Avatar className="h-16 w-16 ring-2 ring-primary/20 shrink-0">
                   <AvatarImage src={(post as any).author?.avatar_url} />
-                  <AvatarFallback>{(post as any).author?.full_name?.[0] || "B"}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary text-lg font-bold">
+                    {(post as any).author?.full_name?.[0] || "B"}
+                  </AvatarFallback>
                 </Avatar>
-                <div>
-                  <Link href={`/author/${(post as any).author?.username}`} className="font-bold text-lg hover:text-brand-indigo">
-                    {(post as any).author?.full_name || "Blizine"}
-                  </Link>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                      <Link
+                        href={`/author/${(post as any).author?.username}`}
+                        className="font-bold text-lg text-foreground hover:text-primary transition-colors"
+                      >
+                        {(post as any).author?.full_name || "Blizine"}
+                      </Link>
+                      <p className="text-sm text-muted-foreground mt-0.5">Staff Writer</p>
+                    </div>
+                    <Link
+                      href={`/author/${(post as any).author?.username}`}
+                      className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+                    >
+                      View Profile <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
                   {(post as any).author?.bio && (
-                    <p className="text-sm text-muted-foreground mt-1">{(post as any).author?.bio}</p>
+                    <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+                      {(post as any).author?.bio}
+                    </p>
                   )}
                 </div>
               </div>
             </div>
 
+            <Separator className="mb-8" />
+
             {/* Related Posts */}
             {relatedPosts && relatedPosts.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-6">Related Articles</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <h2 className="text-2xl font-bold mb-6 text-foreground flex items-center gap-2">
+                  Related Articles
+                  <span className="h-0.5 flex-1 bg-border rounded-full" />
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {relatedPosts.map((rel) => (
-                    <Link key={rel.id} href={`/${rel.slug}`} className="group">
-                      <div className="rounded-lg overflow-hidden h-36 bg-cover bg-center mb-3"
-                        style={{ backgroundImage: `url(${rel.featured_image || "/api/placeholder/400/250"})` }} />
-                      <h3 className="font-semibold group-hover:text-brand-indigo line-clamp-2">{rel.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {rel.published_at ? formatDate(rel.published_at) : ""} · {rel.reading_time} min read
+                    <Link key={rel.id} href={`/${rel.slug}`} className="group block">
+                      <div className="relative rounded-xl overflow-hidden h-44 mb-3 bg-muted">
+                        <div
+                          className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                          style={{ backgroundImage: `url(${rel.featured_image || "/api/placeholder/400/250"})` }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <h3 className="font-semibold text-[15px] leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        {rel.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                        {rel.published_at ? formatDate(rel.published_at) : ""}
+                        <span className="text-muted-foreground/40">·</span>
+                        <Clock className="h-3 w-3" />
+                        {rel.reading_time || readingTime(rel.content || "")} min read
                       </p>
                     </Link>
                   ))}
@@ -224,11 +309,13 @@ export default async function PostPage({ params }: Props) {
             )}
 
             {/* Comments */}
-            <PostComments postId={post.id} />
+            <div className="mt-4">
+              <PostComments postId={post.id} />
+            </div>
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-4">
+            <div className="sticky top-24">
               <Sidebar popularPosts={popularPosts} categories={sidebarCategories} recentPosts={recentPosts} />
             </div>
           </div>
