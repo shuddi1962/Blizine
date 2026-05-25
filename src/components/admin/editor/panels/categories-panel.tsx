@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { usePostEditor } from "../post-editor-provider"
 import { CollapsibleSection } from "../collapsible-section"
 import { FolderTree } from "lucide-react"
@@ -14,14 +13,14 @@ export function CategoriesPanel() {
     <CollapsibleSection title="Categories" icon={<FolderTree className="h-4 w-4" />}>
       <div className="space-y-3">
         <div>
-          <label className="block text-xs text-[#9CA3AF] mb-1">Category</label>
+          <label className="block text-xs font-medium text-gray-500 dark:text-[#9CA3AF] mb-1.5">Category</label>
           <select
             value={post.category_id}
             onChange={(e) => {
               setField("category_id", e.target.value)
               setField("subcategory_id", "")
             }}
-            className="w-full bg-[#0A0F1E] border border-[#1F2937] rounded px-2 py-1.5 text-sm text-[#F9FAFB] focus:outline-none focus:border-[#6366F1]"
+            className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
           >
             <option value="">Select category...</option>
             {categories.map((cat) => (
@@ -32,11 +31,11 @@ export function CategoriesPanel() {
 
         {filteredSubs.length > 0 && (
           <div>
-            <label className="block text-xs text-[#9CA3AF] mb-1">Subcategory</label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-[#9CA3AF] mb-1.5">Subcategory</label>
             <select
               value={post.subcategory_id}
               onChange={(e) => setField("subcategory_id", e.target.value)}
-              className="w-full bg-[#0A0F1E] border border-[#1F2937] rounded px-2 py-1.5 text-sm text-[#F9FAFB] focus:outline-none focus:border-[#6366F1]"
+              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
             >
               <option value="">None</option>
               {filteredSubs.map((sub) => (

@@ -4,9 +4,14 @@ import { usePostEditor } from "./post-editor-provider"
 import { RichTextEditor } from "./rich-text-editor"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { SeoPanel } from "./panels/seo-panel"
+import { AiWritingPanel } from "./panels/ai-writing-panel"
+import { ReadabilityPanel } from "./panels/readability-panel"
+import { InternalLinksPanel } from "./panels/internal-links-panel"
+import { QuickBriefPanel } from "./panels/quick-brief-panel"
 
 export function LeftColumn() {
-  const { post, setField, updatePost } = usePostEditor()
+  const { post, setField } = usePostEditor()
 
   const handleTitleChange = (value: string) => {
     setField("title", value)
@@ -16,27 +21,27 @@ export function LeftColumn() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-6 space-y-4">
+    <div className="space-y-5">
+      <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl shadow-sm p-6 space-y-4">
         <div>
           <input
             value={post.title}
             onChange={(e) => handleTitleChange(e.target.value)}
             placeholder="Add title"
-            className="w-full bg-transparent text-2xl font-bold text-[#F9FAFB] placeholder:text-[#4B5563] border-none focus:outline-none"
+            className="w-full bg-transparent text-2xl font-bold text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] border-none focus:outline-none"
           />
         </div>
-        <div className="flex items-center gap-2 text-sm text-[#6B7280]">
-          <span>{process.env.NEXT_PUBLIC_SITE_URL || "blizine.com"}/</span>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#6B7280]">
+          <span className="shrink-0">{process.env.NEXT_PUBLIC_SITE_URL || "blizine.com"}/</span>
           <input
             value={post.slug}
             onChange={(e) => setField("slug", e.target.value)}
             placeholder="post-slug"
-            className="bg-[#0A0F1E] border border-[#1F2937] rounded px-2 py-1 text-[#F9FAFB] flex-1 focus:outline-none focus:border-[#6366F1] font-mono text-sm"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border border-gray-200 dark:border-[#1F2937] rounded-lg px-3 py-1.5 text-gray-900 dark:text-[#F9FAFB] flex-1 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent font-mono text-sm"
           />
           <button
             onClick={() => setField("slug", slugify(post.title))}
-            className="text-xs text-[#6366F1] hover:text-[#818CF8] whitespace-nowrap"
+            className="text-xs font-medium text-[#6366F1] hover:text-[#4F46E5] whitespace-nowrap px-2 py-1 rounded-md hover:bg-[#6366F1]/10 transition-colors"
           >
             Generate
           </button>
@@ -45,35 +50,51 @@ export function LeftColumn() {
 
       <RichTextEditor />
 
-      <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-6">
-        <label className="block text-sm font-medium text-[#F9FAFB] mb-2">Excerpt</label>
-        <Textarea
+      <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl shadow-sm p-6">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-[#F9FAFB] mb-2">Excerpt</label>
+        <textarea
           value={post.excerpt}
           onChange={(e) => setField("excerpt", e.target.value)}
           placeholder="Write a brief excerpt..."
           rows={3}
-          className="bg-[#0A0F1E] border-[#1F2937] text-[#F9FAFB] placeholder:text-[#4B5563] resize-y"
+          className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-200 dark:border-[#1F2937] rounded-lg px-3 py-2 text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-y text-sm"
         />
-        <p className="text-xs text-[#6B7280] mt-1">{(post.excerpt || "").length}/160 characters</p>
+        <div className="flex items-center justify-between mt-1.5">
+          <div className={`h-1.5 flex-1 rounded-full bg-gray-100 dark:bg-[#1F2937] max-w-xs overflow-hidden`}>
+            <div
+              className={`h-full rounded-full transition-all ${
+                (post.excerpt || "").length > 160 ? "bg-red-500" : (post.excerpt || "").length > 120 ? "bg-green-500" : "bg-amber-500"
+              }`}
+              style={{ width: `${Math.min(100, ((post.excerpt || "").length / 160) * 100)}%` }}
+            />
+          </div>
+          <span className="text-xs text-gray-400 dark:text-[#6B7280] ml-2 font-medium">{(post.excerpt || "").length}/160</span>
+        </div>
       </div>
 
-      <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-6">
-        <label className="block text-sm font-medium text-[#F9FAFB] mb-2">Source Attribution</label>
+      <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl shadow-sm p-6">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-[#F9FAFB] mb-3">Source Attribution</label>
         <div className="space-y-3">
           <Input
             value={post.source_name}
             onChange={(e) => setField("source_name", e.target.value)}
             placeholder="Source name (e.g., TechCrunch)"
-            className="bg-[#0A0F1E] border-[#1F2937] text-[#F9FAFB] placeholder:text-[#4B5563]"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border-gray-200 dark:border-[#1F2937] text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
           />
           <Input
             value={post.original_source_url}
             onChange={(e) => setField("original_source_url", e.target.value)}
             placeholder="Original source URL"
-            className="bg-[#0A0F1E] border-[#1F2937] text-[#F9FAFB] placeholder:text-[#4B5563]"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border-gray-200 dark:border-[#1F2937] text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
           />
         </div>
       </div>
+
+      <SeoPanel />
+      <AiWritingPanel />
+      <ReadabilityPanel />
+      <InternalLinksPanel />
+      <QuickBriefPanel />
     </div>
   )
 }

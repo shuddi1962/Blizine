@@ -18,7 +18,7 @@ export function FormatPanel() {
 
   return (
     <CollapsibleSection title="Format" icon={<FileText className="h-4 w-4" />}>
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-1.5">
         {formats.map((f) => {
           const Icon = f.icon
           const active = post.post_format === f.value
@@ -26,13 +26,13 @@ export function FormatPanel() {
             <button
               key={f.value}
               onClick={() => setField("post_format", f.value)}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg text-xs transition-colors ${
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-medium transition-all ${
                 active
-                  ? "bg-[#6366F1]/20 text-[#6366F1] border border-[#6366F1]/40"
-                  : "text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-[#1F2937] border border-transparent"
+                  ? "bg-[#6366F1]/15 text-[#6366F1] border-2 border-[#6366F1]/40 shadow-sm"
+                  : "text-gray-500 dark:text-[#9CA3AF] hover:text-gray-700 dark:hover:text-[#F9FAFB] hover:bg-gray-50 dark:hover:bg-[#1F2937] border-2 border-transparent"
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className={`h-5 w-5 ${active ? "text-[#6366F1]" : ""}`} />
               {f.label}
             </button>
           )

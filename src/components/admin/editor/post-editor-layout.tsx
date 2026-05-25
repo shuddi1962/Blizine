@@ -9,11 +9,6 @@ import { FormatPanel } from "./panels/format-panel"
 import { CategoriesPanel } from "./panels/categories-panel"
 import { TagsPanel } from "./panels/tags-panel"
 import { FeaturedImagePanel } from "./panels/featured-image-panel"
-import { SeoPanel } from "./panels/seo-panel"
-import { AiWritingPanel } from "./panels/ai-writing-panel"
-import { ReadabilityPanel } from "./panels/readability-panel"
-import { InternalLinksPanel } from "./panels/internal-links-panel"
-import { QuickBriefPanel } from "./panels/quick-brief-panel"
 import { Save, Send, Eye, ArrowLeft, Loader2 } from "lucide-react"
 
 export function PostEditorLayout() {
@@ -39,54 +34,57 @@ export function PostEditorLayout() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-[#6366F1]" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#6366F1]" />
+          <p className="text-sm text-gray-500 dark:text-[#6B7280]">Loading editor...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/admin/posts")}
-            className="text-[#6B7280] hover:text-[#F9FAFB] transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:text-[#6B7280] dark:hover:text-[#F9FAFB] transition-colors p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1F2937]"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-xl font-bold text-[#F9FAFB] truncate max-w-md">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-[#F9FAFB] truncate max-w-md">
             {post.id ? (post.title || "Edit Post") : "New Post"}
           </h1>
           {post.id && (
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-              post.status === "published" ? "bg-[#10B981]/20 text-[#10B981]" :
-              post.status === "draft" ? "bg-[#F59E0B]/20 text-[#F59E0B]" :
-              post.status === "scheduled" ? "bg-[#6366F1]/20 text-[#6366F1]" :
-              "bg-[#6B7280]/20 text-[#6B7280]"
+            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+              post.status === "published" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+              post.status === "draft" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
+              post.status === "scheduled" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400" :
+              "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
             }`}>
               {post.status}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {lastSaved && (
-            <span className="text-xs text-[#6B7280] hidden sm:block">
+            <span className="text-xs text-gray-400 dark:text-[#6B7280] hidden sm:block">
               {dirty ? "Unsaved changes" : `Saved ${lastSaved.toLocaleTimeString()}`}
             </span>
           )}
           <button
             onClick={saveDraft}
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-[#1F2937] rounded-lg text-[#F9FAFB] hover:bg-[#1a2235] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] disabled:opacity-50 transition-all shadow-sm"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save"}</span>
-            <span className="text-[10px] text-[#6B7280] hidden md:inline">Ctrl+S</span>
+            <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save Draft"}</span>
+            <span className="text-[10px] text-gray-400 dark:text-[#6B7280] hidden md:inline">Ctrl+S</span>
           </button>
           <button
             onClick={() => window.open(`/preview/${post.slug || slugify(post.title)}`, "_blank")}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-[#1F2937] rounded-lg text-[#F9FAFB] hover:bg-[#1a2235] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] transition-all shadow-sm"
           >
             <Eye className="h-4 w-4" />
             <span className="hidden sm:inline">Preview</span>
@@ -94,11 +92,11 @@ export function PostEditorLayout() {
           <button
             onClick={publish}
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-[#374151] text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-300 dark:disabled:bg-[#374151] disabled:text-gray-500 dark:disabled:text-[#6B7280] rounded-lg transition-all shadow-sm shadow-[#6366F1]/20"
           >
             <Send className="h-4 w-4" />
             <span className="hidden sm:inline">Publish</span>
-            <span className="text-[10px] text-white/60 hidden md:inline">Ctrl+Enter</span>
+            <span className="text-[10px] text-white/70 hidden md:inline">Ctrl+Enter</span>
           </button>
         </div>
       </div>
@@ -114,11 +112,6 @@ export function PostEditorLayout() {
           <CategoriesPanel />
           <TagsPanel />
           <FeaturedImagePanel />
-          <SeoPanel />
-          <AiWritingPanel />
-          <ReadabilityPanel />
-          <InternalLinksPanel />
-          <QuickBriefPanel />
         </div>
       </div>
     </div>

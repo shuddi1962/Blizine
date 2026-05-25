@@ -1,9 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
-import { Plus } from "lucide-react"
+import { Plus, FileText, Eye, Settings, MoreHorizontal, Search } from "lucide-react"
 
 export default async function AdminPostsPage() {
   const supabase = createClient()
@@ -13,53 +12,173 @@ export default async function AdminPostsPage() {
     .order("created_at", { ascending: false })
     .limit(50)
 
-  const statusColors: Record<string, string> = {
-    draft: "secondary",
-    published: "default",
-    scheduled: "indigo",
-    archived: "outline",
-  }
+  const totalPosts = posts?.length || 0
+  const publishedPosts = posts?.filter(p => p.status === "published").length || 0
+  const draftPosts = posts?.filter(p => p.status === "draft").length || 0
+  const totalViews = posts?.reduce((sum, p) => sum + (p.views || 0), 0) || 0
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Posts</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Posts</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your blog content</p>
+        </div>
         <Link href="/admin/posts/new">
-          <Button><Plus className="h-4 w-4 mr-2" />New Post</Button>
+          <Button className="bg-[#6366F1] hover:bg-[#4F46E5] text-white shadow-sm shadow-[#6366F1]/20 font-medium px-5">
+            <Plus className="h-4 w-4 mr-2" />
+            New Post
+          </Button>
         </Link>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="text-left p-3 text-sm font-medium">Title</th>
-              <th className="text-left p-3 text-sm font-medium">Category</th>
-              <th className="text-left p-3 text-sm font-medium">Status</th>
-              <th className="text-left p-3 text-sm font-medium">Views</th>
-              <th className="text-left p-3 text-sm font-medium">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {posts?.map((post: any) => (
-              <tr key={post.id} className="border-t hover:bg-muted/50">
-                <td className="p-3">
-                  <Link href={`/admin/posts/${post.id}/edit`} className="font-medium hover:text-brand-indigo line-clamp-1">
-                    {post.title}
-                  </Link>
-                </td>
-                <td className="p-3 text-sm text-muted-foreground">{post.category?.name}</td>
-                <td className="p-3">
-                  <Badge variant={statusColors[post.status] as any}>{post.status}</Badge>
-                </td>
-                <td className="p-3 text-sm">{post.views}</td>
-                <td className="p-3 text-sm text-muted-foreground">
-                  {post.published_at ? formatDate(post.published_at) : formatDate(post.created_at)}
-                </td>
+      <div className="grid grid-cols-4 gap-4">
+        {[
+          { label: "Total Posts", value: totalPosts, color: "text-[#6366F1]", bg: "bg-[#6366F1]/10" },
+          { label: "Published", value: publishedPosts, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
+          { label: "Drafts", value: draftPosts, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
+          { label: "Total Views", value: totalViews.toLocaleString(), color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                <FileText className={`h-5 w-5 ${stat.color}`} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#1F2937]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              placeholder="Search posts..."
+              className="pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-[#1F2937] rounded-lg bg-gray-50 dark:bg-[#0A0F1E] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent w-64"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <select className="text-sm border border-gray-200 dark:border-[#1F2937] rounded-lg bg-gray-50 dark:bg-[#0A0F1E] text-gray-700 dark:text-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#6366F1]">
+              <option value="all">All Status</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="archived">Archived</option>
+            </select>
+            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F2937] rounded-lg transition-colors">
+              <Settings className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-[#1F2937]">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Category</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">Views</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {posts?.map((post: any, i: number) => (
+                <tr key={post.id} className={`border-b border-gray-50 dark:border-[#1F2937]/50 hover:bg-gray-50 dark:hover:bg-[#1a2235] transition-colors ${i === 0 ? "" : ""}`}>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      {post.featured_image ? (
+                        <img src={post.featured_image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0 hidden sm:block" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#1F2937] flex items-center justify-center shrink-0 hidden sm:block">
+                          <FileText className="h-5 w-5 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <Link
+                          href={`/admin/posts/${post.id}/edit`}
+                          className="text-sm font-semibold text-gray-900 dark:text-white hover:text-[#6366F1] dark:hover:text-[#818CF8] transition-colors line-clamp-1 block"
+                        >
+                          {post.title}
+                        </Link>
+                        {post.excerpt && (
+                          <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">{post.excerpt.replace(/<[^>]*>/g, "").slice(0, 100)}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 hidden md:table-cell">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{post.category?.name || "—"}</span>
+                  </td>
+                  <td className="px-5 py-4 hidden sm:table-cell">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      post.status === "published" ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-green-600/20" :
+                      post.status === "draft" ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-amber-600/20" :
+                      post.status === "scheduled" ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 ring-1 ring-indigo-600/20" :
+                      "bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 ring-1 ring-gray-600/20"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        post.status === "published" ? "bg-green-500" :
+                        post.status === "draft" ? "bg-amber-500" :
+                        post.status === "scheduled" ? "bg-indigo-500" :
+                        "bg-gray-400"
+                      }`} />
+                      {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 hidden lg:table-cell">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{post.views || 0}</span>
+                  </td>
+                  <td className="px-5 py-4 hidden md:table-cell">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {post.published_at ? formatDate(post.published_at) : formatDate(post.created_at)}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/posts/${post.id}/edit`}
+                        className="p-2 text-gray-400 hover:text-[#6366F1] hover:bg-gray-100 dark:hover:bg-[#1F2937] rounded-lg transition-colors"
+                      >
+                        <Settings className="h-4 w-4" />
+                      </Link>
+                      <Link
+                        href={`/${post.slug}`}
+                        target="_blank"
+                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F2937] rounded-lg transition-colors"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                      <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F2937] rounded-lg transition-colors">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {(!posts || posts.length === 0) && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-12 text-center">
+                    <FileText className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No posts yet</p>
+                    <Link href="/admin/posts/new">
+                      <Button className="mt-3 bg-[#6366F1] hover:bg-[#4F46E5] text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create your first post
+                      </Button>
+                    </Link>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

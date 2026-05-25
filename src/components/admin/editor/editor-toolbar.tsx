@@ -27,8 +27,10 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
     <button
       onClick={onClick}
       title={title}
-      className={`p-1.5 rounded transition-colors ${
-        active ? "bg-[#6366F1] text-white" : "text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-[#1F2937]"
+      className={`p-1.5 rounded-md transition-colors ${
+        active
+          ? "bg-[#6366F1] text-white shadow-sm"
+          : "text-gray-500 dark:text-[#9CA3AF] hover:text-gray-700 dark:hover:text-[#F9FAFB] hover:bg-gray-100 dark:hover:bg-[#374151]"
       }`}
     >
       {children}
@@ -58,7 +60,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-[#1F2937] bg-[#0A0F1E]">
+    <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-200 dark:border-[#1F2937] bg-gray-50 dark:bg-[#0A0F1E]">
       <ToolButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold (Ctrl+B)">
         <Bold className="h-4 w-4" />
       </ToolButton>
@@ -75,7 +77,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         <Code className="h-4 w-4" />
       </ToolButton>
 
-      <div className="w-px h-5 bg-[#1F2937] mx-1" />
+      <div className="w-px h-5 bg-gray-200 dark:bg-[#1F2937] mx-1" />
 
       <ToolButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive("heading", { level: 1 })} title="Heading 1">
         <Heading1 className="h-4 w-4" />
@@ -87,7 +89,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         <Heading3 className="h-4 w-4" />
       </ToolButton>
 
-      <div className="w-px h-5 bg-[#1F2937] mx-1" />
+      <div className="w-px h-5 bg-gray-200 dark:bg-[#1F2937] mx-1" />
 
       <ToolButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Bullet List">
         <List className="h-4 w-4" />
@@ -102,7 +104,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         <Code2 className="h-4 w-4" />
       </ToolButton>
 
-      <div className="w-px h-5 bg-[#1F2937] mx-1" />
+      <div className="w-px h-5 bg-gray-200 dark:bg-[#1F2937] mx-1" />
 
       <ToolButton onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })} title="Align Left">
         <AlignLeft className="h-4 w-4" />
@@ -114,7 +116,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         <AlignRight className="h-4 w-4" />
       </ToolButton>
 
-      <div className="w-px h-5 bg-[#1F2937] mx-1" />
+      <div className="w-px h-5 bg-gray-200 dark:bg-[#1F2937] mx-1" />
 
       <ToolButton onClick={handleImageClick} title="Insert Image">
         <Image className="h-4 w-4" />
@@ -137,7 +139,7 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
         <Minus className="h-4 w-4" />
       </ToolButton>
 
-      <div className="w-px h-5 bg-[#1F2937] mx-1" />
+      <div className="w-px h-5 bg-gray-200 dark:bg-[#1F2937] mx-1" />
 
       <ToolButton onClick={() => editor.chain().focus().undo().run()} title="Undo (Ctrl+Z)">
         <Undo className="h-4 w-4" />
@@ -147,16 +149,16 @@ export function EditorToolbar({ editor, onImageUpload }: EditorToolbarProps) {
       </ToolButton>
 
       {addingLink && (
-        <div className="flex items-center gap-1 ml-2">
+        <div className="flex items-center gap-1.5 ml-2">
           <input
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             placeholder="https://..."
-            className="bg-[#111827] border border-[#1F2937] rounded px-2 py-1 text-xs text-[#F9FAFB] w-48 focus:outline-none focus:border-[#6366F1]"
+            className="bg-white dark:bg-[#111827] border border-gray-300 dark:border-[#1F2937] rounded-md px-2.5 py-1.5 text-xs text-gray-900 dark:text-[#F9FAFB] w-48 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
             onKeyDown={(e) => e.key === "Enter" && handleLinkSubmit()}
             autoFocus
           />
-          <button onClick={handleLinkSubmit} className="text-xs text-[#6366F1] hover:text-[#818CF8] px-1">Add</button>
+          <button onClick={handleLinkSubmit} className="text-xs font-medium text-[#6366F1] hover:text-[#4F46E5] px-2 py-1.5 bg-[#6366F1]/10 rounded-md hover:bg-[#6366F1]/20 transition-colors">Add</button>
         </div>
       )}
     </div>

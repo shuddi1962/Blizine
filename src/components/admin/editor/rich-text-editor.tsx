@@ -47,14 +47,14 @@ export function RichTextEditor() {
         limit: 100000,
       }),
       Table.configure({
-        HTMLAttributes: { class: "min-w-full border-collapse border border-[#1F2937]" },
+        HTMLAttributes: { class: "min-w-full border-collapse border border-gray-200 dark:border-[#1F2937]" },
       }),
       TableRow,
       TableCell.configure({
-        HTMLAttributes: { class: "border border-[#1F2937] px-3 py-2 text-sm" },
+        HTMLAttributes: { class: "border border-gray-200 dark:border-[#1F2937] px-3 py-2 text-sm" },
       }),
       TableHeader.configure({
-        HTMLAttributes: { class: "border border-[#1F2937] px-3 py-2 text-sm font-semibold bg-[#1a2235]" },
+        HTMLAttributes: { class: "border border-gray-200 dark:border-[#1F2937] px-3 py-2 text-sm font-semibold bg-gray-50 dark:bg-[#1a2235]" },
       }),
       HighlightExtension.configure({
         multicolor: true,
@@ -64,13 +64,13 @@ export function RichTextEditor() {
       }),
       CodeBlockLowlightExtension.configure({
         lowlight,
-        HTMLAttributes: { class: "bg-[#0A0F1E] rounded-lg p-4 text-sm font-mono overflow-x-auto" },
+        HTMLAttributes: { class: "bg-gray-100 dark:bg-[#0A0F1E] rounded-lg p-4 text-sm font-mono overflow-x-auto border border-gray-200 dark:border-[#1F2937]" },
       }),
     ],
     content: post.content,
     editorProps: {
       attributes: {
-        class: "prose prose-invert max-w-none focus:outline-none min-h-[500px] px-6 py-4",
+        class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-6 py-4 text-gray-900 dark:text-[#D1D5DB]",
       },
       handleDrop: (view, event, slice, moved) => {
         if (!moved && event.dataTransfer?.files?.length) {
@@ -124,12 +124,12 @@ export function RichTextEditor() {
   if (!editor) return null
 
   return (
-    <div className="border border-[#1F2937] rounded-lg overflow-hidden bg-[#111827]">
+    <div className="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#1F2937] rounded-xl shadow-sm overflow-hidden">
       <EditorToolbar editor={editor} onImageUpload={handleImageUpload} />
       <EditorContent editor={editor} />
-      <div className="flex items-center justify-between px-4 py-2 border-t border-[#1F2937] text-xs text-[#6B7280]">
-        <span>{wordCount} words</span>
-        <span>{charCount} characters</span>
+      <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-[#1F2937] text-xs text-gray-400 dark:text-[#6B7280]">
+        <span className="font-medium">{wordCount} words</span>
+        <span className="font-medium">{charCount} characters</span>
       </div>
     </div>
   )

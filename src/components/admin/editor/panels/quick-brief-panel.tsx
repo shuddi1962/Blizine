@@ -43,33 +43,33 @@ export function QuickBriefPanel() {
     <CollapsibleSection title="Quick Brief" icon={<FileText className="h-4 w-4" />} defaultOpen={false}>
       <div className="space-y-3">
         {items.map((item, i) => (
-          <div key={i} className="space-y-1">
+          <div key={i} className="space-y-1.5">
             <div className="flex items-center gap-2">
               <input
                 value={item.label}
                 onChange={(e) => updateItem(i, "label", e.target.value)}
                 placeholder="Label"
-                className="flex-1 bg-[#0A0F1E] border border-[#1F2937] rounded px-2 py-1 text-xs text-[#F9FAFB] placeholder:text-[#4B5563] focus:outline-none focus:border-[#6366F1]"
+                className="flex-1 bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
               {items.length > 1 && (
-                <button onClick={() => removeItem(i)} className="text-[#6B7280] hover:text-[#EF4444]">
-                  <X className="h-3 w-3" />
+                <button onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
             <input
               value={item.value}
               onChange={(e) => updateItem(i, "value", e.target.value)}
-              placeholder="Value"
-              className="w-full bg-[#0A0F1E] border border-[#1F2937] rounded px-2 py-1 text-xs text-[#F9FAFB] placeholder:text-[#4B5563] focus:outline-none focus:border-[#6366F1]"
+              placeholder="Enter value..."
+              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
             />
           </div>
         ))}
         <button
           onClick={addItem}
-          className="flex items-center gap-1 text-xs text-[#6366F1] hover:text-[#818CF8]"
+          className="flex items-center gap-1.5 text-xs font-medium text-[#6366F1] hover:text-[#4F46E5] px-3 py-2 rounded-lg hover:bg-[#6366F1]/10 transition-colors w-full justify-center"
         >
-          <Plus className="h-3 w-3" />
+          <Plus className="h-3.5 w-3.5" />
           Add Field
         </button>
       </div>

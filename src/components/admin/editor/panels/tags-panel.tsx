@@ -5,7 +5,7 @@ import { usePostEditor } from "../post-editor-provider"
 import { CollapsibleSection } from "../collapsible-section"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Tags, X } from "lucide-react"
+import { Tags, X, Plus } from "lucide-react"
 
 export function TagsPanel() {
   const { post, updatePost } = usePostEditor()
@@ -25,17 +25,19 @@ export function TagsPanel() {
 
   return (
     <CollapsibleSection title="Tags" icon={<Tags className="h-4 w-4" />}>
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-1.5 mb-2">
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2 min-h-[28px]">
+          {post.tags.length === 0 && (
+            <span className="text-xs text-gray-400 dark:text-[#6B7280]">No tags added</span>
+          )}
           {post.tags.map((tag) => (
             <Badge
               key={tag}
-              variant="secondary"
-              className="cursor-pointer bg-[#1F2937] text-[#F9FAFB] hover:bg-[#374151]"
+              className="cursor-pointer bg-gray-100 text-gray-700 dark:bg-[#1F2937] dark:text-[#E5E7EB] hover:bg-gray-200 dark:hover:bg-[#374151] font-medium text-xs px-2.5 py-1 rounded-lg transition-colors border border-gray-200 dark:border-transparent"
               onClick={() => removeTag(tag)}
             >
               {tag}
-              <X className="h-3 w-3 ml-1" />
+              <X className="h-3 w-3 ml-1.5 text-gray-400 dark:text-[#6B7280] hover:text-red-500" />
             </Badge>
           ))}
         </div>
@@ -43,10 +45,16 @@ export function TagsPanel() {
           <Input
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
-            placeholder="Add tag..."
+            placeholder="Enter tag..."
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-            className="bg-[#0A0F1E] border-[#1F2937] text-[#F9FAFB] placeholder:text-[#4B5563] h-8 text-sm"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border-gray-300 dark:border-[#374151] text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent h-9 text-sm"
           />
+          <button
+            onClick={addTag}
+            className="px-3 py-1.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-sm font-medium rounded-lg transition-colors shrink-0 shadow-sm"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </CollapsibleSection>
