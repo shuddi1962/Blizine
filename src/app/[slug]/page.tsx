@@ -89,10 +89,11 @@ export default async function PostPage({ params }: Props) {
 
             {/* Featured Image Card */}
             <div className="bg-card border rounded-2xl overflow-hidden mb-8 shadow-xl">
-              <div className="relative w-full aspect-[2/1] md:aspect-[21/9] bg-muted">
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${post.featured_image || "/api/placeholder/1200/600"})` }}
+              <div className="relative w-full bg-muted">
+                <img
+                  src={post.featured_image || "/api/placeholder/1200/600"}
+                  alt={post.title}
+                  className="w-full h-auto object-contain"
                 />
               </div>
 
