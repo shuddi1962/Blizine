@@ -49,7 +49,7 @@ export function ReadabilityPanel() {
             <span className={`text-2xl font-bold ${getScoreColor(readability.score)}`}>{readability.score}</span>
             <span className="text-xs text-gray-400 dark:text-[#6B7280] ml-1 font-medium">/100</span>
           </div>
-          <span className="text-xs font-semibold text-gray-500 dark:text-[#9CA3AF] bg-gray-50 dark:bg-[#1F2937] px-2.5 py-1 rounded-lg">{getScoreLabel(readability.flesch)}</span>
+          <span className="text-xs font-semibold text-gray-500 dark:text-[#9CA3AF] bg-gray-50 dark:bg-[#1F2937] px-2.5 py-1 rounded-lg border-2 border-gray-200 dark:border-[#374151]">{getScoreLabel(readability.flesch)}</span>
         </div>
 
         <div className="w-full bg-gray-100 dark:bg-[#1F2937] rounded-full h-2.5 overflow-hidden">
@@ -63,14 +63,14 @@ export function ReadabilityPanel() {
           <p className="text-xs text-gray-400 dark:text-[#6B7280] font-medium">Flesch Reading Ease: {readability.flesch}</p>
         )}
 
-        <div className="grid grid-cols-2 gap-3 border-t border-gray-100 dark:border-[#1F2937] pt-4">
+        <div className="grid grid-cols-2 gap-3 border-t-2 border-gray-100 dark:border-[#1F2937] pt-4">
           {[
             { label: "Words", value: stats.words.toLocaleString(), color: "text-[#6366F1]" },
             { label: "Sentences", value: stats.sentences, color: "text-green-600 dark:text-green-400" },
             { label: "Words/Sentence", value: stats.avgWordsPerSentence, color: "text-amber-600 dark:text-amber-400" },
             { label: "Long Sentences", value: stats.longSentences, color: stats.longSentences > 0 ? "text-orange-600 dark:text-orange-400" : "text-gray-600 dark:text-gray-400" },
           ].map((stat) => (
-            <div key={stat.label} className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-3 text-center ring-1 ring-gray-200 dark:ring-[#1F2937]">
+            <div key={stat.label} className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-3 text-center border-2 border-gray-200 dark:border-[#1F2937]">
               <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
               <p className="text-[10px] font-medium text-gray-400 dark:text-[#6B7280] mt-0.5">{stat.label}</p>
             </div>

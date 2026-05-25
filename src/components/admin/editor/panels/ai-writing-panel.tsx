@@ -83,7 +83,7 @@ export function AiWritingPanel() {
       defaultOpen={false}
     >
       <div className="space-y-3">
-        <div className="flex border border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden bg-gray-50 dark:bg-[#0A0F1E]">
+        <div className="flex border-2 border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden bg-gray-50 dark:bg-[#0A0F1E]">
           {modes.map((m) => {
             const Icon = m.icon
             return (
@@ -112,7 +112,7 @@ export function AiWritingPanel() {
             "What aspects to analyze?"
           }
           rows={3}
-          className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
+          className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
         />
 
         {mode === "generate" && seoKeyword && !prompt && (
@@ -138,8 +138,8 @@ export function AiWritingPanel() {
         </button>
 
         {result && (
-          <div className="bg-gray-50 dark:bg-[#0A0F1E] border border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-[#1F2937] bg-white dark:bg-transparent">
+          <div className="bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b-2 border-gray-100 dark:border-[#1F2937] bg-white dark:bg-transparent">
               <span className="text-xs font-semibold text-gray-700 dark:text-[#F9FAFB]">Result</span>
               <div className="flex items-center gap-1">
                 {(mode === "generate" || mode === "improve") && (

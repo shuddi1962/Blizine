@@ -20,10 +20,7 @@ export function PublishPanel() {
   }
 
   return (
-    <CollapsibleSection
-      title="Publish"
-      icon={<Send className="h-4 w-4" />}
-    >
+    <CollapsibleSection title="Publish" icon={<Send className="h-4 w-4" />}>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500 dark:text-[#9CA3AF] font-medium">Status</span>
@@ -45,7 +42,7 @@ export function PublishPanel() {
           <select
             value={post.status === "published" ? "public" : post.status === "scheduled" ? "scheduled" : "draft"}
             onChange={(e) => updatePost({ status: e.target.value as "draft" | "published" | "scheduled" })}
-            className="bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent font-medium"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent font-medium"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -61,12 +58,12 @@ export function PublishPanel() {
           />
         </div>
 
-        <div className="border-t border-gray-100 dark:border-[#1F2937] pt-4 space-y-2.5">
+        <div className="border-t-2 border-gray-100 dark:border-[#1F2937] pt-4 space-y-2.5">
           <Button
             onClick={saveDraft}
             disabled={isSaving}
             variant="outline"
-            className="w-full border-gray-300 dark:border-[#374151] hover:bg-gray-50 dark:hover:bg-[#1a2235] text-gray-700 dark:text-gray-200 font-medium"
+            className="w-full border-2 border-gray-300 dark:border-[#374151] hover:bg-gray-50 dark:hover:bg-[#1a2235] text-gray-700 dark:text-gray-200 font-medium"
           >
             <Save className="h-4 w-4 mr-2" />
             {isSaving ? "Saving..." : "Save Draft"}
@@ -85,7 +82,7 @@ export function PublishPanel() {
             <Button
               onClick={() => setScheduling(true)}
               variant="outline"
-              className="w-full border-gray-300 dark:border-[#374151] hover:bg-gray-50 dark:hover:bg-[#1a2235] text-gray-700 dark:text-gray-200 font-medium"
+              className="w-full border-2 border-gray-300 dark:border-[#374151] hover:bg-gray-50 dark:hover:bg-[#1a2235] text-gray-700 dark:text-gray-200 font-medium"
             >
               <Clock className="h-4 w-4 mr-2" />
               Schedule
@@ -96,13 +93,13 @@ export function PublishPanel() {
                 type="datetime-local"
                 value={scheduleDate}
                 onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
               <div className="flex gap-2">
                 <Button onClick={handleSchedule} size="sm" className="flex-1 bg-[#6366F1] hover:bg-[#4F46E5] text-white font-medium text-xs shadow-sm">
                   Confirm
                 </Button>
-                <Button onClick={() => setScheduling(false)} size="sm" variant="outline" className="border-gray-300 dark:border-[#374151] text-gray-600 dark:text-gray-400 text-xs font-medium">
+                <Button onClick={() => setScheduling(false)} size="sm" variant="outline" className="border-2 border-gray-300 dark:border-[#374151] text-gray-600 dark:text-gray-400 text-xs font-medium">
                   Cancel
                 </Button>
               </div>

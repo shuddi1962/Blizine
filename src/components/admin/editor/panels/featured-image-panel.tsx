@@ -8,9 +8,10 @@ import { Image, Upload, X, Search, Loader2 } from "lucide-react"
 export function FeaturedImagePanel() {
   const { post, setField, uploadImage } = usePostEditor()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [pexelsQuery, setPexelsQuery] = useState("")
-  const [pexelsResults, setPexelsResults] = useState<{ src: string; alt: string }[]>([])
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<{ src: string; alt: string }[]>([])
   const [searching, setSearching] = useState(false)
+  const [source, setSource] = useState<"pexels" | "google">("pexels")
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -21,18 +22,24 @@ export function FeaturedImagePanel() {
     e.target.value = ""
   }
 
-  const searchPexels = async () => {
-    if (!pexelsQuery) return
+  const searchImages = async () => {
+    if (!query) return
     setSearching(true)
     try {
-      const res = await fetch(`/api/pexels?query=${encodeURIComponent(pexelsQuery)}`)
-      const data = await res.json()
-      if (data.photos) {
-        setPexelsResults(data.photos.map((p: any) => ({ src: p.src.large2x || p.src.large, alt: p.alt })))
+      if (source === "pexels") {
+        const res = await fetch(`/api/pexels?query=${encodeURIComponent(query)}`)
+        const data = await res.json()
+        if (data.photos) {
+          setResults(data.photos.map((p: any) => ({ src: p.src.large2x || p.src.large, alt: p.alt })))
+        }
+      } else {
+        const res = await fetch(`/api/google-images?query=${encodeURIComponent(query)}`)
+        const data = await res.json()
+        if (data.items) {
+          setResults(data.items.map((p: any) => ({ src: p.link, alt: p.title })))
+        }
       }
-    } catch {
-      // fallback to placeholder
-    }
+    } catch {}
     setSearching(false)
   }
 
@@ -40,7 +47,7 @@ export function FeaturedImagePanel() {
     <CollapsibleSection title="Featured Image" icon={<Image className="h-4 w-4" />}>
       <div className="space-y-3">
         {post.featured_image ? (
-          <div className="relative group rounded-xl overflow-hidden ring-1 ring-gray-200 dark:ring-[#1F2937]">
+          <div className="relative group rounded-xl overflow-hidden border-2 border-gray-200 dark:border-[#1F2937]">
             <img
               src={post.featured_image}
               alt="Featured"
@@ -66,18 +73,21 @@ export function FeaturedImagePanel() {
         )}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
 
-        <div className="border-t border-gray-100 dark:border-[#1F2937] pt-3">
-          <label className="block text-xs font-medium text-gray-500 dark:text-[#9CA3AF] mb-2">Search Pexels</label>
+        <div className="border-t-2 border-gray-100 dark:border-[#1F2937] pt-3">
+          <div className="flex gap-2 mb-2">
+            <button onClick={() => { setSource("pexels"); setResults([]) }} className={`px-3 py-1.5 text-xs font-semibold rounded-lg border-2 transition-colors ${source === "pexels" ? "bg-[#6366F1] text-white border-[#6366F1]" : "bg-white dark:bg-[#0A0F1E] text-gray-600 dark:text-gray-300 border-gray-300 dark:border-[#374151] hover:border-[#6366F1]"}`}>Pexels</button>
+            <button onClick={() => { setSource("google"); setResults([]) }} className={`px-3 py-1.5 text-xs font-semibold rounded-lg border-2 transition-colors ${source === "google" ? "bg-[#6366F1] text-white border-[#6366F1]" : "bg-white dark:bg-[#0A0F1E] text-gray-600 dark:text-gray-300 border-gray-300 dark:border-[#374151] hover:border-[#6366F1]"}`}>Google</button>
+          </div>
           <div className="flex gap-2">
             <input
-              value={pexelsQuery}
-              onChange={(e) => setPexelsQuery(e.target.value)}
-              placeholder="Search free stock photos..."
-              onKeyDown={(e) => e.key === "Enter" && searchPexels()}
-              className="flex-1 bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`Search ${source === "pexels" ? "free stock photos" : "the web"}...`}
+              onKeyDown={(e) => e.key === "Enter" && searchImages()}
+              className="flex-1 bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
             />
             <button
-              onClick={searchPexels}
+              onClick={searchImages}
               disabled={searching}
               className="bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-300 dark:disabled:bg-[#374151] text-white px-3 py-2 rounded-lg transition-colors shadow-sm"
             >
@@ -85,13 +95,13 @@ export function FeaturedImagePanel() {
             </button>
           </div>
 
-          {pexelsResults.length > 0 && (
+          {results.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-3">
-              {pexelsResults.slice(0, 6).map((img, i) => (
+              {results.slice(0, 6).map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setField("featured_image", img.src)}
-                  className="relative group rounded-lg overflow-hidden ring-1 ring-gray-200 dark:ring-[#1F2937]"
+                  className="relative group rounded-lg overflow-hidden border-2 border-gray-200 dark:border-[#1F2937]"
                 >
                   <img src={img.src} alt={img.alt} className="w-full h-16 object-cover" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />

@@ -9,6 +9,11 @@ import { FormatPanel } from "./panels/format-panel"
 import { CategoriesPanel } from "./panels/categories-panel"
 import { TagsPanel } from "./panels/tags-panel"
 import { FeaturedImagePanel } from "./panels/featured-image-panel"
+import { SeoPanel } from "./panels/seo-panel"
+import { AiWritingPanel } from "./panels/ai-writing-panel"
+import { ReadabilityPanel } from "./panels/readability-panel"
+import { InternalLinksPanel } from "./panels/internal-links-panel"
+import { QuickBriefPanel } from "./panels/quick-brief-panel"
 import { Save, Send, Eye, ArrowLeft, Loader2 } from "lucide-react"
 
 export function PostEditorLayout() {
@@ -76,7 +81,7 @@ export function PostEditorLayout() {
           <button
             onClick={saveDraft}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] disabled:opacity-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border-2 border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] disabled:opacity-50 transition-all shadow-sm"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save Draft"}</span>
@@ -84,7 +89,7 @@ export function PostEditorLayout() {
           </button>
           <button
             onClick={() => window.open(`/preview/${post.slug || slugify(post.title)}`, "_blank")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#1F2937] border-2 border-gray-300 dark:border-[#374151] rounded-lg hover:bg-gray-50 dark:hover:bg-[#374151] transition-all shadow-sm"
           >
             <Eye className="h-4 w-4" />
             <span className="hidden sm:inline">Preview</span>
@@ -112,6 +117,11 @@ export function PostEditorLayout() {
           <CategoriesPanel />
           <TagsPanel />
           <FeaturedImagePanel />
+          <SeoPanel />
+          <AiWritingPanel />
+          <ReadabilityPanel />
+          <InternalLinksPanel />
+          <QuickBriefPanel />
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { usePostEditor } from "../post-editor-provider"
 import { CollapsibleSection } from "../collapsible-section"
 import { calculateSeoScore, generateSerpPreview } from "@/lib/seo-utils"
-import { Search, CheckCircle2, XCircle, Globe, MessageCircle, Image } from "lucide-react"
+import { Search, CheckCircle2, XCircle, Globe, MessageCircle, Image, Sparkles, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
 
 const schemaTypes = [
   "Article", "NewsArticle", "BlogPosting", "TechArticle",
@@ -18,12 +18,34 @@ const tabs = [
   { id: "advanced", label: "Advanced" },
 ]
 
+const checklistGroups = [
+  {
+    label: "Keyword Usage",
+    items: ["keyword_in_title", "keyword_in_first_paragraph", "keyword_in_heading", "keyword_in_content", "keyword_in_slug", "keyword_in_seo_title", "keyword_in_meta_description"],
+  },
+  {
+    label: "Content Quality",
+    items: ["content_length", "readability_score", "image_present", "image_alt_tags", "outgoing_links", "internal_links"],
+  },
+  {
+    label: "Meta & Social",
+    items: ["seo_title_length", "meta_description_length", "social_previews", "schema_markup", "slug_format"],
+  },
+]
+
 export function SeoPanel() {
   const { post, updatePost, seoKeyword, setSeoKeyword } = usePostEditor()
   const [activeTab, setActiveTab] = useState("general")
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([])
+  const [aiFixing, setAiFixing] = useState(false)
+  const [fixResult, setFixResult] = useState("")
 
   const { score, items } = useMemo(() => calculateSeoScore(seoKeyword, post), [seoKeyword, post])
   const serpPreview = useMemo(() => generateSerpPreview(post), [post])
+
+  const toggleGroup = (label: string) => {
+    setCollapsedGroups(prev => prev.includes(label) ? prev.filter(g => g !== label) : [...prev, label])
+  }
 
   const getScoreColor = (s: number) => {
     if (s >= 80) return "text-green-600 dark:text-green-400"
@@ -35,6 +57,64 @@ export function SeoPanel() {
     if (s >= 80) return "bg-green-500"
     if (s >= 50) return "bg-amber-500"
     return "bg-red-500"
+  }
+
+  const getItemById = (id: string) => items.find(i => i.id === id)
+
+  const autoFixSeo = async () => {
+    setAiFixing(true)
+    setFixResult("")
+    const failed = items.filter(i => !i.check(post))
+    if (failed.length === 0) {
+      setFixResult("All SEO checks pass! Nothing to fix.")
+      setAiFixing(false)
+      return
+    }
+
+    const prompt = `You are an SEO assistant. Fix the following issues for a blog post.
+
+Post Title: "${post.title}"
+Focus Keyword: "${seoKeyword}"
+Content length: ${post.content.length} chars
+Current slug: "${post.slug}"
+
+The following SEO checks FAILED:
+${failed.map(f => `  - ${f.label} (${f.weight}pts)`).join("\n")}
+
+For each failed check, provide a specific actionable fix. Return a JSON object with:
+{
+  "suggested_title": string | null,
+  "suggested_seo_title": string | null,
+  "suggested_meta_description": string | null,
+  "suggested_slug": string | null,
+  "suggestions": string[]
+}
+
+Only provide fields that need changes. Return valid JSON only.`
+
+    try {
+      const res = await fetch("/api/openrouter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      })
+      const data = await res.json()
+      const text = data.content || data.choices?.[0]?.message?.content || ""
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const fixes = JSON.parse(jsonMatch[0])
+        if (fixes.suggested_title) updatePost({ title: fixes.suggested_title })
+        if (fixes.suggested_seo_title) updatePost({ seo_title: fixes.suggested_seo_title })
+        if (fixes.suggested_meta_description) updatePost({ seo_description: fixes.suggested_meta_description })
+        if (fixes.suggested_slug) updatePost({ slug: fixes.suggested_slug })
+        setFixResult(fixes.suggestions?.join("\n") || "Fixes applied!")
+      } else {
+        setFixResult(text.replace(/<[^>]*>/g, "").slice(0, 500))
+      }
+    } catch {
+      setFixResult("Error contacting AI. Please try again.")
+    }
+    setAiFixing(false)
   }
 
   return (
@@ -50,7 +130,7 @@ export function SeoPanel() {
               value={seoKeyword}
               onChange={(e) => setSeoKeyword(e.target.value)}
               placeholder="Enter focus keyword..."
-              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent pr-14"
+              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent pr-14"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
               <span className={`text-lg font-bold ${getScoreColor(score)}`}>{score}</span>
@@ -66,9 +146,9 @@ export function SeoPanel() {
           />
         </div>
 
-        <div className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-4 space-y-2 ring-1 ring-gray-200 dark:ring-[#1F2937]">
+        <div className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-4 space-y-2 border-2 border-gray-200 dark:border-[#1F2937]">
           <label className="block text-xs font-medium text-gray-500 dark:text-[#9CA3AF]">Google SERP Preview</label>
-          <div className="bg-white rounded-lg p-3 shadow-sm ring-1 ring-gray-100">
+          <div className="bg-white rounded-lg p-3 shadow-sm border-2 border-gray-100">
             <p className="text-[#1A0DAB] text-sm font-medium leading-5 truncate hover:underline cursor-pointer">
               {serpPreview.title}
             </p>
@@ -77,7 +157,7 @@ export function SeoPanel() {
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 dark:border-[#1F2937] gap-0">
+        <div className="flex border-b-2 border-gray-200 dark:border-[#1F2937] gap-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -104,7 +184,7 @@ export function SeoPanel() {
                 value={post.seo_title || ""}
                 onChange={(e) => updatePost({ seo_title: e.target.value })}
                 placeholder={post.title || "SEO title..."}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
               <div className="w-full bg-gray-100 dark:bg-[#1F2937] rounded-full h-1 mt-1.5 overflow-hidden">
                 <div
@@ -127,7 +207,7 @@ export function SeoPanel() {
                 onChange={(e) => updatePost({ seo_description: e.target.value })}
                 placeholder={post.excerpt || "Meta description..."}
                 rows={3}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
               />
               <div className="w-full bg-gray-100 dark:bg-[#1F2937] rounded-full h-1 mt-1.5 overflow-hidden">
                 <div
@@ -144,7 +224,7 @@ export function SeoPanel() {
               <label className="block text-xs font-medium text-gray-500 dark:text-[#9CA3AF] mb-1.5">Secondary Keywords</label>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {post.secondary_keywords.map((kw, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-[#1F2937] text-gray-700 dark:text-[#E5E7EB] text-xs font-medium rounded-lg px-2.5 py-1 border border-gray-200 dark:border-transparent">
+                  <span key={i} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-[#1F2937] text-gray-700 dark:text-[#E5E7EB] text-xs font-medium rounded-lg px-2.5 py-1 border-2 border-gray-200 dark:border-[#374151]">
                     {kw}
                     <button onClick={() => updatePost({ secondary_keywords: post.secondary_keywords.filter((_, j) => j !== i) })} className="text-gray-400 hover:text-red-500 transition-colors ml-0.5">
                       ×
@@ -163,36 +243,80 @@ export function SeoPanel() {
                     (e.target as HTMLInputElement).value = ""
                   }
                 }}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
             </div>
 
-            <div className="border-t border-gray-100 dark:border-[#1F2937] pt-4">
-              <label className="block text-xs font-semibold text-gray-500 dark:text-[#9CA3AF] mb-3 uppercase tracking-wider">
-                SEO Checklist ({items.filter(i => i.check(post)).length}/{items.length})
-              </label>
+            <div className="border-t-2 border-gray-100 dark:border-[#1F2937] pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-xs font-semibold text-gray-500 dark:text-[#9CA3AF] uppercase tracking-wider">
+                  SEO Checklist ({items.filter(i => i.check(post)).length}/{items.length})
+                </label>
+                <button
+                  onClick={autoFixSeo}
+                  disabled={aiFixing}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#6366F1] hover:text-[#4F46E5] disabled:text-gray-300 dark:disabled:text-[#6B7280] px-2.5 py-1.5 rounded-lg hover:bg-[#6366F1]/10 transition-colors"
+                >
+                  {aiFixing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  {aiFixing ? "Fixing..." : "Auto-Fix"}
+                </button>
+              </div>
+
+              {fixResult && (
+                <div className="bg-[#6366F1]/10 border-2 border-[#6366F1]/20 rounded-xl p-3 mb-3">
+                  <p className="text-xs text-[#6366F1] font-medium whitespace-pre-wrap">{fixResult}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
-                {items.map((item) => {
-                  const passed = item.check(post)
+                {checklistGroups.map((group) => {
+                  const groupItems = group.items.map(id => getItemById(id)).filter(Boolean)
+                  if (groupItems.length === 0) return null
+                  const groupPassed = groupItems.filter(i => i!.check(post)).length
+                  const isCollapsed = collapsedGroups.includes(group.label)
                   return (
-                    <div key={item.id} className="flex items-start gap-2.5">
-                      {passed ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-gray-300 dark:text-[#4B5563] mt-0.5 shrink-0" />
+                    <div key={group.label} className="border-2 border-gray-100 dark:border-[#1F2937] rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => toggleGroup(group.label)}
+                        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-[#0A0F1E] hover:bg-gray-100 dark:hover:bg-[#1a2235] transition-colors"
+                      >
+                        <span className="text-xs font-semibold text-gray-600 dark:text-[#D1D5DB]">{group.label}</span>
+                        <span className="flex items-center gap-2">
+                          <span className={`text-[10px] font-semibold ${groupPassed === groupItems.length ? "text-green-500" : "text-amber-500"}`}>
+                            {groupPassed}/{groupItems.length}
+                          </span>
+                          {isCollapsed ? <ChevronRight className="h-3.5 w-3.5 text-gray-400" /> : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />}
+                        </span>
+                      </button>
+                      {!isCollapsed && (
+                        <div className="px-3 py-2 space-y-2">
+                          {groupItems.map((item) => {
+                            if (!item) return null
+                            const passed = item.check(post)
+                            return (
+                              <div key={item.id} className="flex items-start gap-2.5">
+                                {passed ? (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-gray-300 dark:text-[#4B5563] mt-0.5 shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-xs font-medium ${passed ? "text-green-700 dark:text-green-400" : "text-gray-500 dark:text-[#9CA3AF]"}`}>
+                                    {item.label}
+                                  </p>
+                                </div>
+                                <span className={`text-[10px] font-semibold shrink-0 px-1.5 py-0.5 rounded ${
+                                  passed
+                                    ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
+                                    : "bg-gray-50 text-gray-400 dark:bg-[#1a2235] dark:text-[#6B7280]"
+                                }`}>
+                                  {item.weight}pts
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-medium ${passed ? "text-green-700 dark:text-green-400" : "text-gray-500 dark:text-[#9CA3AF]"}`}>
-                          {item.label}
-                        </p>
-                      </div>
-                      <span className={`text-[10px] font-semibold shrink-0 px-1.5 py-0.5 rounded ${
-                        passed 
-                          ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
-                          : "bg-gray-50 text-gray-400 dark:bg-[#1a2235] dark:text-[#6B7280]"
-                      }`}>
-                        {item.weight}pts
-                      </span>
                     </div>
                   )
                 })}
@@ -212,20 +336,20 @@ export function SeoPanel() {
                 value={post.og_title || ""}
                 onChange={(e) => updatePost({ og_title: e.target.value })}
                 placeholder="OG Title"
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2"
               />
               <textarea
                 value={post.og_description || ""}
                 onChange={(e) => updatePost({ og_description: e.target.value })}
                 placeholder="OG Description"
                 rows={2}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2 resize-none"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2 resize-none"
               />
-              <div className="bg-gray-50 dark:bg-[#1a1f2e] rounded-xl p-3 flex items-center gap-3 ring-1 ring-gray-200 dark:ring-[#1F2937]">
+              <div className="bg-gray-50 dark:bg-[#1a1f2e] rounded-xl p-3 flex items-center gap-3 border-2 border-gray-200 dark:border-[#1F2937]">
                 {post.og_image || post.featured_image ? (
-                  <img src={post.og_image || post.featured_image} alt="" className="w-12 h-12 rounded-lg object-cover ring-1 ring-gray-200" />
+                  <img src={post.og_image || post.featured_image} alt="" className="w-12 h-12 rounded-lg object-cover border-2 border-gray-200" />
                 ) : (
-                  <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-[#1F2937] flex items-center justify-center ring-1 ring-gray-300 dark:ring-[#374151]">
+                  <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-[#1F2937] flex items-center justify-center border-2 border-gray-300 dark:border-[#374151]">
                     <Image className="h-5 w-5 text-gray-400" />
                   </div>
                 )}
@@ -236,7 +360,7 @@ export function SeoPanel() {
               </div>
             </div>
 
-            <div className="border-t border-gray-100 dark:border-[#1F2937] pt-4">
+            <div className="border-t-2 border-gray-100 dark:border-[#1F2937] pt-4">
               <div className="flex items-center gap-2 mb-3">
                 <MessageCircle className="h-4 w-4 text-[#1DA1F2]" />
                 <span className="text-xs font-semibold text-gray-700 dark:text-[#F9FAFB]">Twitter (X)</span>
@@ -245,14 +369,14 @@ export function SeoPanel() {
                 value={post.twitter_title || ""}
                 onChange={(e) => updatePost({ twitter_title: e.target.value })}
                 placeholder="Twitter Title"
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent mb-2"
               />
               <textarea
                 value={post.twitter_description || ""}
                 onChange={(e) => updatePost({ twitter_description: e.target.value })}
                 placeholder="Twitter Description"
                 rows={2}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
               />
             </div>
           </div>
@@ -265,7 +389,7 @@ export function SeoPanel() {
               <select
                 value={post.schema_type}
                 onChange={(e) => updatePost({ schema_type: e.target.value })}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               >
                 {schemaTypes.map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -273,7 +397,7 @@ export function SeoPanel() {
               </select>
             </div>
             {post.schema_type && (
-              <div className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-3 ring-1 ring-gray-200 dark:ring-[#1F2937]">
+              <div className="bg-gray-50 dark:bg-[#0A0F1E] rounded-xl p-3 border-2 border-gray-200 dark:border-[#1F2937]">
                 <p className="text-[10px] text-gray-500 dark:text-[#6B7280] font-mono leading-relaxed whitespace-pre">
 {`<script type="application/ld+json">
 {
@@ -297,7 +421,7 @@ export function SeoPanel() {
                 value={post.canonical_url || ""}
                 onChange={(e) => updatePost({ canonical_url: e.target.value })}
                 placeholder="https://..."
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
             </div>
 
@@ -307,7 +431,7 @@ export function SeoPanel() {
                 value={post.breadcrumb_title || ""}
                 onChange={(e) => updatePost({ breadcrumb_title: e.target.value })}
                 placeholder={post.title || "Breadcrumb title..."}
-                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+                className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
               />
             </div>
 
@@ -317,7 +441,7 @@ export function SeoPanel() {
                   type="checkbox"
                   checked={post.robots_noindex}
                   onChange={(e) => updatePost({ robots_noindex: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 dark:border-[#374151] text-[#6366F1] focus:ring-[#6366F1] bg-gray-50 dark:bg-[#0A0F1E]"
+                  className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#374151] text-[#6366F1] focus:ring-[#6366F1] bg-gray-50 dark:bg-[#0A0F1E]"
                 />
                 <span className="text-xs font-medium text-gray-600 dark:text-[#9CA3AF] group-hover:text-gray-900 dark:group-hover:text-[#F9FAFB] transition-colors">No Index (robots noindex)</span>
               </label>
@@ -326,7 +450,7 @@ export function SeoPanel() {
                   type="checkbox"
                   checked={post.robots_nofollow}
                   onChange={(e) => updatePost({ robots_nofollow: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 dark:border-[#374151] text-[#6366F1] focus:ring-[#6366F1] bg-gray-50 dark:bg-[#0A0F1E]"
+                  className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#374151] text-[#6366F1] focus:ring-[#6366F1] bg-gray-50 dark:bg-[#0A0F1E]"
                 />
                 <span className="text-xs font-medium text-gray-600 dark:text-[#9CA3AF] group-hover:text-gray-900 dark:group-hover:text-[#F9FAFB] transition-colors">No Follow (robots nofollow)</span>
               </label>

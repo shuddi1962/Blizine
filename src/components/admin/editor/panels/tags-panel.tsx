@@ -33,7 +33,7 @@ export function TagsPanel() {
           {post.tags.map((tag) => (
             <Badge
               key={tag}
-              className="cursor-pointer bg-gray-100 text-gray-700 dark:bg-[#1F2937] dark:text-[#E5E7EB] hover:bg-gray-200 dark:hover:bg-[#374151] font-medium text-xs px-2.5 py-1 rounded-lg transition-colors border border-gray-200 dark:border-transparent"
+              className="cursor-pointer bg-gray-100 text-gray-700 dark:bg-[#1F2937] dark:text-[#E5E7EB] hover:bg-gray-200 dark:hover:bg-[#374151] font-medium text-xs px-2.5 py-1 rounded-lg transition-colors border-2 border-gray-200 dark:border-[#374151]"
               onClick={() => removeTag(tag)}
             >
               {tag}
@@ -47,7 +47,7 @@ export function TagsPanel() {
             onChange={(e) => setTagInput(e.target.value)}
             placeholder="Enter tag..."
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-            className="bg-gray-50 dark:bg-[#0A0F1E] border-gray-300 dark:border-[#374151] text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent h-9 text-sm"
+            className="bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent h-9 text-sm"
           />
           <button
             onClick={addTag}
