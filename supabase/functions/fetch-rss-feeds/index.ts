@@ -271,7 +271,7 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
             slug: makeSlug(title),
             excerpt: (item.description as string) || title.slice(0, 200),
             content: articleText
-              ? `<article><p>${articleText.slice(0, 2000)}</p></article>`
+              ? `<article>${articleText.slice(0, 2000).split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('')}</article>`
               : `<article><p>${title}</p></article>`,
             featured_image: image,
             category_id: categoryId,

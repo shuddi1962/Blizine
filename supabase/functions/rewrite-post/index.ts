@@ -21,7 +21,16 @@ interface OpenRouterResponse {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim()
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#\d+;/g, m => String.fromCharCode(parseInt(m.slice(2, -1))))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .trim()
 }
 
 async function callOpenRouter(prompt: string, apiKey: string): Promise<string> {
@@ -32,7 +41,7 @@ async function callOpenRouter(prompt: string, apiKey: string): Promise<string> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemma-4-26b-a4b-it:free",
+      model: "qwen/qwen3-coder:free",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 4096,
     }),
@@ -140,16 +149,21 @@ serve(async (req) => {
       try {
         const rewritePrompt =
           `You are an expert tech journalist writing for the blog "Blizine". ` +
-          `Rewrite the following article in your OWN WORDS - never copy sentences verbatim. ` +
-          `Use a different structure, different opening, and different phrasing throughout. ` +
-          `Write a FULL, complete article of at least 600 words with: ` +
-          `1) A fresh compelling introduction that hooks the reader ` +
-          `2) Well-structured H2/H3 subheadings that reorganize the content differently than the source ` +
+          `Rewrite the following article in your OWN WORDS. Never copy sentences verbatim. ` +
+          `Use a completely different structure, different opening, and different phrasing. ` +
+          `Write a FULL complete article (600+ words) with: ` +
+          `1) An engaging introduction that jumps straight into the topic ` +
+          `2) Well-structured H2/H3 subheadings ` +
           `3) A strong conclusion with key takeaways ` +
-          `CRITICAL: Do NOT start with phrases like "In the article..." or "The original article..." or "According to...". Jump straight into the topic. ` +
-          `CRITICAL: Do NOT copy any sentence from the original. Fully rephrase everything. ` +
-          `Keep ALL facts and data accurate - do not fabricate. ` +
-          `Output HTML only, no markdown. Article title: ${sourceTitle}. Original content: ${textContent}`
+          `IMPORTANT RULES: ` +
+          `- Do NOT start with "In the article", "According to", "The original", "This article" or similar ` +
+          `- Do NOT include any HTML tags or special characters. Write clean plain text ` +
+          `- Fully rephrase every sentence - change sentence structure, word choice, and flow ` +
+          `- Keep all facts, data, names, numbers, and technical details accurate ` +
+          `- Do NOT fabricate information or add claims not in the source ` +
+          `- Write complete paragraphs, not bullet points ` +
+          `Article title: ${sourceTitle}. Source content: ${textContent}` +
+          `\n\nNow write the rewritten article in clean plain text with H2 and H3 headings:`
 
         const result = await callOpenRouter(rewritePrompt, openRouterKey)
         if (result) rewrittenContent = result
@@ -160,16 +174,12 @@ serve(async (req) => {
       try {
         const briefPrompt =
           `Summarize the following article into exactly 3 bullet points that capture the key information. ` +
-          `Return a JSON array of objects with a "text" property for each bullet. No markdown, no backticks, just JSON. ` +
-          `Example: [{"text": "First bullet"}, {"text": "Second bullet"}, {"text": "Third bullet"}] ` +
+          `Return ONLY valid JSON array with "text" property for each bullet. No markdown, no backticks, no code fences, no explanation. ` +
+          `Example: [{"text":"First bullet"},{"text":"Second bullet"},{"text":"Third bullet"}] ` +
           `Article: ${sourceTitle}. ${textContent}`
-
         const result = await callOpenRouter(briefPrompt, openRouterKey)
         if (result) {
-          const cleaned = result
-            .replace(/```json\s*/gi, "")
-            .replace(/```\s*/g, "")
-            .trim()
+          const cleaned = result.replace(/```(?:json)?\s*|\s*```/gi, "").trim()
           quickBrief = JSON.parse(cleaned)
           if (!Array.isArray(quickBrief)) quickBrief = []
         }
@@ -179,16 +189,12 @@ serve(async (req) => {
 
       try {
         const seoPrompt =
-          `Generate SEO metadata for the following article. Return a JSON object (no markdown, no backticks, just JSON) with these fields: ` +
+          `Generate SEO metadata for the following article. Return ONLY valid JSON with exactly these fields: ` +
           `"seo_title" (max 60 chars), "seo_description" (max 160 chars), "seo_keywords" (array of 5-10 strings). ` +
-          `Article title: ${sourceTitle}. Content: ${textContent}`
-
+          `No markdown, no backticks, no code fences, no explanation. Article title: ${sourceTitle}. Content: ${textContent}`
         const result = await callOpenRouter(seoPrompt, openRouterKey)
         if (result) {
-          const cleaned = result
-            .replace(/```json\s*/gi, "")
-            .replace(/```\s*/g, "")
-            .trim()
+          const cleaned = result.replace(/```(?:json)?\s*|\s*```/gi, "").trim()
           seoData = JSON.parse(cleaned)
         }
       } catch (err: any) {
@@ -197,13 +203,13 @@ serve(async (req) => {
 
       try {
         const scorePrompt =
-          `Rate the following article's relevance to technology on a scale of 1 to 100 ` +
-          `(100 being extremely tech-relevant, 1 being not tech-related at all). ` +
-          `Return ONLY a number, no other text. Article: ${sourceTitle}. ${textContent}`
-
+          `Rate this article's tech relevance on a scale of 1 to 100 ` +
+          `(100 = extremely tech-relevant, 1 = not tech at all). ` +
+          `Return ONLY a single integer. No explanation, no text, no code fences. Article: ${sourceTitle}. ${textContent}`
         const result = await callOpenRouter(scorePrompt, openRouterKey)
         if (result) {
-          const parsed = parseInt(result.replace(/\D/g, ""), 10)
+          const cleaned = result.replace(/```\s*|\s*```/gi, "").trim()
+          const parsed = parseInt(cleaned.replace(/\D/g, ""), 10)
           if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {
             blizineScore = parsed
           }
@@ -213,8 +219,16 @@ serve(async (req) => {
       }
     }
 
+    const finalContent = rewrittenContent.includes('<')
+      ? rewrittenContent
+      : `<article><h2>${sourceTitle}</h2>${rewrittenContent
+          .split(/\n{2,}/)
+          .map(p => p.trim() ? `<p>${p}</p>` : '')
+          .join('')
+        }</article>`
+
     const updateData: Record<string, unknown> = {
-      content: rewrittenContent,
+      content: finalContent,
       quick_brief: quickBrief.length > 0 ? quickBrief : JSON.parse('[]'),
       ai_rewritten: true,
       status: 'published',
