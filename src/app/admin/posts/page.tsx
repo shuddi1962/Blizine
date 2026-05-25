@@ -55,8 +55,18 @@ export default function AdminPostsPage() {
 
   useEffect(() => {
     fetchPosts()
-    const interval = setInterval(fetchPosts, 15000)
-    return () => clearInterval(interval)
+    const interval = setInterval(fetchPosts, 5000)
+    const supabase = createClient()
+    const channel = supabase
+      .channel("posts-realtime")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts" }, (payload: any) => {
+        if (payload.new?.views !== payload.old?.views) fetchPosts()
+      })
+      .subscribe()
+    return () => {
+      clearInterval(interval)
+      supabase.removeChannel(channel)
+    }
   }, [fetchPosts])
 
   const filtered = posts.filter((p) => {

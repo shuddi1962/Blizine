@@ -120,8 +120,23 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 30000)
-    return () => clearInterval(interval)
+    const interval = setInterval(fetchData, 5000)
+
+    const supabase = supabaseRef.current
+    const channel = supabase
+      .channel("dashboard-realtime")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts" }, (payload: any) => {
+        if (payload.new?.views !== payload.old?.views) fetchData()
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "analytics_events" }, () => {
+        fetchData()
+      })
+      .subscribe()
+
+    return () => {
+      clearInterval(interval)
+      supabase.removeChannel(channel)
+    }
   }, [fetchData])
 
   return (

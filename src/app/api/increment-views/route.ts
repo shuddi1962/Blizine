@@ -9,7 +9,19 @@ export async function POST(req: Request) {
     }
 
     const supabase = createClient()
-    await supabase.rpc("increment_post_views", { post_id: postId })
+
+    const { data: existing } = await supabase
+      .from("posts")
+      .select("views")
+      .eq("id", postId)
+      .single()
+
+    if (existing) {
+      await supabase
+        .from("posts")
+        .update({ views: (existing.views || 0) + 1 })
+        .eq("id", postId)
+    }
 
     await supabase.from("analytics_events").insert({
       event_type: "page_view",
@@ -23,6 +35,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    console.error("increment-views error:", error)
     return NextResponse.json({ error: "Failed to increment views" }, { status: 500 })
   }
 }

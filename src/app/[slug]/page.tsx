@@ -66,8 +66,6 @@ export default async function PostPage({ params }: Props) {
     supabase.from("posts").select("*").eq("status", "published").order("published_at", { ascending: false }).limit(5),
   ])
 
-  await supabase.rpc("increment_post_views", { post_id: post.id })
-
   const quickBrief = (post as any).quick_brief
   const sourceUrl = post.original_source_url
   const popularPosts = popularRes.data || []

@@ -22,7 +22,7 @@ export function ViewTracker({ postId }: { postId: string }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).catch(() => {})
+    }).catch((err) => console.error("ViewTracker error:", err))
   }, [postId])
 
   return null
