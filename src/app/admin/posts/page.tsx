@@ -26,14 +26,30 @@ export default function AdminPostsPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
+  const [counts, setCounts] = useState({ total: 0, published: 0, drafts: 0, views: 0 })
+
   const fetchPosts = useCallback(async () => {
     const supabase = createClient()
-    const { data } = await supabase
-      .from("posts")
-      .select("*, category:categories(name)")
-      .order("created_at", { ascending: false })
-      .limit(50)
-    if (data) setPosts(data as unknown as PostRow[])
+
+    const [countRes, pubRes, draftRes, viewsRes, dataRes] = await Promise.all([
+      supabase.from("posts").select("*", { count: "exact", head: true }),
+      supabase.from("posts").select("*", { count: "exact", head: true }).eq("status", "published"),
+      supabase.from("posts").select("*", { count: "exact", head: true }).eq("status", "draft"),
+      supabase.from("posts").select("views"),
+      supabase.from("posts")
+        .select("*, category:categories(name)")
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ])
+
+    const totalViews = (viewsRes.data || []).reduce((sum: number, p: any) => sum + (p.views || 0), 0)
+    setCounts({
+      total: countRes.count || 0,
+      published: pubRes.count || 0,
+      drafts: draftRes.count || 0,
+      views: totalViews,
+    })
+    if (dataRes.data) setPosts(dataRes.data as unknown as PostRow[])
     setLoading(false)
   }, [])
 
@@ -51,11 +67,6 @@ export default function AdminPostsPage() {
     }
     return true
   })
-
-  const totalPosts = posts.length
-  const publishedPosts = posts.filter(p => p.status === "published").length
-  const draftPosts = posts.filter(p => p.status === "draft").length
-  const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 0)
 
   function formatDate(d: string) {
     return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -83,10 +94,10 @@ export default function AdminPostsPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Posts", value: totalPosts, color: "text-[#6366F1]", bg: "bg-[#6366F1]/10" },
-          { label: "Published", value: publishedPosts, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
-          { label: "Drafts", value: draftPosts, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
-          { label: "Total Views", value: totalViews.toLocaleString(), color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+          { label: "Total Posts", value: counts.total, color: "text-[#6366F1]", bg: "bg-[#6366F1]/10" },
+          { label: "Published", value: counts.published, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
+          { label: "Drafts", value: counts.drafts, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
+          { label: "Total Views", value: counts.views.toLocaleString(), color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
         ].map((stat) => (
           <div key={stat.label} className="bg-white dark:bg-[#111827] border-2 border-gray-200 dark:border-[#374151] rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-3">
