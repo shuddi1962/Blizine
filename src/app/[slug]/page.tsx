@@ -88,16 +88,16 @@ export default async function PostPage({ params }: Props) {
             </Link>
 
             {/* Featured Image Card */}
-            <div className="bg-card border rounded-2xl overflow-hidden mb-8 shadow-xl">
-              <div className="relative w-full bg-muted">
+            <div className="bg-card border rounded-2xl overflow-hidden mb-8 shadow-sm">
+              <div className="relative w-full bg-muted max-h-72 md:max-h-96 overflow-hidden">
                 <img
                   src={post.featured_image || "/api/placeholder/1200/600"}
                   alt={post.title}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-full object-cover"
                 />
               </div>
 
-              <div className="p-6 md:p-8">
+              <div className="p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Link href={`/category/${(post as any).category?.slug}`}>
                     <Badge variant="indigo" className="px-3 py-1 text-xs uppercase tracking-wider font-semibold">

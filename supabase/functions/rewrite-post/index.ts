@@ -32,7 +32,7 @@ async function callOpenRouter(prompt: string, apiKey: string): Promise<string> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "meta-llama/llama-3.3-70b-instruct:free",
+      model: "google/gemma-4-26b-a4b-it:free",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 4096,
     }),
@@ -139,10 +139,16 @@ serve(async (req) => {
     if (openRouterKey && textContent.length > 50) {
       try {
         const rewritePrompt =
-          `Rewrite the following tech article in an engaging, SEO-optimized style for the blog Blizine. ` +
-          `Write a FULL, complete article - at least 500 words. Keep facts accurate. ` +
-          `Add a compelling intro, structured H2/H3 subheadings, and a conclusion. ` +
-          `The rewrite must be complete so readers don't need to visit the original source. ` +
+          `You are an expert tech journalist writing for the blog "Blizine". ` +
+          `Rewrite the following article in your OWN WORDS - never copy sentences verbatim. ` +
+          `Use a different structure, different opening, and different phrasing throughout. ` +
+          `Write a FULL, complete article of at least 600 words with: ` +
+          `1) A fresh compelling introduction that hooks the reader ` +
+          `2) Well-structured H2/H3 subheadings that reorganize the content differently than the source ` +
+          `3) A strong conclusion with key takeaways ` +
+          `CRITICAL: Do NOT start with phrases like "In the article..." or "The original article..." or "According to...". Jump straight into the topic. ` +
+          `CRITICAL: Do NOT copy any sentence from the original. Fully rephrase everything. ` +
+          `Keep ALL facts and data accurate - do not fabricate. ` +
           `Output HTML only, no markdown. Article title: ${sourceTitle}. Original content: ${textContent}`
 
         const result = await callOpenRouter(rewritePrompt, openRouterKey)

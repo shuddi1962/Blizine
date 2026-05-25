@@ -133,6 +133,32 @@ function makeSlug(title: string): string {
     .slice(0, 80) + '-' + Date.now().toString(36)
 }
 
+const SUBCATEGORY_RULES: Array<{words: string[]; catSlug: string; subSlug: string}> = [
+  { words: ['chatgpt','gpt-','claude','gemini','copilot','llama','mistral','llm ','large language model'], catSlug: 'ai-automation', subSlug: 'llms' },
+  { words: ['machine learning','deep learning','neural network','training data','model training','supervised','reinforcement'], catSlug: 'ai-automation', subSlug: 'machine-learning' },
+  { words: ['hack','vulnerability','cve','exploit','penetration','red team','bug bounty'], catSlug: 'cybersecurity', subSlug: 'ethical-hacking' },
+  { words: ['privacy','gdpr','data protection','surveillance','encryption','tracking'], catSlug: 'cybersecurity', subSlug: 'privacy' },
+  { words: ['javascript','node.js','npm ','react ','vue ','angular','typescript'], catSlug: 'programming', subSlug: 'javascript' },
+  { words: ['python','django','flask','pandas','numpy','pytorch','tensorflow'], catSlug: 'programming', subSlug: 'python' },
+  { words: ['typescript','ts ','tsx'], catSlug: 'programming', subSlug: 'typescript' },
+  { words: ['css ','html ','sass','less','tailwind','design system','responsive','ui '], catSlug: 'web-development', subSlug: 'css-design' },
+  { words: ['react','vue','angular','svelte','htmx','frontend','next.js'], catSlug: 'web-development', subSlug: 'frontend' },
+  { words: ['backend','api ','rest','graphql','database','sql ','server'], catSlug: 'web-development', subSlug: 'backend' },
+]
+
+function autoSubcategory(title: string, categoryId: string, categories: Array<{id:string;slug:string}>, subcategories: Array<{id:string;slug:string;catSlug:string}>): string | null {
+  const t = title.toLowerCase()
+  const cat = categories.find(c => c.id === categoryId)
+  if (!cat) return null
+  for (const r of SUBCATEGORY_RULES) {
+    if (r.catSlug === cat.slug && r.words.some(w => t.includes(w))) {
+      const sub = subcategories.find(s => s.slug === r.subSlug)
+      if (sub) return sub.id
+    }
+  }
+  return null
+}
+
 function autoCategory(title: string, feedCategoryId: string, categories: Array<{id:string;slug:string}>): string {
   const t = title.toLowerCase()
   const rules: Array<{words: string[]; slug: string}> = [
@@ -197,7 +223,7 @@ async function pexelsSearch(query: string): Promise<string | null> {
   }
 }
 
-async function processFeed(feed: any, categories: Array<{id:string;slug:string}>, authorId: string): Promise<{new: number; errors: string[]}> {
+async function processFeed(feed: any, categories: Array<{id:string;slug:string}>, subcategories: Array<{id:string;slug:string;catSlug:string}>, authorId: string): Promise<{new: number; errors: string[]}> {
   let newCount = 0
   const errs: string[] = []
   try {
@@ -236,6 +262,7 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
 
         const articleText = await fetchArticleText(link)
         const categoryId = autoCategory(title, feed.category_id, categories)
+        const subcategoryId = autoSubcategory(title, categoryId, categories, subcategories)
 
         const { data: post, error } = await supabase
           .from('posts')
@@ -248,6 +275,7 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
               : `<article><p>${title}</p></article>`,
             featured_image: image,
             category_id: categoryId,
+            subcategory_id: subcategoryId,
             author_id: authorId,
             source_name: feed.feed_name,
             status: feed.auto_rewrite ? 'draft' : 'published',
@@ -323,6 +351,19 @@ serve(async () => {
     .from('categories')
     .select('id, slug')
 
+  const { data: catsWithSubs } = await supabase
+    .from('categories')
+    .select('slug, subcategories!inner(id, slug)')
+
+  const subcatsWithCatSlug: Array<{id:string;slug:string;catSlug:string}> = []
+  if (catsWithSubs) {
+    for (const cat of catsWithSubs) {
+      for (const sub of (cat as any).subcategories) {
+        subcatsWithCatSlug.push({ id: sub.id, slug: sub.slug, catSlug: cat.slug })
+      }
+    }
+  }
+
   if (!feeds?.length || !categories?.length) {
     return new Response(JSON.stringify({ error: 'No feeds or categories' }), { status: 500 })
   }
@@ -344,7 +385,7 @@ serve(async () => {
   for (let i = 0; i < feeds.length; i += CONCURRENCY) {
     const batch = feeds.slice(i, i + CONCURRENCY)
     const results = await Promise.all(
-      batch.map(f => processFeed(f, categories, defaultAuthorId))
+      batch.map(f => processFeed(f, categories, subcatsWithCatSlug, defaultAuthorId))
     )
     for (const r of results) {
       totalNew += r.new
