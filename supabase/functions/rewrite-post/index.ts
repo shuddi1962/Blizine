@@ -211,6 +211,7 @@ serve(async (req) => {
       content: rewrittenContent,
       quick_brief: quickBrief.length > 0 ? quickBrief : JSON.parse('[]'),
       ai_rewritten: true,
+      status: 'published',
     }
 
     if (seoData.seo_title) updateData.seo_title = seoData.seo_title

@@ -250,7 +250,7 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
             category_id: categoryId,
             author_id: authorId,
             source_name: feed.feed_name,
-            status: 'draft',
+            status: feed.auto_rewrite ? 'draft' : 'published',
             rss_source_url: feed.feed_url,
             original_source_url: link,
             ai_rewritten: false,
