@@ -11,7 +11,10 @@ import type { Metadata } from "next"
 import { ReadingProgress } from "@/components/post/reading-progress"
 import { ShareButtons } from "@/components/social/share-buttons"
 import { PostComments } from "@/components/post/post-comments"
+import { ViewTracker } from "@/components/post/view-tracker"
 import { SITE_URL } from "@/lib/constants"
+
+export const dynamic = "force-dynamic"
 
 type Props = { params: { slug: string } }
 
@@ -74,6 +77,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <ReadingProgress />
+      <ViewTracker postId={post.id} />
 
       <article className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
