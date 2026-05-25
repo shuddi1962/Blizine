@@ -286,9 +286,23 @@ async function processFeed(feed: any, categories: Array<{id:string;slug:string}>
       }
     }
 
-    await supabase.from('rss_feeds')
-      .update({ last_fetched_at: new Date().toISOString() })
-      .eq('id', feed.id)
+    if (newCount > 0) {
+      const { data: current } = await supabase
+        .from('rss_feeds')
+        .select('posts_fetched')
+        .eq('id', feed.id)
+        .single()
+      await supabase.from('rss_feeds')
+        .update({
+          last_fetched_at: new Date().toISOString(),
+          posts_fetched: (current?.posts_fetched || 0) + newCount
+        })
+        .eq('id', feed.id)
+    } else {
+      await supabase.from('rss_feeds')
+        .update({ last_fetched_at: new Date().toISOString() })
+        .eq('id', feed.id)
+    }
 
   } catch (e) {
     errs.push(`Feed ${feed.feed_name}: ${e instanceof Error ? e.message : String(e)}`)
