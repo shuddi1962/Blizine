@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useState, useRef, useEffect } from "react"
-import { useEditor, EditorContent } from "@tiptap/react"
+import { useEditor, EditorContent, type Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import ImageExtension from "@tiptap/extension-image"
 import LinkExtension from "@tiptap/extension-link"
@@ -36,14 +36,16 @@ export function RichTextEditor() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [imageWidth, setImageWidth] = useState("100%")
   const [imageLink, setImageLink] = useState("")
+  const editorRef = useRef<Editor | null>(null)
 
   const handleImageUpload = useCallback(async (file: File) => {
-    if (!editor) return
+    const ed = editorRef.current
+    if (!ed) return
+    const blobUrl = URL.createObjectURL(file)
+    ed.chain().focus().setImage({ src: blobUrl }).run()
     const supabase = createClient()
     const ext = file.name.split(".").pop() || "jpg"
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const blobUrl = URL.createObjectURL(file)
-    editor.chain().focus().setImage({ src: blobUrl }).run()
     const { error } = await supabase.storage.from("post-images").upload(fileName, file, {
       contentType: file.type,
       cacheControl: "3600",
@@ -51,7 +53,7 @@ export function RichTextEditor() {
     })
     if (!error) {
       const { data: { publicUrl } } = supabase.storage.from("post-images").getPublicUrl(fileName)
-      editor.commands.updateAttributes("image", { src: publicUrl })
+      ed.commands.updateAttributes("image", { src: publicUrl })
       URL.revokeObjectURL(blobUrl)
     }
   }, [])
@@ -142,6 +144,8 @@ export function RichTextEditor() {
       setCharCount(text.length)
     },
   })
+
+  editorRef.current = editor
 
   const searchWebImages = async () => {
     if (!webQuery) return
