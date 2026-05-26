@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 
-export function MainNav({ categories }: { categories: any[] }) {
+export function MainNav({ categories, subcategories }: { categories: any[]; subcategories?: any[] }) {
   const [sticky, setSticky] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -12,6 +12,15 @@ export function MainNav({ categories }: { categories: any[] }) {
     window.addEventListener("scroll", fn)
     return () => window.removeEventListener("scroll", fn)
   }, [])
+
+  const subcatsByCat: Record<string, any[]> = {}
+  if (subcategories) {
+    for (const sub of subcategories) {
+      const catSlug = sub.categories?.slug
+      if (!subcatsByCat[catSlug]) subcatsByCat[catSlug] = []
+      subcatsByCat[catSlug].push(sub)
+    }
+  }
 
   return (
     <>
@@ -31,11 +40,19 @@ export function MainNav({ categories }: { categories: any[] }) {
                 </Link>
                 <div className="nav-dropdown">
                   <div className="dropdown-head" style={{ borderColor: cat.color || "var(--accent)" }}>{cat.name}</div>
-                  {["Latest", "Featured", "Most Read", "Tutorials"].map((sub) => (
-                    <Link key={sub} href={`/category/${cat.slug}?tab=${sub.toLowerCase()}`} className="dropdown-item">
-                      {sub}
-                    </Link>
-                  ))}
+                  {(subcatsByCat[cat.slug] || []).length > 0 ? (
+                    subcatsByCat[cat.slug].map((sub: any) => (
+                      <Link key={sub.id} href={`/category/${cat.slug}/${sub.slug}`} className="dropdown-item">
+                        {sub.name}
+                      </Link>
+                    ))
+                  ) : (
+                    ["Latest", "Popular"].map((label) => (
+                      <Link key={label} href={`/category/${cat.slug}`} className="dropdown-item">
+                        {label}
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
             ))}

@@ -8,7 +8,6 @@ import { HeroSection } from "@/components/home/HeroSection"
 import { CategoryTabSection } from "@/components/home/CategoryTabSection"
 import { LatestGrid } from "@/components/home/LatestGrid"
 import { CategoryStrip } from "@/components/home/CategoryStrip"
-import { EditorialSection } from "@/components/home/EditorialSection"
 import { NewsletterStrip } from "@/components/home/NewsletterStrip"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Footer } from "@/components/layout/Footer"
@@ -18,9 +17,10 @@ export const revalidate = 300
 export default async function HomePage() {
   const supabase = createClient()
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+
   const [
-    { data: featuredPost },
-    { data: heroSecondary },
+    { data: heroPosts },
     { data: latestPosts },
     { data: tickerPosts },
     { data: trendingPosts },
@@ -28,23 +28,19 @@ export default async function HomePage() {
     { data: categories },
     { data: aiPosts },
     { data: cyberPosts },
-    { data: editorsPicks },
+    { data: gadgetPosts },
+    { data: techNewsPosts },
+    { data: subcategories },
     { data: allTags },
-    { data: sidebarAds },
   ] = await Promise.all([
     supabase.from("posts").select("*, categories(name,slug,color)")
-      .eq("status", "published").eq("is_featured", true)
+      .eq("status", "published")
       .not("featured_image", "is", null)
-      .order("published_at", { ascending: false }).limit(1).single(),
+      .order("published_at", { ascending: false }).limit(3),
 
     supabase.from("posts").select("*, categories(name,slug,color)")
       .eq("status", "published")
-      .not("featured_image", "is", null)
-      .order("published_at", { ascending: false }).range(1, 3),
-
-    supabase.from("posts").select("*, categories(name,slug,color)")
-      .eq("status", "published")
-      .order("published_at", { ascending: false }).range(4, 12),
+      .order("published_at", { ascending: false }).range(3, 12),
 
     supabase.from("posts").select("title,slug")
       .eq("status", "published")
@@ -52,39 +48,41 @@ export default async function HomePage() {
 
     supabase.from("posts").select("id,title,slug,views,categories(name,slug,color)")
       .eq("status", "published")
-      .gte("published_at", new Date(Date.now() - 7 * 86400000).toISOString())
+      .gte("published_at", sevenDaysAgo)
       .order("views", { ascending: false }).limit(5),
 
     supabase.from("posts").select("id,title,slug,featured_image,views,categories(name,slug,color)")
       .eq("status", "published")
       .not("featured_image", "is", null)
-      .gte("published_at", new Date(Date.now() - 7 * 86400000).toISOString())
       .order("views", { ascending: false }).limit(5),
 
     supabase.from("categories").select("id,name,slug,color,icon").order("name"),
 
     supabase.from("posts").select("*, categories!inner(name,slug,color)")
-      .eq("status", "published")
-      .eq("categories.slug", "ai-automation")
+      .eq("status", "published").eq("categories.slug", "ai-automation")
       .not("featured_image", "is", null)
       .order("published_at", { ascending: false }).limit(4),
 
     supabase.from("posts").select("*, categories!inner(name,slug,color)")
-      .eq("status", "published")
-      .eq("categories.slug", "cybersecurity")
+      .eq("status", "published").eq("categories.slug", "cybersecurity")
       .not("featured_image", "is", null)
       .order("published_at", { ascending: false }).limit(4),
 
-    supabase.from("posts").select("*, categories(name,slug,color)")
-      .eq("status", "published").eq("is_editors_pick", true)
+    supabase.from("posts").select("*, categories!inner(name,slug,color)")
+      .eq("status", "published").eq("categories.slug", "gadgets")
       .not("featured_image", "is", null)
       .order("published_at", { ascending: false }).limit(4),
+
+    supabase.from("posts").select("*, categories!inner(name,slug,color)")
+      .eq("status", "published").eq("categories.slug", "tech-news")
+      .not("featured_image", "is", null)
+      .order("published_at", { ascending: false }).limit(4),
+
+    supabase.from("subcategories").select("*, categories(name,slug,color)")
+      .order("name"),
 
     supabase.from("posts").select("seo_keywords")
       .eq("status", "published").limit(100),
-
-    supabase.from("ads").select("*").eq("is_active", true)
-      .in("position", ["sidebar", "post_sidebar_top", "post_sidebar_mid"]),
   ])
 
   const tags = Array.from(new Set(
@@ -93,37 +91,35 @@ export default async function HomePage() {
 
   const cats = (categories || []).map((cat: any) => ({
     ...cat,
-    post_count: Math.floor(Math.random() * 100) + 5,
+    post_count: 0,
   }))
 
+  const featuredPost = (heroPosts || [])[0] || null
+  const heroSecondary = (heroPosts || []).slice(1, 3)
+
+  const subcatsByCat: Record<string, any[]> = {}
+  for (const sub of (subcategories || [])) {
+    const catSlug = sub.categories?.slug
+    if (!subcatsByCat[catSlug]) subcatsByCat[catSlug] = []
+    subcatsByCat[catSlug].push(sub)
+  }
+
   return (
-    <div style={{ background: "var(--bg)" }}>
+    <div>
       <TopBar />
       <Header />
-      <MainNav categories={cats} />
+      <MainNav categories={cats} subcategories={subcategories || []} />
       <BreakingTicker posts={tickerPosts || []} />
-
-      <div className="ad-strip-top">
-        <AdSlot position="home_top_banner" width={970} height={90} />
-      </div>
 
       <div className="site-main">
         <div className="main-layout">
           <div className="content-col">
             <HeroSection
-              featured={featuredPost || null}
-              secondary={heroSecondary || []}
+              featured={featuredPost}
+              secondary={heroSecondary}
             />
 
-            <div className="ad-mid">
-              <AdSlot position="home_hero_mid" width={728} height={90} />
-            </div>
-
             <CategoryTabSection categories={cats} posts={latestPosts || []} />
-
-            <div className="ad-mid">
-              <AdSlot position="home_infeed_1" width={728} height={90} />
-            </div>
 
             <LatestGrid posts={latestPosts || []} />
 
@@ -132,24 +128,32 @@ export default async function HomePage() {
               categorySlug="ai-automation"
               categoryColor="#8B5CF6"
               posts={aiPosts || []}
+              subcategories={subcatsByCat["ai-automation"] || []}
             />
-
-            <div className="ad-mid">
-              <AdSlot position="home_infeed_2" width={728} height={90} />
-            </div>
 
             <CategoryStrip
               categoryName="Cybersecurity"
               categorySlug="cybersecurity"
               categoryColor="#EF4444"
               posts={cyberPosts || []}
+              subcategories={subcatsByCat["cybersecurity"] || []}
             />
 
-            <EditorialSection posts={editorsPicks || []} />
+            <CategoryStrip
+              categoryName="Gadgets"
+              categorySlug="gadgets"
+              categoryColor="#EC4899"
+              posts={gadgetPosts || []}
+              subcategories={subcatsByCat["gadgets"] || []}
+            />
 
-            <div className="ad-mid">
-              <AdSlot position="home_bottom_banner" width={728} height={90} />
-            </div>
+            <CategoryStrip
+              categoryName="Tech News"
+              categorySlug="tech-news"
+              categoryColor="#3B82F6"
+              posts={techNewsPosts || []}
+              subcategories={subcatsByCat["tech-news"] || []}
+            />
           </div>
 
           <Sidebar
@@ -157,22 +161,13 @@ export default async function HomePage() {
             popular={popularPosts || []}
             categories={cats}
             tags={tags}
-            ads={sidebarAds || []}
           />
         </div>
       </div>
 
       <NewsletterStrip />
 
-      <div className="ad-strip-bottom">
-        <AdSlot position="home_footer_banner" width={970} height={90} />
-      </div>
-
       <Footer categories={cats} recentPosts={latestPosts || []} />
-
-      <div className="mobile-sticky-ad">
-        <AdSlot position="mobile_sticky_bottom" width={320} height={50} />
-      </div>
     </div>
   )
 }

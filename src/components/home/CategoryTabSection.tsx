@@ -19,7 +19,7 @@ export function CategoryTabSection({ categories, posts }: { categories: any[]; p
   return (
     <section className="tab-section">
       <div className="tab-header">
-        <span className="dont-miss-label">Don&apos;t Miss</span>
+        <span className="dont-miss-label">Latest Stories</span>
         <div className="tabs-row">
           {tabs.slice(0, 8).map((tab) => (
             <button

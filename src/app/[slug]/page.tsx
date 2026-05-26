@@ -316,7 +316,7 @@ export default async function PostPage({ params }: Props) {
 
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <Sidebar trending={[]} popular={popularPosts} categories={sidebarCategories} tags={[]} ads={[]} />
+              <Sidebar trending={[]} popular={popularPosts} categories={sidebarCategories} tags={[]} />
             </div>
           </div>
         </div>

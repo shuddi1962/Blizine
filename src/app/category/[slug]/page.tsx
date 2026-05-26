@@ -103,7 +103,6 @@ export default async function CategoryPage({ params }: Props) {
             popular={popularPosts || []}
             categories={allCategories || []}
             tags={[]}
-            ads={[]}
           />
         </div>
       </div>
