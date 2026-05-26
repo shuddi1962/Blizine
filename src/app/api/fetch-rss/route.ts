@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import Parser from "rss-parser"
+import { geminiRewriteContent } from "@/lib/ai-rewriter"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,34 +86,7 @@ async function searchPexels(query: string): Promise<string | null> {
   } catch { return null }
 }
 
-async function rewriteWithOpenRouter(title: string, content: string): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY
-  if (!apiKey) return content
 
-  const textContent = stripHtml(content)
-  const prompt = "Rewrite the following tech article in an engaging, SEO-optimized style for the blog Blizine. Write a FULL, complete article - at least 500 words. Keep facts accurate. Add a compelling intro, structured H2/H3 subheadings, and a conclusion. The rewrite must be complete so readers don't need to visit the original source. Output HTML only, no markdown. Article title: " + title + ". Original content: " + textContent
-
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + apiKey,
-    },
-    body: JSON.stringify({
-      model: "deepseek/deepseek-chat",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 4096,
-    }),
-  })
-
-  if (!response.ok) {
-    console.error("OpenRouter error: " + response.status)
-    return content
-  }
-
-  const data = await response.json()
-  return data.choices?.[0]?.message?.content?.trim() || content
-}
 
 export async function GET(req: Request) {
   try {
@@ -206,9 +180,9 @@ export async function GET(req: Request) {
 
           let finalContent = content
 
-          if (feed.auto_rewrite && content.length > 50 && process.env.OPENROUTER_API_KEY) {
+          if (feed.auto_rewrite && content.length > 50) {
             try {
-              finalContent = await rewriteWithOpenRouter(title, content)
+              finalContent = await geminiRewriteContent(title, content)
             } catch {}
           }
 

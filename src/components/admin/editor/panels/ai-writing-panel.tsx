@@ -3,168 +3,203 @@
 import { useState } from "react"
 import { usePostEditor } from "../post-editor-provider"
 import { CollapsibleSection } from "../collapsible-section"
-import { Sparkles, Wand2, Lightbulb, Loader2, ArrowRight, Copy, Check } from "lucide-react"
-
-type AiMode = "generate" | "improve" | "analyze"
-
-const prompts: Record<AiMode, string> = {
-  generate: "Write an engaging tech blog post about: {topic}. Format with H2/H3 headings. Include introduction and conclusion. Output clean HTML.",
-  improve: "Improve the following blog post. Fix grammar, enhance clarity, maintain the same structure and key points. Output as clean HTML:\n\n{content}",
-  analyze: "Analyze this blog post and suggest keywords, readability improvements, and SEO enhancements:\n\n{content}",
-}
+import { Sparkles, Loader2, Globe, FileText, CheckCircle, AlertCircle, BarChart3 } from "lucide-react"
 
 export function AiWritingPanel() {
   const { post, updatePost, seoKeyword } = usePostEditor()
-  const [mode, setMode] = useState<AiMode>("generate")
-  const [prompt, setPrompt] = useState("")
+  const [mode, setMode] = useState<"topic" | "url">("topic")
+  const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState("")
-  const [copied, setCopied] = useState(false)
+  const [error, setError] = useState("")
+  const [quota, setQuota] = useState<{ used: number; cap: number; remaining: number } | null>(null)
+  const [lastResult, setLastResult] = useState<{ headline: string; elapsed: string } | null>(null)
 
-  const handleSubmit = async () => {
-    setLoading(true)
-    setResult("")
-
-    let fullPrompt = prompts[mode]
-    if (mode === "generate") {
-      fullPrompt = fullPrompt.replace("{topic}", prompt || seoKeyword || "technology trends")
-    } else {
-      fullPrompt = fullPrompt.replace("{content}", post.content.slice(0, 10000))
+  const handleGenerate = async () => {
+    if (!input.trim()) {
+      setError(mode === "topic" ? "Enter a topic or keyword" : "Enter a URL starting with https://")
+      return
     }
+    if (mode === "url" && !input.startsWith("http")) {
+      setError("URL must start with http:// or https://")
+      return
+    }
+
+    setLoading(true)
+    setError("")
+    setLastResult(null)
 
     try {
-      const res = await fetch("/api/openrouter", {
+      const res = await fetch("/api/admin/ai-write", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: fullPrompt }),
+        body: JSON.stringify({ mode, input: input.trim() }),
       })
+
       const data = await res.json()
-      const html = data.content || data.choices?.[0]?.message?.content || ""
-      setResult(html)
 
-      if (mode === "generate" && html) {
-        const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i)
-        if (titleMatch && !post.title) {
-          updatePost({ title: titleMatch[1] })
+      if (!res.ok) {
+        if (res.status === 429) {
+          setError(`Monthly quota reached (${data.quota?.used}/${data.quota?.cap}). Resets on the 1st.`)
+          setQuota(data.quota)
+        } else {
+          setError(data.error || "AI writing failed. Try again.")
         }
+        return
       }
-    } catch {
-      setResult("Error generating content. Please try again.")
+
+      if (data.meta) {
+        setQuota({
+          used:      data.meta.quota_used,
+          cap:       data.meta.quota_cap,
+          remaining: data.meta.quota_remaining,
+        })
+      }
+
+      setLastResult({
+        headline: data.article.headline,
+        elapsed:  data.meta?.elapsed_seconds || "?",
+      })
+
+      const a = data.article
+      updatePost({
+        title:            a.headline,
+        content:          a.content,
+        excerpt:          a.excerpt,
+        seo_title:        a.seoTitle,
+        seo_description:  a.seoDescription,
+        seo_keywords:     a.seoKeywords,
+        tags:             a.tags,
+        blizine_score:    a.blizineScore,
+        is_breaking:      a.isBreaking,
+        focus_keyword:    a.seoKeywords?.[0] || "",
+        source_name:      a.suggestedCategory,
+      })
+
+    } catch (e) {
+      setError("Network error. Check your connection and try again.")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
-  const applyResult = () => {
-    if (!result) return
-    if (mode === "generate") {
-      const bodyMatch = result.replace(/<h1[^>]*>[^<]+<\/h1>/i, "").trim()
-      updatePost({ content: bodyMatch || result })
-    } else if (mode === "improve") {
-      updatePost({ content: result })
-    }
-  }
-
-  const copyResult = () => {
-    navigator.clipboard.writeText(result)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const modes: { id: AiMode; label: string; icon: typeof Sparkles }[] = [
-    { id: "generate", label: "Generate", icon: Sparkles },
-    { id: "improve", label: "Improve", icon: Wand2 },
-    { id: "analyze", label: "Analyze", icon: Lightbulb },
-  ]
+  const quotaPct = quota ? Math.round((quota.used / quota.cap) * 100) : 0
+  const quotaColor = quotaPct < 60 ? "#10B981" : quotaPct < 85 ? "#F59E0B" : "#EF4444"
 
   return (
     <CollapsibleSection
-      title="AI Writing Assistant"
+      title="AI Research & Write"
       icon={<Sparkles className="h-4 w-4 text-amber-500" />}
-      defaultOpen={false}
+      defaultOpen={true}
     >
       <div className="space-y-3">
-        <div className="flex border-2 border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden bg-gray-50 dark:bg-[#0A0F1E]">
-          {modes.map((m) => {
-            const Icon = m.icon
-            return (
-              <button
-                key={m.id}
-                onClick={() => { setMode(m.id); setResult("") }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-all ${
-                  mode === m.id
-                    ? "bg-[#6366F1] text-white shadow-sm"
-                    : "text-gray-500 dark:text-[#6B7280] hover:text-gray-700 dark:hover:text-[#F9FAFB] bg-transparent"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {m.label}
-              </button>
-            )
-          })}
+        {quota && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-[#0A0F1E] rounded-lg border border-gray-200 dark:border-[#1F2937]">
+            <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
+            <div className="flex-1">
+              <div className="h-1.5 rounded-full bg-gray-200 dark:bg-[#1F2937] overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${quotaPct}%`, background: quotaColor }} />
+              </div>
+            </div>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-[#6B7280] whitespace-nowrap">
+              {quota.remaining}/{quota.cap} left
+            </span>
+          </div>
+        )}
+
+        <div className="flex border-2 border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden">
+          <button
+            onClick={() => { setMode("topic"); setInput(""); setError("") }}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-all ${
+              mode === "topic"
+                ? "bg-[#6366F1] text-white shadow-sm"
+                : "text-gray-500 dark:text-[#6B7280] hover:text-gray-700 dark:hover:text-[#F9FAFB] bg-transparent"
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            From Topic
+          </button>
+          <button
+            onClick={() => { setMode("url"); setInput(""); setError("") }}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-all ${
+              mode === "url"
+                ? "bg-[#6366F1] text-white shadow-sm"
+                : "text-gray-500 dark:text-[#6B7280] hover:text-gray-700 dark:hover:text-[#F9FAFB] bg-transparent"
+            }`}
+          >
+            <Globe className="h-3.5 w-3.5" />
+            From URL
+          </button>
         </div>
 
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder={
-            mode === "generate" ? "Enter a topic or keyword..." :
-            mode === "improve" ? "Describe how to improve the content..." :
-            "What aspects to analyze?"
-          }
-          rows={3}
-          className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent resize-none"
-        />
+        <div>
+          {mode === "topic" ? (
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="e.g. OpenAI releases GPT-5 with real-time web browsing"
+              onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+            />
+          ) : (
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Paste a news article URL..."
+              onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+              className="w-full bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-300 dark:border-[#374151] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-[#F9FAFB] placeholder:text-gray-400 dark:placeholder:text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
+            />
+          )}
+        </div>
 
-        {mode === "generate" && seoKeyword && !prompt && (
-          <p className="text-xs text-gray-500 dark:text-[#6B7280] font-medium">Using focus keyword: &ldquo;{seoKeyword}&rdquo;</p>
+        {seoKeyword && mode === "topic" && !input && (
+          <p className="text-xs text-gray-500 dark:text-[#6B7280] font-medium">
+            Using focus keyword: &ldquo;{seoKeyword}&rdquo;
+          </p>
         )}
 
         <button
-          onClick={handleSubmit}
+          onClick={handleGenerate}
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-gray-200 dark:disabled:bg-[#374151] disabled:text-gray-400 dark:disabled:text-[#6B7280] text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-sm shadow-[#6366F1]/20"
         >
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Processing...
+              Researching & Writing...
             </>
           ) : (
             <>
               <Sparkles className="h-4 w-4" />
-              {mode === "generate" ? "Generate Content" : mode === "improve" ? "Improve Content" : "Analyze Content"}
+              AI Research & Write
             </>
           )}
         </button>
 
-        {result && (
-          <div className="bg-gray-50 dark:bg-[#0A0F1E] border-2 border-gray-200 dark:border-[#1F2937] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b-2 border-gray-100 dark:border-[#1F2937] bg-white dark:bg-transparent">
-              <span className="text-xs font-semibold text-gray-700 dark:text-[#F9FAFB]">Result</span>
-              <div className="flex items-center gap-1">
-                {(mode === "generate" || mode === "improve") && (
-                  <button
-                    onClick={applyResult}
-                    className="flex items-center gap-1 text-xs font-medium text-[#6366F1] hover:text-[#4F46E5] px-2.5 py-1.5 rounded-lg hover:bg-[#6366F1]/10 transition-colors"
-                  >
-                    <ArrowRight className="h-3 w-3" />
-                    Apply
-                  </button>
-                )}
-                <button
-                  onClick={copyResult}
-                  className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-[#6B7280] hover:text-gray-700 dark:hover:text-[#F9FAFB] px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1F2937] transition-colors"
-                >
-                  {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-            </div>
-            <div className="p-4 text-xs text-gray-700 dark:text-[#D1D5DB] max-h-40 overflow-y-auto leading-relaxed whitespace-pre-wrap">
-              {result.replace(/<[^>]*>/g, "").slice(0, 1000)}
+        {error && (
+          <div className="flex items-start gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+            <span className="text-xs text-red-700 dark:text-red-400">{error}</span>
+          </div>
+        )}
+
+        {lastResult && (
+          <div className="flex items-start gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+            <div className="text-xs text-green-700 dark:text-green-400">
+              <span className="font-semibold">Article generated</span>
+              <br />
+              {lastResult.headline.slice(0, 80)}
+              <br />
+              <span className="text-green-500/70">Took {lastResult.elapsed}s | Auto-filled editor fields</span>
             </div>
           </div>
         )}
+
+        <p className="text-[10px] text-gray-400 dark:text-[#6B7280] text-center leading-relaxed">
+          Powered by <strong>Gemini 2.5 Flash</strong> with Google Search Grounding.
+          <br />
+          Each write uses 1 of 2,000 monthly manual credits.
+        </p>
       </div>
     </CollapsibleSection>
   )
