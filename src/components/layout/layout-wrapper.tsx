@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { BreakingNews } from "./breaking-news"
-import { Header } from "./header"
-import { Nav } from "./nav"
-import { Footer } from "./footer"
+import { TopBar } from "@/components/layout/TopBar"
+import { Header } from "@/components/layout/Header"
+import { MainNav } from "@/components/layout/MainNav"
+import { BreakingTicker } from "@/components/home/BreakingTicker"
+import { Footer } from "@/components/layout/Footer"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname?.startsWith("/admin")
+  const isHome = pathname === "/"
   const [categories, setCategories] = useState<any[]>([])
 
   useEffect(() => {
@@ -24,13 +26,17 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
+  if (isHome) {
+    return <>{children}</>
+  }
+
   return (
     <>
-      <BreakingNews />
+      <TopBar />
       <Header />
-      <Nav categories={categories} />
+      <MainNav categories={categories} />
       <main>{children}</main>
-      <Footer />
+      <Footer categories={categories} recentPosts={[]} />
     </>
   )
 }

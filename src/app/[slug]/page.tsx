@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import { Sidebar } from "@/components/layout/sidebar"
+import { Sidebar } from "@/components/layout/Sidebar"
 import { formatDate, formatDateFull, readingTime } from "@/lib/utils"
 import { Clock, Eye, ArrowLeft, ExternalLink, Bookmark, ChevronRight } from "lucide-react"
 import type { Metadata } from "next"
@@ -316,7 +316,7 @@ export default async function PostPage({ params }: Props) {
 
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <Sidebar popularPosts={popularPosts} categories={sidebarCategories} recentPosts={recentPosts} />
+              <Sidebar trending={[]} popular={popularPosts} categories={sidebarCategories} tags={[]} ads={[]} />
             </div>
           </div>
         </div>

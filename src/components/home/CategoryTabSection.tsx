@@ -1,0 +1,91 @@
+"use client"
+
+import Link from "next/link"
+import Image from "next/image"
+import { useState } from "react"
+import { CategoryBadge } from "@/components/ui/CategoryBadge"
+
+export function CategoryTabSection({ categories, posts }: { categories: any[]; posts: any[] }) {
+  const [active, setActive] = useState("All")
+
+  const tabs = ["All", ...categories.map((c: any) => c.name)]
+  const filteredPosts = active === "All"
+    ? posts
+    : posts.filter((p: any) => p.categories?.name === active)
+
+  const bigPost = filteredPosts[0]
+  const listPosts = filteredPosts.slice(1, 5)
+
+  return (
+    <section className="tab-section">
+      <div className="tab-header">
+        <span className="dont-miss-label">Don&apos;t Miss</span>
+        <div className="tabs-row">
+          {tabs.slice(0, 8).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActive(tab)}
+              className={`tab-btn${active === tab ? " tab-active" : ""}`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="tab-content">
+        {bigPost && (
+          <Link href={`/${bigPost.slug}`} className="tab-big-post">
+            <div className="tab-big-img-wrap">
+              <Image
+                src={bigPost.featured_image || "/placeholder.jpg"}
+                alt={bigPost.title}
+                fill
+                className="tab-big-img"
+                sizes="50vw"
+              />
+              <div className="tab-big-overlay" />
+              <div className="tab-big-badge-wrap">
+                <CategoryBadge name={bigPost.categories?.name} color={bigPost.categories?.color} size="xs" />
+              </div>
+            </div>
+            <div className="tab-big-body">
+              <h3 className="tab-big-title">{bigPost.title}</h3>
+              <p className="tab-big-excerpt">{bigPost.excerpt}</p>
+              <div className="tab-big-meta">
+                <span>{bigPost.published_at ? new Date(bigPost.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span>
+                <span className="sep">·</span>
+                <span>{bigPost.reading_time} min read</span>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        <div className="tab-list">
+          {listPosts.map((post) => (
+            <Link key={post.id} href={`/${post.slug}`} className="tab-list-card">
+              <div className="tab-list-thumb">
+                <Image
+                  src={post.featured_image || "/placeholder.jpg"}
+                  alt={post.title}
+                  fill
+                  className="tab-thumb-img"
+                  sizes="90px"
+                />
+              </div>
+              <div className="tab-list-body">
+                <CategoryBadge name={post.categories?.name} color={post.categories?.color} size="xs" />
+                <h4 className="tab-list-title">{post.title}</h4>
+                <div className="tab-list-meta">
+                  <span>{post.published_at ? new Date(post.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span>
+                  <span className="sep">·</span>
+                  <span>{post.reading_time} min</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

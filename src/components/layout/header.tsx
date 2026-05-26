@@ -1,53 +1,116 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Menu, Moon, Sun } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
-import { SITE_NAME } from "@/lib/constants"
-import { useEffect, useState } from "react"
 
 export function Header() {
-  const { theme, setTheme } = useTheme()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQ, setSearchQ] = useState("")
+  const [loginOpen, setLoginOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => { setMounted(true) }, [])
 
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", fn)
+    return () => window.removeEventListener("scroll", fn)
+  }, [])
+
+  useEffect(() => {
+    if (searchOpen) inputRef.current?.focus()
+  }, [searchOpen])
+
   return (
-    <header className="border-b bg-background">
-      <div className="container flex items-center justify-between py-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="lg:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
-          <Link href="/" className="flex items-center gap-1">
-            <span className="text-2xl font-black tracking-tight">
-              BLIZ<span className="text-brand-indigo">9</span>INE
-            </span>
+    <>
+      <header className={`site-header${scrolled ? " scrolled" : ""}`}>
+        <div className="header-inner">
+          <Link href="/" className="logo">
+            <span className="logo-bliz">BLIZ</span>
+            <span className="logo-gem">◈</span>
+            <span className="logo-ine">INE</span>
+            <span className="logo-tld">.com</span>
           </Link>
+
+          <div className="header-ad-zone">
+            <span className="ad-label">Advertisement</span>
+            <div className="header-ad-inner">
+              <span>Upgrade to Blizine Pro</span>
+              <Link href="/pro" className="header-ad-cta">Get Pro</Link>
+            </div>
+          </div>
+
+          <div className="header-controls">
+            <button className="icon-btn" onClick={() => setSearchOpen(s => !s)} aria-label="Search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </button>
+            {mounted && (
+              <button className="icon-btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
+                {theme === "dark" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                )}
+              </button>
+            )}
+            <button className="login-btn" onClick={() => setLoginOpen(true)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+              Sign In
+            </button>
+          </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-6 text-sm font-medium">
-          <Link href="/category/tech-news" className="hover:text-brand-indigo transition-colors">Tech News</Link>
-          <Link href="/category/web-development" className="hover:text-brand-indigo transition-colors">Web Dev</Link>
-          <Link href="/category/programming" className="hover:text-brand-indigo transition-colors">Programming</Link>
-          <Link href="/category/cybersecurity" className="hover:text-brand-indigo transition-colors">Security</Link>
-          <Link href="/category/ai-automation" className="hover:text-brand-indigo transition-colors">AI</Link>
+        <div className={`search-dropdown${searchOpen ? " open" : ""}`}>
+          <div className="search-inner">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search articles..."
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && router.push(`/search?q=${encodeURIComponent(searchQ)}`)}
+              className="search-input"
+            />
+            <button className="search-close-btn" onClick={() => { setSearchOpen(false); setSearchQ("") }}>✕</button>
+          </div>
         </div>
+      </header>
 
-        <div className="flex items-center gap-2">
-          <Link href="/search">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button>
-          </Link>
-          {mounted && (
-            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-          )}
+      {loginOpen && (
+        <div className="modal-backdrop" onClick={() => setLoginOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setLoginOpen(false)}>✕</button>
+            <div className="modal-logo" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, marginBottom: 16 }}>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>BLIZ</span>
+              <span style={{ fontSize: 20, color: "var(--accent)" }}>◈</span>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>INE</span>
+            </div>
+            <h2 className="modal-title">Welcome Back</h2>
+            <p className="modal-sub">Sign in to save articles, join discussions, and get a personalised feed.</p>
+            <a href="#" className="oauth-btn">
+              <span className="oauth-icon">G</span>
+              Continue with Google
+            </a>
+            <a href="#" className="oauth-btn">
+              <span className="oauth-icon">⌥</span>
+              Continue with GitHub
+            </a>
+            <div className="modal-or">or</div>
+            <input type="email" placeholder="Email address" className="modal-input" />
+            <input type="password" placeholder="Password" className="modal-input" />
+            <button className="modal-submit">Sign In</button>
+            <p className="modal-footer-text">
+              Don&apos;t have an account? <a href="#">Sign up free</a>
+            </p>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   )
 }

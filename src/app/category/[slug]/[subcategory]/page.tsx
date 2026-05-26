@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/layout/sidebar"
+import { Sidebar } from "@/components/layout/Sidebar"
 import { formatDate } from "@/lib/utils"
 
 type Props = { params: { slug: string; subcategory: string } }
@@ -79,7 +79,7 @@ export default async function SubcategoryPage({ params }: Props) {
             <div className="text-center py-12 text-muted-foreground">No posts found.</div>
           )}
         </div>
-        <div className="lg:col-span-1"><Sidebar popularPosts={popularPosts} categories={sidebarCategories} recentPosts={recentPosts} /></div>
+        <div className="lg:col-span-1"><Sidebar trending={[]} popular={popularPosts} categories={sidebarCategories} tags={[]} ads={[]} /></div>
       </div>
     </div>
   )

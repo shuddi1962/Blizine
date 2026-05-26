@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { PostCard } from "@/components/post/post-card"
-import { Sidebar } from "@/components/layout/sidebar"
+import { Sidebar } from "@/components/layout/Sidebar"
 import { formatDate } from "@/lib/utils"
 import type { Metadata } from "next"
 
@@ -99,9 +99,11 @@ export default async function CategoryPage({ params }: Props) {
         </div>
         <div className="lg:col-span-1">
           <Sidebar
-            popularPosts={popularPosts || []}
+            trending={[]}
+            popular={popularPosts || []}
             categories={allCategories || []}
-            recentPosts={recentPosts || []}
+            tags={[]}
+            ads={[]}
           />
         </div>
       </div>
