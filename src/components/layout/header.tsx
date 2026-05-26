@@ -32,9 +32,7 @@ export function Header() {
       <header className={`site-header${scrolled ? " scrolled" : ""}`}>
         <div className="header-inner">
           <Link href="/" className="logo">
-            <span className="logo-bliz">BLIZ</span>
-            <span className="logo-gem">◈</span>
-            <span className="logo-ine">INE</span>
+            <span className="logo-text">Blizine</span>
             <span className="logo-tld">.com</span>
           </Link>
 
@@ -86,10 +84,8 @@ export function Header() {
         <div className="modal-backdrop" onClick={() => setLoginOpen(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setLoginOpen(false)}>✕</button>
-            <div className="modal-logo" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, marginBottom: 16 }}>
-              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>BLIZ</span>
-              <span style={{ fontSize: 20, color: "var(--accent)" }}>◈</span>
-              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>INE</span>
+            <div className="modal-logo" style={{ marginBottom: 16 }}>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>Blizine</span>
             </div>
             <h2 className="modal-title">Welcome Back</h2>
             <p className="modal-sub">Sign in to save articles, join discussions, and get a personalised feed.</p>

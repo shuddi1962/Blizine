@@ -6,9 +6,7 @@ export function Footer({ categories, recentPosts }: { categories: any[]; recentP
       <div className="footer-inner">
         <div>
           <div className="footer-logo">
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>BLIZ</span>
-            <span style={{ fontSize: 20, color: "var(--accent)" }}>◈</span>
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>INE</span>
+            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "var(--text)" }}>Blizine</span>
           </div>
           <p className="footer-tagline">Tech, decoded. Fast.</p>
           <p className="footer-about">

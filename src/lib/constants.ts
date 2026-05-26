@@ -1,7 +1,7 @@
 export const SITE_NAME = "Blizine"
 export const SITE_TAGLINE = "Tech, decoded. Fast."
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com"
-export const SITE_LOGO = "BLIZ9INE"
+export const SITE_LOGO = "Blizine"
 export const PRIMARY_COLOR = "#0F172A"
 export const ACCENT_COLOR = "#6366F1"
 export const HIGHLIGHT_COLOR = "#F59E0B"

@@ -38,7 +38,7 @@ export function AdminSidebar() {
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto hidden lg:block">
       <div className="p-4 border-b">
         <Link href="/admin" className="text-xl font-black">
-          BLIZ<span className="text-brand-indigo">9</span>INE
+          Blizine
         </Link>
         <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
       </div>
