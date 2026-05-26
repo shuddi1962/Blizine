@@ -28,7 +28,7 @@ export function NewsletterStrip() {
         <div>
           <h2 className="newsletter-headline">Stay Ahead of the Tech Curve</h2>
           <p className="newsletter-subline">
-            Join 47,000+ readers getting the best tech stories every morning, completely free.
+            Get the best tech stories delivered to your inbox every morning, completely free.
           </p>
           <div className="newsletter-badges">
             <span className="nl-badge">No spam</span>

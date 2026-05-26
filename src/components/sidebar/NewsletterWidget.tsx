@@ -39,7 +39,7 @@ export function NewsletterWidget() {
           <button className="nl-widget-btn" onClick={handleSubmit} disabled={status === "loading"}>
             {status === "loading" ? "..." : "Subscribe Free"}
           </button>
-          <p className="nl-widget-note">Join 47,000+ readers</p>
+          <p className="nl-widget-note">No spam, unsubscribe anytime</p>
           {status === "err" && <p className="nl-error" style={{ textAlign: "center" }}>Failed. Try again.</p>}
         </>
       )}

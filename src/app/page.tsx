@@ -118,7 +118,6 @@ export default async function HomePage() {
 
   const cats = (categories || []).map((cat: any) => ({
     ...cat,
-    post_count: 0,
   }))
 
   const featuredPost = (heroPosts || [])[0] || null

@@ -7,6 +7,7 @@ import { CategoryBadge } from "@/components/ui/CategoryBadge"
 
 export function CategoryTabSection({ categories, posts }: { categories: any[]; posts: any[] }) {
   const [active, setActive] = useState("All")
+  if (!posts.length && !categories.length) return null
 
   const tabs = ["All", ...categories.map((c: any) => c.name)]
   const filteredPosts = active === "All"

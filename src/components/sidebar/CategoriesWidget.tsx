@@ -15,7 +15,6 @@ export function CategoriesWidget({ categories }: { categories: any[] }) {
               <span className="cat-dot" style={{ background: cat.color || "var(--accent)" }} />
               <span className="cat-row-name">{cat.name}</span>
             </Link>
-            <span className="cat-row-count">{cat.post_count || 0}</span>
           </li>
         ))}
       </ul>

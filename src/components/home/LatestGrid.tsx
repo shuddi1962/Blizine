@@ -3,6 +3,7 @@ import Image from "next/image"
 import { CategoryBadge } from "@/components/ui/CategoryBadge"
 
 export function LatestGrid({ posts }: { posts: any[] }) {
+  if (!posts.length) return null
   return (
     <section className="latest-section">
       <div className="section-head">
