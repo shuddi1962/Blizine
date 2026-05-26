@@ -148,27 +148,32 @@ export async function GET(req: Request) {
 
     let totalNewPosts = 0
     const results: { feed: string; newPosts: number; error?: string }[] = []
+    const BATCH_SIZE = 5
+    const timeout = AbortSignal.timeout(50000)
 
-    for (const feed of feeds) {
+    const processFeed = async (feed: typeof feeds[0]): Promise<void> => {
       try {
         const parsed = await parser.parseURL(feed.feed_url)
         if (!parsed.items?.length) {
           results.push({ feed: feed.feed_name, newPosts: 0 })
-          continue
+          return
         }
 
         const feedItemUrls = parsed.items
           .map((item: any) => item.link || item.guid)
           .filter(Boolean) as string[]
 
-        const { data: existingPosts } = await supabase
-          .from("posts")
-          .select("original_source_url")
-          .in("original_source_url", feedItemUrls)
-
-        const existingUrls = new Set(
-          (existingPosts || []).map((p: any) => p.original_source_url)
-        )
+        let existingUrls = new Set<string>()
+        for (let i = 0; i < feedItemUrls.length; i += 100) {
+          const batch = feedItemUrls.slice(i, i + 100)
+          const { data: existingPosts } = await supabase
+            .from("posts")
+            .select("original_source_url")
+            .in("original_source_url", batch)
+          if (existingPosts) {
+            existingPosts.forEach((p: any) => existingUrls.add(p.original_source_url))
+          }
+        }
 
         const newItems = parsed.items.filter(
           (item: any) => !existingUrls.has(item.link || item.guid)
@@ -180,7 +185,7 @@ export async function GET(req: Request) {
             .update({ last_fetched_at: new Date().toISOString() })
             .eq("id", feed.id)
           results.push({ feed: feed.feed_name, newPosts: 0 })
-          continue
+          return
         }
 
         let feedPostsCount = 0
@@ -188,24 +193,26 @@ export async function GET(req: Request) {
         for (const item of newItems) {
           const title = item.title || "Untitled"
           const content = item.content || item.contentSnippet || ""
-          let featuredImage = extractFeaturedImage(item, content)
-          if (!featuredImage && (item.link || item.guid)) {
-            featuredImage = await fetchOgImage((item.link || item.guid || "") as string)
-          }
-          if (!featuredImage) {
-            featuredImage = await searchPexels((title || "technology").split(" ").slice(0, 4).join(" "))
-          }
+          let featuredImage: string | null = null
+          try {
+            featuredImage = extractFeaturedImage(item, content)
+            if (!featuredImage && (item.link || item.guid)) {
+              featuredImage = await fetchOgImage((item.link || item.guid || "") as string)
+            }
+            if (!featuredImage) {
+              featuredImage = await searchPexels((title || "technology").split(" ").slice(0, 4).join(" "))
+            }
+          } catch {}
+
           let finalContent = content
 
           if (feed.auto_rewrite && content.length > 50 && process.env.OPENROUTER_API_KEY) {
             try {
               finalContent = await rewriteWithOpenRouter(title, content)
-            } catch {
-              // fallback to original
-            }
+            } catch {}
           }
 
-          const slug = generateSlug(title) + "-" + Date.now()
+          const slug = generateSlug(title) + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6)
 
           const { data: newPost, error: insertError } = await supabase
             .from("posts")
@@ -231,7 +238,6 @@ export async function GET(req: Request) {
             .single()
 
           if (insertError || !newPost) {
-            console.error("Insert failed: " + insertError?.message)
             continue
           }
 
@@ -261,16 +267,23 @@ export async function GET(req: Request) {
 
         results.push({ feed: feed.feed_name, newPosts: feedPostsCount })
       } catch (err: any) {
-        await supabase
-          .from("rss_feeds")
-          .update({
-            last_error: err.message?.slice(0, 500),
-            last_fetched_at: new Date().toISOString(),
-          })
-          .eq("id", feed.id)
+        try {
+          await supabase
+            .from("rss_feeds")
+            .update({
+              last_error: err.message?.slice(0, 500),
+              last_fetched_at: new Date().toISOString(),
+            })
+            .eq("id", feed.id)
+        } catch {}
 
-        results.push({ feed: feed.feed_name, newPosts: 0, error: err.message })
+        results.push({ feed: feed.feed_name, newPosts: 0, "error": err.message?.slice(0, 100) })
       }
+    }
+
+    for (let i = 0; i < feeds.length; i += BATCH_SIZE) {
+      const batch = feeds.slice(i, i + BATCH_SIZE)
+      await Promise.all(batch.map((feed) => processFeed(feed)))
     }
 
     return NextResponse.json({

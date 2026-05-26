@@ -1,0 +1,14 @@
+name: Fetch RSS Feeds
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call fetch-rss API
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" "${{ secrets.SITE_URL || 'https://blizine.vercel.app' }}/api/fetch-rss"

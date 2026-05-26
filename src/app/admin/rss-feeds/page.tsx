@@ -126,6 +126,7 @@ export default function AdminRssFeedsPage() {
                     <span>{feed.posts_fetched} posts</span>
                     {feed.last_fetched_at && <span>Last fetched: {new Date(feed.last_fetched_at).toLocaleDateString()}</span>}
                   </div>
+                  {feed.last_error && <p className="text-xs text-red-400 mt-1 truncate max-w-[500px]" title={feed.last_error}>Error: {feed.last_error}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2">
