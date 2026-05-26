@@ -34,6 +34,7 @@ export default async function HomePage() {
   let cyberPosts: any[] | null = null
   let gadgetPosts: any[] | null = null
   let techNewsPosts: any[] | null = null
+  let desktopPosts: any[] | null = null
   let subcategories: any[] | null = null
   let allTags: any[] | null = null
 
@@ -85,6 +86,11 @@ export default async function HomePage() {
           .not("featured_image", "is", null)
           .order("published_at", { ascending: false }).limit(4),
 
+        supabase.from("posts").select("*, categories!inner(name,slug,color)")
+          .eq("status", "published").eq("categories.slug", "desktops")
+          .not("featured_image", "is", null)
+          .order("published_at", { ascending: false }).limit(4),
+
         supabase.from("subcategories").select("*, categories(name,slug,color)")
           .order("name"),
 
@@ -105,8 +111,9 @@ export default async function HomePage() {
       cyberPosts = extract(results[7], 7)
       gadgetPosts = extract(results[8], 8)
       techNewsPosts = extract(results[9], 9)
-      subcategories = extract(results[10], 10)
-      allTags = extract(results[11], 11)
+      desktopPosts = extract(results[10], 10)
+      subcategories = extract(results[11], 11)
+      allTags = extract(results[12], 12)
     } catch (e) {
       console.error("Homepage data fetch failed", e)
     }
@@ -136,6 +143,20 @@ export default async function HomePage() {
       <Header />
       <MainNav categories={cats} subcategories={subcategories || []} />
       <BreakingTicker posts={tickerPosts || []} />
+
+      {trendingPosts && trendingPosts.length > 0 && (
+        <div className="trending-now-strip">
+          <span className="trending-now-label">Trending Now</span>
+          <div className="trending-now-track">
+            {trendingPosts.slice(0, 5).map((p, i) => (
+              <a key={p.id} href={`/${p.slug}`} className="trending-now-item">
+                <span className="trending-now-rank">{i + 1}</span>
+                <span>{p.title}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="site-main">
         <div className="main-layout">
@@ -179,6 +200,14 @@ export default async function HomePage() {
               categoryColor="#3B82F6"
               posts={techNewsPosts || []}
               subcategories={subcatsByCat["tech-news"] || []}
+            />
+
+            <CategoryStrip
+              categoryName="Desktops"
+              categorySlug="desktops"
+              categoryColor="#A855F7"
+              posts={desktopPosts || []}
+              subcategories={subcatsByCat["desktops"] || []}
             />
           </div>
 

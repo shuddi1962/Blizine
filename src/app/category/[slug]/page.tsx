@@ -37,24 +37,22 @@ export default async function CategoryPage({ params }: Props) {
     .order("published_at", { ascending: false })
     .limit(20)
 
-  const { data: popularPosts } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("status", "published")
-    .order("views", { ascending: false })
-    .limit(5)
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
 
-  const { data: allCategories } = await supabase
-    .from("categories")
-    .select("*")
-    .order("name")
+  const [popularRes, allCategoriesRes, recentRes, trendingRes, tagsRes] = await Promise.all([
+    supabase.from("posts").select("*").eq("status", "published").order("views", { ascending: false }).limit(5),
+    supabase.from("categories").select("*").order("name"),
+    supabase.from("posts").select("*").eq("status", "published").order("published_at", { ascending: false }).limit(5),
+    supabase.from("posts").select("id,title,slug,views,categories(name,slug,color)").eq("status", "published").gte("published_at", sevenDaysAgo).order("views", { ascending: false }).limit(5),
+    supabase.from("posts").select("seo_keywords").eq("status", "published").limit(100),
+  ])
 
-  const { data: recentPosts } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(5)
+  const popularPosts = popularRes.data || []
+  const allCategories = allCategoriesRes.data || []
+  const recentPosts = recentRes.data || []
+  const trendingPosts = trendingRes.data || []
+  const allTags = tagsRes.data || []
+  const sidebarTags = Array.from(new Set(allTags.flatMap((p: any) => p.seo_keywords || []))).slice(0, 20) as string[]
 
   return (
     <div className="container py-6">
@@ -99,10 +97,10 @@ export default async function CategoryPage({ params }: Props) {
         </div>
         <div className="lg:col-span-1">
           <Sidebar
-            trending={[]}
+            trending={trendingPosts}
             popular={popularPosts || []}
             categories={allCategories || []}
-            tags={[]}
+            tags={sidebarTags}
           />
         </div>
       </div>

@@ -33,16 +33,7 @@ export function Header() {
         <div className="header-inner">
           <Link href="/" className="logo">
             <span className="logo-text">Blizine</span>
-            <span className="logo-tld">.com</span>
           </Link>
-
-          <div className="header-ad-zone">
-            <span className="ad-label">Advertisement</span>
-            <div className="header-ad-inner">
-              <span>Upgrade to Blizine Pro</span>
-              <Link href="/pro" className="header-ad-cta">Get Pro</Link>
-            </div>
-          </div>
 
           <div className="header-controls">
             <button className="icon-btn" onClick={() => setSearchOpen(s => !s)} aria-label="Search">
