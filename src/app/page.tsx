@@ -10,13 +10,13 @@ import { AffiliateStrip } from "@/components/affiliate/affiliate-strip"
 export default async function HomePage() {
   const supabase = createClient()
 
-  const [postsRes, trendingRes, categoriesRes, subcategoriesRes, latestRes] = await Promise.all([
+  const [postsRes, trendingRes, categoriesRes, latestRes] = await Promise.all([
     supabase
       .from("posts")
       .select("*, category:categories(*), author:profiles(*)")
       .eq("status", "published")
       .order("published_at", { ascending: false })
-      .limit(30),
+      .limit(3),
     supabase
       .from("posts")
       .select("*")
@@ -28,10 +28,6 @@ export default async function HomePage() {
       .select("*")
       .order("name"),
     supabase
-      .from("subcategories")
-      .select("*")
-      .order("name"),
-    supabase
       .from("posts")
       .select("*, category:categories(*), author:profiles(*)")
       .eq("status", "published")
@@ -39,17 +35,15 @@ export default async function HomePage() {
       .limit(9),
   ])
 
-  const allPosts = (postsRes.data || []) as any[]
-  const heroPosts = allPosts.length >= 3 ? allPosts : allPosts.slice(0, 3)
+  const heroPosts = (postsRes.data || []) as any[]
 
   const trendingPosts = trendingRes.data || []
   const categories = categoriesRes.data || []
-  const subcategories = subcategoriesRes.data || []
   const latestPosts = latestRes.data || []
 
   return (
     <div>
-      <HomeHero posts={heroPosts} categories={categories} subcategories={subcategories} />
+      <HomeHero posts={heroPosts} />
 
       <TrendingTicker posts={trendingPosts} />
 
