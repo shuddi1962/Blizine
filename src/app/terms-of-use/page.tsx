@@ -9,11 +9,23 @@ export const metadata: Metadata = {
 export default function TermsOfUsePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-2">Terms of Use</h1>
-      <p className="text-sm text-muted-foreground mb-8">Last updated: May 27, 2026</p>
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 bg-gradient-to-br from-slate-600/20 via-blue-500/10 to-indigo-600/20 border border-slate-500/20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(100,116,139,0.12),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(99,102,241,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+        <div className="relative px-8 py-12 text-center">
+          <div className="text-5xl mb-4">📜</div>
+          <h1 className="text-4xl font-bold mb-2">Terms of Use</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            The rules and guidelines governing your use of Blizine.
+          </p>
+          <p className="text-sm text-muted-foreground mt-4">Last updated: May 27, 2026</p>
+        </div>
+      </div>
 
-      <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-accent">
-        <section className="mb-8">
+      <div className="space-y-10">
+        <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-accent">
+        <section className="!mb-0">
           <h2>1. Acceptance of Terms</h2>
           <p>
             By accessing or using Blizine (&quot;the Site&quot;), you agree to be bound by these Terms of Use. If you
@@ -119,6 +131,7 @@ export default function TermsOfUsePage() {
             <a href="mailto:legal@blizine.com">legal@blizine.com</a>.
           </p>
         </section>
+      </div>
       </div>
     </div>
   )

@@ -42,7 +42,7 @@ export function Footer({ categories, recentPosts }: { categories: any[]; recentP
 
         <div>
           <h3 className="footer-col-title">Recent Articles</h3>
-          {recentPosts.slice(0, 4).map((post) => (
+          {recentPosts.slice(0, 6).map((post) => (
             <Link key={post.id} href={`/${post.slug}`} className="footer-post-link">
               <span style={{ flexShrink: 0, marginTop: 3 }}>●</span>
               <span>{post.title?.slice(0, 48)}</span>
@@ -52,9 +52,22 @@ export function Footer({ categories, recentPosts }: { categories: any[]; recentP
 
         <div>
           <h3 className="footer-col-title">Quick Links</h3>
-          {["About Us", "Contact Us", "Advertise With Us", "Privacy Policy", "Terms of Use", "Sitemap", "RSS Feed", "Newsletter", "Write For Us"].map((l) => (
-            <Link key={l} href="#" className="footer-col-link">
-              <span>{l}</span>
+          {[
+            { label: "About Us", href: "/about" },
+            { label: "Contact Us", href: "/contact" },
+            { label: "Advertise With Us", href: "/advertise" },
+            { label: "Disclaimer", href: "/disclaimer" },
+            { label: "Privacy Policy", href: "/privacy-policy" },
+            { label: "Cookies Policy", href: "/cookies-policy" },
+            { label: "Terms of Use", href: "/terms-of-use" },
+            { label: "Newsletter", href: "/newsletter" },
+            { label: "Write For Us", href: "/write-for-us" },
+            { label: "Marketplace", href: "/marketplace" },
+            { label: "Sitemap", href: "/sitemap.xml" },
+            { label: "RSS Feed", href: "/rss.xml" },
+          ].map((l) => (
+            <Link key={l.label} href={l.href} className="footer-col-link">
+              <span>{l.label}</span>
             </Link>
           ))}
         </div>
@@ -62,8 +75,8 @@ export function Footer({ categories, recentPosts }: { categories: any[]; recentP
 
       <div className="footer-bottom">
         <span>&copy; {new Date().getFullYear()} Blizine. All rights reserved.</span>
-        <span>Built with love for the tech community</span>
-        <a href="mailto:hello@blizine.com" style={{ color: "var(--accent)", textDecoration: "none" }}>hello@blizine.com</a>
+        <span>Built with ❤️ for the tech community</span>
+        <span>Est. 2024 &middot; Tech, decoded. Fast.</span>
       </div>
     </footer>
   )

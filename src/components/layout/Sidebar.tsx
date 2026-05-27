@@ -4,7 +4,6 @@ import { SocialWidget } from "@/components/sidebar/SocialWidget"
 import { NewsletterWidget } from "@/components/sidebar/NewsletterWidget"
 import { PopularWidget } from "@/components/sidebar/PopularWidget"
 import { TagsWidget } from "@/components/sidebar/TagsWidget"
-import { QuickLinksWidget } from "@/components/sidebar/QuickLinksWidget"
 
 interface SidebarProps {
   trending: any[]
@@ -22,7 +21,6 @@ export function Sidebar({ trending, popular, categories, tags }: SidebarProps) {
       <NewsletterWidget />
       <PopularWidget posts={popular} />
       <AdSlot position="Sidebar Mid" width={300} height={250} />
-      <QuickLinksWidget />
       <TagsWidget tags={tags} />
     </aside>
   )

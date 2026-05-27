@@ -37,9 +37,9 @@ export default function AdvertisePage() {
         <h2 className="text-2xl font-bold mb-6">Available Ad Formats</h2>
         <div className="space-y-4">
           {[
-            { title: "Display Ads", desc: "Banner and sidebar placements in premium positions throughout the site. Available in multiple sizes (728x90, 300x250, 160x600).", price: "From $500/week" },
-            { title: "Sponsored Content", desc: "Native articles that blend seamlessly with our editorial content. Includes social media promotion and newsletter feature.", price: "From $1,500/post" },
-            { title: "Newsletter Sponsorship", desc: "Get your brand in front of our engaged email subscribers with a dedicated placement in our weekly newsletter.", price: "From $750/send" },
+            { title: "Display Ads", desc: "Banner and sidebar placements in premium positions throughout the site. Available in multiple sizes (728x90, 300x250, 160x600). Flexible pricing for long-term partnerships.", price: "From $99/week" },
+            { title: "Sponsored Content", desc: "Native articles that blend seamlessly with our editorial content. Includes social media promotion and newsletter feature.", price: "From $299/post" },
+            { title: "Newsletter Sponsorship", desc: "Get your brand in front of our engaged email subscribers with a dedicated placement in our weekly newsletter.", price: "From $149/send" },
             { title: "Affiliate Partnerships", desc: "Promote your products through our trusted affiliate network with performance-based pricing.", price: "Commission-based" },
           ].map((fmt) => (
             <div key={fmt.title} className="bg-card border rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">

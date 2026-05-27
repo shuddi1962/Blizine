@@ -15,10 +15,15 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isHome = pathname === "/"
   const [categories, setCategories] = useState<any[]>([])
 
+  const [recentPosts, setRecentPosts] = useState<any[]>([])
+
   useEffect(() => {
     const supabase = createClient()
     supabase.from("categories").select("*, subcategories(*)").order("name").then(({ data }) => {
       if (data) setCategories(data)
+    })
+    supabase.from("posts").select("id,title,slug,featured_image").eq("status","published").order("published_at",{ascending:false}).limit(6).then(({ data }) => {
+      if (data) setRecentPosts(data)
     })
   }, [])
 
@@ -36,7 +41,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       <Header />
       <MainNav categories={categories} />
       <main>{children}</main>
-      <Footer categories={categories} recentPosts={[]} />
+      <Footer categories={categories} recentPosts={recentPosts} />
     </>
   )
 }
