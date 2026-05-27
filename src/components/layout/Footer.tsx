@@ -75,7 +75,7 @@ export function Footer({ categories, recentPosts }: { categories: any[]; recentP
 
       <div className="footer-bottom">
         <span>&copy; {new Date().getFullYear()} Blizine. All rights reserved.</span>
-        <span>Built with ❤️ for the tech community</span>
+        <span>Built with passion for the tech community</span>
         <span>Est. 2024 &middot; Tech, decoded. Fast.</span>
       </div>
     </footer>

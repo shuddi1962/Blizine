@@ -1,8 +1,24 @@
+"use client"
+
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { CategoryBadge } from "@/components/ui/CategoryBadge"
 
-export function TrendingWidget({ posts }: { posts: any[] }) {
-  if (!posts.length) return null
+export function TrendingWidget({ posts: initialPosts }: { posts: any[] }) {
+  const [posts, setPosts] = useState(initialPosts)
+
+  useEffect(() => {
+    if (!initialPosts?.length) {
+      fetch("/api/posts?limit=5&sort=views")
+        .then((r) => r.ok ? r.json() : [])
+        .then((data) => {
+          if (Array.isArray(data) && data.length) setPosts(data)
+        })
+        .catch(() => {})
+    }
+  }, [initialPosts])
+
+  if (!posts?.length) return null
   return (
     <div className="sidebar-card">
       <div className="sidebar-card-header">
@@ -10,7 +26,7 @@ export function TrendingWidget({ posts }: { posts: any[] }) {
         <span className="sidebar-card-title">Trending Now</span>
       </div>
       <ul className="trending-list">
-        {posts.map((post, i) => (
+        {posts.map((post: any, i: number) => (
           <li key={post.id} className="trending-item">
             <span className={`trending-rank${i < 3 ? [" gold", " silver", " bronze"][i] : ""}`}>
               {String(i + 1).padStart(2, "0")}

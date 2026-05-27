@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "Contact Us – Blizine",
@@ -10,11 +11,17 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          We value your feedback and inquiries. Here is how you can reach the right team.
-        </p>
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
+        <Image src="https://images.pexels.com/photos/695853/pexels-photo-695853.jpeg" alt="Contact us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
+        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+          <div className="text-5xl mb-4">✉️</div>
+          <h1 className="text-4xl font-bold mb-2">Contact Us</h1>
+          <p className="text-lg text-white/80 max-w-2xl">
+            We value your feedback and inquiries. Here is how you can reach the right team.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">

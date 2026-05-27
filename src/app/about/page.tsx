@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "About Us – Blizine",
@@ -11,31 +12,42 @@ export default function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       {/* Hero */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 font-[family-name:var(--font-heading)]">About Blizine</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Your trusted destination for technology news, expert reviews, and in-depth analysis since 2024.
-        </p>
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" alt="Modern tech workspace" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-xl">
+          <h1 className="text-4xl font-bold mb-4">About Blizine</h1>
+          <p className="text-lg text-white/80 max-w-2xl">
+            Your trusted destination for technology news, expert reviews, and in-depth analysis since 2024.
+          </p>
+        </div>
       </div>
 
       {/* Mission */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          At Blizine, we believe that understanding technology is essential for everyone. Our mission is to
-          demystify complex tech topics and deliver accurate, timely, and actionable information to our readers.
-          Whether you are a seasoned developer, a business leader, or a curious enthusiast, we provide the
-          insights you need to stay ahead in a rapidly evolving digital world.
-        </p>
-        <p className="text-muted-foreground leading-relaxed">
-          We are committed to journalistic integrity, editorial independence, and the highest standards of
-          accuracy. Every article undergoes rigorous fact-checking and review before publication.
-        </p>
+      <section className="mb-12 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            At Blizine, we believe that understanding technology is essential for everyone. Our mission is to
+            demystify complex tech topics and deliver accurate, timely, and actionable information to our readers.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            We are committed to journalistic integrity, editorial independence, and the highest standards of
+            accuracy. Every article undergoes rigorous fact-checking and review before publication.
+          </p>
+        </div>
+        <div className="relative h-64 rounded-xl overflow-hidden">
+          <Image src="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg" alt="Team collaboration" fill className="object-cover" sizes="(max-width: 768px) 100vw, 448px" />
+        </div>
       </section>
 
       {/* Editorial Standards */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-4">Editorial Standards</h2>
+        <div className="relative h-48 rounded-xl overflow-hidden mb-6">
+          <Image src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Modern office space" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <h2 className="absolute bottom-4 left-6 text-2xl font-bold text-white">Editorial Standards</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-card border rounded-xl p-6">
             <h3 className="font-bold text-lg mb-2">Fact-Checking</h3>
@@ -57,24 +69,33 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-4">Our Team</h2>
-        <p className="text-muted-foreground leading-relaxed mb-6">
-          Blizine is powered by a global network of experienced journalists, technology experts, and content
-          creators who share a passion for innovation. Our team brings decades of combined experience from
-          leading technology publications and the software industry.
-        </p>
+      <section className="mb-12 grid md:grid-cols-2 gap-8 items-center">
+        <div className="relative h-64 rounded-xl overflow-hidden md:order-2">
+          <Image src="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg" alt="Team meeting" fill className="object-cover" sizes="(max-width: 768px) 100vw, 448px" />
+        </div>
+        <div className="md:order-1">
+          <h2 className="text-2xl font-bold mb-4">Our Team</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Blizine is powered by a global network of experienced journalists, technology experts, and content
+            creators who share a passion for innovation. Our team brings decades of combined experience from
+            leading technology publications and the software industry.
+          </p>
+        </div>
       </section>
 
       {/* Contact CTA */}
-      <section className="bg-accent/5 border border-accent/20 rounded-2xl p-8 text-center">
-        <h2 className="text-2xl font-bold mb-3">Get in Touch</h2>
-        <p className="text-muted-foreground mb-6">
-          Have a tip, question, or feedback? We would love to hear from you.
-        </p>
-        <Link href="/contact" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
-          Contact Us
-        </Link>
+      <section className="relative rounded-2xl overflow-hidden p-8 text-center">
+        <Image src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg" alt="Contact us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
+        <div className="absolute inset-0 bg-[#0000CD]/85" />
+        <div className="relative z-10">
+          <h2 className="text-2xl font-bold mb-3 text-white">Get in Touch</h2>
+          <p className="text-white/80 mb-6">
+            Have a tip, question, or feedback? We would love to hear from you.
+          </p>
+          <Link href="/contact" className="inline-flex items-center gap-2 bg-white text-[#0000CD] px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
+            Contact Us
+          </Link>
+        </div>
       </section>
     </div>
   )

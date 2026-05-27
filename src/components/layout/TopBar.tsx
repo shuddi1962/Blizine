@@ -10,7 +10,6 @@ export function TopBar() {
         <div className="top-bar-left">
           <span className="top-date">{now}</span>
           <span className="top-divider" />
-          <Link href="/marketplace">Marketplace</Link>
           <span className="top-divider" />
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>

@@ -1,9 +1,25 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 import { CategoryBadge } from "@/components/ui/CategoryBadge"
 
-export function PopularWidget({ posts }: { posts: any[] }) {
-  if (!posts.length) return null
+export function PopularWidget({ posts: initialPosts }: { posts: any[] }) {
+  const [posts, setPosts] = useState(initialPosts)
+
+  useEffect(() => {
+    if (!initialPosts?.length) {
+      fetch("/api/posts?limit=5&sort=popular")
+        .then((r) => r.ok ? r.json() : [])
+        .then((data) => {
+          if (Array.isArray(data) && data.length) setPosts(data)
+        })
+        .catch(() => {})
+    }
+  }, [initialPosts])
+
+  if (!posts?.length) return null
   return (
     <div className="sidebar-card">
       <div className="sidebar-card-header">
@@ -11,7 +27,7 @@ export function PopularWidget({ posts }: { posts: any[] }) {
         <span className="sidebar-card-title">Popular This Week</span>
       </div>
       <ul className="popular-list">
-        {posts.slice(0, 5).map((post) => (
+        {posts.slice(0, 5).map((post: any) => (
           <li key={post.id} className="popular-item">
             <Image
               src={post.featured_image || "/placeholder.jpg"}

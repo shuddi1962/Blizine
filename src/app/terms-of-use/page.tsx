@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "Terms of Use – Blizine",
@@ -10,16 +11,16 @@ export default function TermsOfUsePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 bg-gradient-to-br from-slate-600/20 via-blue-500/10 to-indigo-600/20 border border-slate-500/20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(100,116,139,0.12),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(99,102,241,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
-        <div className="relative px-8 py-12 text-center">
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
+        <Image src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="Legal documents" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
+        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
           <div className="text-5xl mb-4">📜</div>
           <h1 className="text-4xl font-bold mb-2">Terms of Use</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-white/80 max-w-2xl">
             The rules and guidelines governing your use of Blizine.
           </p>
-          <p className="text-sm text-muted-foreground mt-4">Last updated: May 27, 2026</p>
+          <p className="text-sm text-white/60 mt-4">Last updated: May 27, 2026</p>
         </div>
       </div>
 
