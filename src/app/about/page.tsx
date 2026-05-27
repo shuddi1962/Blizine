@@ -10,18 +10,20 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="w-full">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[320px] flex items-center">
-        <Image src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" alt="Modern tech workspace" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-16 text-white max-w-xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" alt="Modern tech workspace" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">About Blizine</h1>
           <p className="text-lg text-white/80 max-w-2xl">
             Your trusted destination for technology news, expert reviews, and in-depth analysis since 2024.
           </p>
         </div>
       </div>
+
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
 
       {/* Mission */}
       <section className="mb-12 grid md:grid-cols-2 gap-8 items-center">
@@ -86,17 +88,18 @@ export default function AboutPage() {
       {/* Contact CTA */}
       <section className="relative rounded-2xl overflow-hidden p-8 text-center">
         <Image src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg" alt="Contact us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-[#0000CD]/85" />
+        <div className="absolute inset-0 bg-[#0F172A]/85" />
         <div className="relative z-10">
           <h2 className="text-2xl font-bold mb-3 text-white">Get in Touch</h2>
           <p className="text-white/80 mb-6">
             Have a tip, question, or feedback? We would love to hear from you.
           </p>
-          <Link href="/contact" className="inline-flex items-center gap-2 bg-white text-[#0000CD] px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
+          <Link href="/contact" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
             Contact Us
           </Link>
         </div>
       </section>
+      </div>
     </div>
   )
 }

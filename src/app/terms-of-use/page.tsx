@@ -9,11 +9,12 @@ export const metadata: Metadata = {
 
 export default function TermsOfUsePage() {
   return (
-    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+    <div className="w-full">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
-        <Image src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="Legal documents" fill className="object-cover" sizes="100vw" />
-        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="Legal documents" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white max-w-4xl">
           <div className="text-5xl mb-4">📜</div>
           <h1 className="text-4xl font-bold mb-2">Terms of Use</h1>
           <p className="text-lg text-white/80">The rules and guidelines governing your use of Blizine.</p>
@@ -21,6 +22,7 @@ export default function TermsOfUsePage() {
         </div>
       </div>
 
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <section className="bg-card border rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
@@ -62,7 +64,7 @@ export default function TermsOfUsePage() {
 
         <section className="bg-card border rounded-2xl p-6">
           <div className="relative h-32 rounded-xl overflow-hidden mb-4">
-            <Image src="https://images.pexels.com/photos/566847/pexels-photo-566847.jpeg" alt="Affiliate" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+            <Image src="https://images.pexels.com/photos/4476377/pexels-photo-4476377.jpeg" alt="Affiliate" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           </div>
           <h2 className="text-2xl font-bold mb-4">5. Affiliate Disclosure</h2>
           <p className="text-muted-foreground">Blizine participates in affiliate marketing programs. We may earn commissions on purchases through links on our site at no additional cost to you.</p>
@@ -99,6 +101,7 @@ export default function TermsOfUsePage() {
         <p className="text-muted-foreground mb-4">For questions about these Terms of Use, please contact us.</p>
         <a href="mailto:legal@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">legal@blizine.com</a>
       </section>
+      </div>
     </div>
   )
 }

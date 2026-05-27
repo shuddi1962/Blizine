@@ -10,11 +10,12 @@ export const metadata: Metadata = {
 
 export default function DisclaimerPage() {
   return (
-    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+    <div className="w-full">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
-        <Image src="https://images.pexels.com/photos/566847/pexels-photo-566847.jpeg" alt="Legal disclaimer" fill className="object-cover" sizes="100vw" />
-        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/5632403/pexels-photo-5632403.jpeg" alt="Legal disclaimer" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white max-w-4xl">
           <div className="text-5xl mb-4">⚖️</div>
           <h1 className="text-4xl font-bold mb-2">Disclaimer</h1>
           <p className="text-lg text-white/80">Transparency matters. Everything you need to know about our affiliate relationships, advertising practices, and more.</p>
@@ -22,6 +23,7 @@ export default function DisclaimerPage() {
         </div>
       </div>
 
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <section className="bg-card border rounded-2xl p-6">
           <div className="relative h-36 rounded-xl overflow-hidden mb-4">
@@ -92,6 +94,7 @@ export default function DisclaimerPage() {
         <p className="text-muted-foreground mb-4">Please reach out to us with any questions or concerns.</p>
         <Link href="/contact" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">Contact Us</Link>
       </section>
+      </div>
     </div>
   )
 }

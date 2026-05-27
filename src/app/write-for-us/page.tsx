@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function WriteForUsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="w-full">
       {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Write for us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Write for us" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Write For Us</h1>
           <p className="text-lg text-white/80 max-w-2xl">
             Share your expertise with thousands of tech enthusiasts. We welcome contributions from writers,
@@ -24,6 +24,7 @@ export default function WriteForUsPage() {
         </div>
       </div>
 
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
       {/* Guidelines */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">Submission Guidelines</h2>
@@ -101,6 +102,7 @@ export default function WriteForUsPage() {
           We typically respond within 48 hours. All submissions are treated confidentially.
         </p>
       </section>
+      </div>
     </div>
   )
 }

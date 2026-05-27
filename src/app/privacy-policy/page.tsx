@@ -9,11 +9,12 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+    <div className="w-full">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
-        <Image src="https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg" alt="Data security" fill className="object-cover" sizes="100vw" />
-        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg" alt="Data security" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-4xl font-bold mb-2">Privacy Policy</h1>
           <p className="text-lg text-white/80">How Blizine collects, uses, and protects your personal information.</p>
@@ -21,6 +22,7 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
 
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <section className="bg-card border rounded-2xl p-6 col-span-full">
           <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
@@ -119,6 +121,7 @@ export default function PrivacyPolicyPage() {
         <p className="text-muted-foreground mb-4">If you have any questions about this Privacy Policy, please reach out.</p>
         <a href="mailto:privacy@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">privacy@blizine.com</a>
       </section>
+      </div>
     </div>
   )
 }

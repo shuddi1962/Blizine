@@ -10,16 +10,18 @@ export const metadata: Metadata = {
 
 export default function AdvertisePage() {
   return (
-    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+    <div className="w-full">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
-        <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertise with us" fill className="object-cover" sizes="100vw" />
-        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
+      <div className="relative overflow-hidden mb-12 min-h-[320px] flex items-center">
+        <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertise with us" fill className="object-cover" sizes="100vw" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 px-6 md:px-12 lg:px-16 py-16 text-white max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Advertise With Us</h1>
           <p className="text-lg text-white/80">Connect your brand with thousands of tech-savvy professionals and enthusiasts who trust Blizine daily.</p>
         </div>
       </div>
 
+      <div className="px-4 md:px-12 lg:px-16 pb-12">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {[
@@ -82,6 +84,7 @@ export default function AdvertisePage() {
         <p className="text-muted-foreground mb-6">Contact our advertising team for a customized proposal.</p>
         <a href="mailto:ads@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">ads@blizine.com</a>
       </section>
+      </div>
     </div>
   )
 }
