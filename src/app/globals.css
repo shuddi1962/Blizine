@@ -128,13 +128,12 @@ html { scroll-behavior: smooth; }
 .logo-icon { font-size: 22px; line-height: 1; }
 .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; background: linear-gradient(135deg, #fff 30%, #60A5FA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -.02em; }
 
-.header-search-box { flex: 1; display: flex; align-items: center; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 0 12px; max-width: 480px; margin: 0 auto; transition: border-color .2s, background .2s; }
-.header-search-box:focus-within { background: rgba(255,255,255,.25); border-color: rgba(255,255,255,.4); }
-.search-box-icon { color: rgba(255,255,255,.5); flex-shrink: 0; }
-.search-box-btn { color: rgba(255,255,255,.5); background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 4px; transition: color .2s; }
-.search-box-btn:hover { color: #fff; }
-.search-box-input { flex: 1; background: none; border: none; padding: 9px 10px; color: #fff; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
-.search-box-input::placeholder { color: rgba(255,255,255,.4); }
+.header-search-box { flex: 1; display: flex; align-items: center; background: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 0 12px; max-width: 480px; margin: 0 auto; transition: border-color .2s, box-shadow .2s; }
+.header-search-box:focus-within { border-color: #60A5FA; box-shadow: 0 0 0 3px rgba(96,165,250,.2); }
+.search-box-btn { color: #94A3B8; background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 4px; transition: color .2s; }
+.search-box-btn:hover { color: #6366F1; }
+.search-box-input { flex: 1; background: none; border: none; padding: 9px 10px; color: #1E293B; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
+.search-box-input::placeholder { color: #94A3B8; }
 
 .header-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .icon-btn { color: rgba(255,255,255,.7); padding: 8px; border-radius: 8px; background: none; border: none; cursor: pointer; display: flex; align-items: center; transition: all .2s; font-size: 16px; }

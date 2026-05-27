@@ -10,12 +10,14 @@ export function TopBar() {
         <div className="top-bar-left">
           <span className="top-date">{now}</span>
           <span className="top-divider" />
-          <span className="top-weather">Tech Hub</span>
+          <Link href="/marketplace">Marketplace</Link>
           <span className="top-divider" />
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/advertise">Advertise</Link>
           <Link href="/newsletter">Newsletter</Link>
+          <span className="top-divider" />
+          <Link href="/write-for-us">Write for Us</Link>
         </div>
         <div className="top-bar-right">
           <div className="top-social" style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -34,7 +36,7 @@ export function TopBar() {
             <Link href="/rss.xml" aria-label="RSS" style={{ fontSize: 14, lineHeight: 1 }}>◉</Link>
           </div>
           <span className="top-divider" />
-          <Link href="/subscribe" className="top-subscribe-btn">
+          <Link href="/newsletter" className="top-subscribe-btn">
             Subscribe Free
           </Link>
         </div>
