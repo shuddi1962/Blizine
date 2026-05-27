@@ -76,26 +76,26 @@ export default function WriteForUsPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-accent/5 to-blue-600/5 border border-accent/20 rounded-2xl p-8 text-center">
+      <section className="bg-card border-2 border-accent/30 rounded-2xl p-8 text-center">
         <h2 className="text-2xl font-bold mb-3">Ready to Contribute?</h2>
         <p className="text-muted-foreground mb-6">
           Send your pitch or complete article to our editorial team and we will review it within 3-5 business days.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
+          <a
             href="mailto:editorial@blizine.com?subject=Pitch%3A%20Article%20Submission%20for%20Blizine"
-            className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             Send via Email
-          </Link>
-          <Link
+          </a>
+          <a
             href="/contact?subject=Writing%20Inquiry"
-            className="inline-flex items-center gap-2 bg-card border border-border text-foreground px-6 py-3 rounded-lg font-medium hover:border-accent transition-colors"
+            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium hover:border-accent transition-colors shadow-sm"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Contact Us Instead
-          </Link>
+          </a>
         </div>
         <p className="text-xs text-muted-foreground mt-4">
           We typically respond within 48 hours. All submissions are treated confidentially.

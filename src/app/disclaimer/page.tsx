@@ -10,203 +10,88 @@ export const metadata: Metadata = {
 
 export default function DisclaimerPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/566847/pexels-photo-566847.jpeg" alt="Legal disclaimer" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
+        <Image src="https://images.pexels.com/photos/566847/pexels-photo-566847.jpeg" alt="Legal disclaimer" fill className="object-cover" sizes="100vw" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
           <div className="text-5xl mb-4">⚖️</div>
           <h1 className="text-4xl font-bold mb-2">Disclaimer</h1>
-          <p className="text-lg text-white/80 max-w-2xl">
-            Transparency matters. Here is everything you need to know about our affiliate relationships,
-            advertising practices, paid content, and more.
-          </p>
+          <p className="text-lg text-white/80">Transparency matters. Everything you need to know about our affiliate relationships, advertising practices, and more.</p>
           <p className="text-sm text-white/60 mt-4">Last updated: May 27, 2026</p>
         </div>
       </div>
 
-      <div className="space-y-10">
-        {/* Affiliate Disclosure */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl shrink-0">🔗</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Affiliate Disclosure</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Blizine participates in various affiliate marketing programs. When you click on links to
-                products or services on our site and make a purchase, we may earn a commission at no
-                additional cost to you. These commissions help us maintain our editorial independence and
-                continue producing high-quality content.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mt-3">
-                Our affiliate relationships never influence our product reviews, recommendations, or
-                editorial coverage. We only promote products and services we genuinely believe will
-                provide value to our readers.
-              </p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-36 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" alt="Affiliate" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           </div>
+          <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl mb-3">🔗</div>
+          <h2 className="text-xl font-bold mb-2">Affiliate Disclosure</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Blizine participates in affiliate marketing programs. When you click on links and make a purchase, we may earn a commission at no extra cost to you. This never influences our editorial coverage.</p>
         </section>
 
-        {/* Advertising Disclosure */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl shrink-0">📢</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Advertising Disclosure</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Blizine displays advertisements from third-party networks, including Google AdSense and
-                direct advertising partners. These ads are clearly distinguished from editorial content.
-                We do not endorse any products or services advertised on our site unless explicitly stated
-                as a sponsored endorsement.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mt-3">
-                Advertisements displayed on Blizine may use cookies and tracking technologies to serve
-                personalized ads based on your browsing history. You can manage your cookie preferences
-                through your browser settings or visit our{' '}
-                <Link href="/cookies-policy" className="text-accent hover:underline">Cookies Policy</Link> for more information.
-              </p>
-            </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-36 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertising" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           </div>
+          <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl mb-3">📢</div>
+          <h2 className="text-xl font-bold mb-2">Advertising Disclosure</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Blizine displays ads from third-party networks including Google AdSense. Ads are clearly distinguished from editorial content. See our <Link href="/cookies-policy" className="text-accent hover:underline">Cookies Policy</Link>.</p>
         </section>
 
-        {/* Paid Content / Sponsored Posts */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xl shrink-0">💳</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Paid Content & Sponsored Posts</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                From time to time, Blizine publishes sponsored content or paid partnerships. All such
-                content is clearly labeled with a &ldquo;Sponsored&rdquo; or &ldquo;Paid Partnership&rdquo; designation at the
-                top of the article. Sponsored content is produced in collaboration with our partners but
-                always adheres to our editorial standards.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mt-3">
-                Our editorial team maintains full editorial control over sponsored content to ensure it
-                meets our quality guidelines and provides genuine value to our readers. We do not publish
-                sponsored content that contradicts our editorial principles.
-              </p>
-            </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-36 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg" alt="Sponsored content" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           </div>
+          <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xl mb-3">💳</div>
+          <h2 className="text-xl font-bold mb-2">Paid Content</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Sponsored content is clearly labeled. Our editorial team maintains full control to ensure it meets our quality standards.</p>
         </section>
 
-        {/* Payment Processing Disclaimer */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl shrink-0">💳</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Payment Processing</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Any payments processed through Blizine, including advertising fees, subscriptions, or
-                product purchases via affiliate links, are handled by third-party payment processors.
-                Blizine does not store, process, or have access to your full payment details.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mt-3">
-                By making a payment through our site, you agree to the terms and conditions of the
-                respective payment processor. Please review their privacy policy and terms of service
-                before completing a transaction.
-              </p>
-            </div>
-          </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl mb-3">💳</div>
+          <h2 className="text-xl font-bold mb-2">Payment Processing</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Payments are handled by third-party processors. Blizine does not store or process your full payment details.</p>
         </section>
 
-        {/* Cookie & Tracking */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-xl shrink-0">🍪</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Cookies & Tracking</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Blizine uses cookies and similar tracking technologies to enhance your browsing
-                experience, analyze site traffic, and serve personalized advertisements. By using our
-                site, you consent to the use of cookies in accordance with our{' '}
-                <Link href="/cookies-policy" className="text-accent hover:underline">Cookies Policy</Link> and{' '}
-                <Link href="/privacy-policy" className="text-accent hover:underline">Privacy Policy</Link>.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mt-3">
-                You can control cookie preferences through your browser settings. Disabling certain
-                cookies may affect the functionality of our site.
-              </p>
-            </div>
-          </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-xl mb-3">🍪</div>
+          <h2 className="text-xl font-bold mb-2">Cookies & Tracking</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">We use cookies to enhance your experience. By using our site, you consent to cookie use per our <Link href="/cookies-policy" className="text-accent hover:underline">Cookies Policy</Link>.</p>
         </section>
 
-        {/* No Professional Advice */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xl shrink-0">⚠️</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">No Professional Advice</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                The content on Blizine is for informational and educational purposes only. It does not
-                constitute professional advice, including but not limited to financial, legal, medical,
-                or technical advice. You should consult with a qualified professional for advice
-                specific to your situation.
-              </p>
-            </div>
-          </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xl mb-3">⚠️</div>
+          <h2 className="text-xl font-bold mb-2">No Professional Advice</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Content on Blizine is for informational purposes only. It does not constitute financial, legal, medical, or technical advice.</p>
         </section>
 
-        {/* Accuracy Disclaimer */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl shrink-0">📝</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Accuracy & Completeness</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                While we strive to provide accurate and up-to-date information, Blizine makes no
-                representations or warranties of any kind, express or implied, about the completeness,
-                accuracy, reliability, suitability, or availability of the information on our site.
-                Any reliance you place on such information is strictly at your own risk.
-              </p>
-            </div>
-          </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl mb-3">📝</div>
+          <h2 className="text-xl font-bold mb-2">Accuracy</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">While we strive for accuracy, we make no warranties about completeness or reliability of information. Use at your own risk.</p>
         </section>
 
-        {/* External Links */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-xl shrink-0">🔗</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">External Links</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Our site may contain links to external websites that are not provided or maintained by
-                Blizine. We do not guarantee the accuracy, relevance, timeliness, or completeness of
-                any information on these external sites. The inclusion of any link does not imply
-                endorsement by Blizine.
-              </p>
-            </div>
-          </div>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-xl mb-3">🔗</div>
+          <h2 className="text-xl font-bold mb-2">External Links</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">Our site may contain links to external websites. Inclusion does not imply endorsement by Blizine.</p>
         </section>
 
-        {/* Updates */}
-        <section className="bg-card border rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-xl shrink-0">🔄</div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Changes to This Disclaimer</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                We reserve the right to update or change this Disclaimer at any time. Changes will be
-                effective immediately upon posting. We encourage you to review this page periodically
-                for any updates. Your continued use of the site after changes constitutes acceptance
-                of the updated Disclaimer.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section className="bg-gradient-to-br from-accent/5 to-amber-500/5 border border-accent/20 rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold mb-3">Questions About Our Disclaimers?</h2>
-          <p className="text-muted-foreground mb-6">
-            If you have any questions or concerns about any of our disclaimers, please reach out to us.
-          </p>
-          <Link href="/contact" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
-            Contact Us
-          </Link>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-xl mb-3">🔄</div>
+          <h2 className="text-xl font-bold mb-2">Updates</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">We reserve the right to update this Disclaimer. Changes are effective immediately upon posting.</p>
         </section>
       </div>
+
+      <section className="bg-card border rounded-2xl p-8 text-center mt-8">
+        <h2 className="text-2xl font-bold mb-3">Questions About Our Disclaimers?</h2>
+        <p className="text-muted-foreground mb-4">Please reach out to us with any questions or concerns.</p>
+        <Link href="/contact" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">Contact Us</Link>
+      </section>
     </div>
   )
 }

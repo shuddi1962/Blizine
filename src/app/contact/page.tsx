@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import Image from "next/image"
 
 export const metadata: Metadata = {
@@ -10,57 +9,50 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/695853/pexels-photo-695853.jpeg" alt="Contact us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
+        <Image src="https://images.pexels.com/photos/695853/pexels-photo-695853.jpeg" alt="Contact us" fill className="object-cover" sizes="100vw" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
           <div className="text-5xl mb-4">✉️</div>
           <h1 className="text-4xl font-bold mb-2">Contact Us</h1>
-          <p className="text-lg text-white/80 max-w-2xl">
-            We value your feedback and inquiries. Here is how you can reach the right team.
-          </p>
+          <p className="text-lg text-white/80">We value your feedback and inquiries. Here is how you can reach the right team.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div className="bg-card border rounded-xl p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl mb-4">📰</div>
           <h2 className="text-xl font-bold mb-3">Editorial Inquiries</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            For story tips, press releases, corrections, or content suggestions.
-          </p>
-          <a href="mailto:editorial@blizine.com" className="text-accent hover:underline font-medium">editorial@blizine.com</a>
+          <p className="text-sm text-muted-foreground mb-4">For story tips, press releases, corrections, or content suggestions.</p>
+          <a href="mailto:editorial@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">editorial@blizine.com</a>
         </div>
 
-        <div className="bg-card border rounded-xl p-6">
+        <div className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl mb-4">📢</div>
           <h2 className="text-xl font-bold mb-3">Advertising & Partnerships</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Interested in advertising with us or exploring partnership opportunities?
-          </p>
-          <a href="mailto:ads@blizine.com" className="text-accent hover:underline font-medium">ads@blizine.com</a>
+          <p className="text-sm text-muted-foreground mb-4">Interested in advertising or partnership opportunities?</p>
+          <a href="mailto:ads@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">ads@blizine.com</a>
         </div>
 
-        <div className="bg-card border rounded-xl p-6">
+        <div className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl mb-4">🔒</div>
           <h2 className="text-xl font-bold mb-3">Privacy & Legal</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            For privacy-related requests or legal inquiries.
-          </p>
-          <a href="mailto:legal@blizine.com" className="text-accent hover:underline font-medium">legal@blizine.com</a>
+          <p className="text-sm text-muted-foreground mb-4">For privacy-related requests or legal inquiries.</p>
+          <a href="mailto:legal@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">legal@blizine.com</a>
         </div>
 
-        <div className="bg-card border rounded-xl p-6">
+        <div className="bg-card border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xl mb-4">💬</div>
           <h2 className="text-xl font-bold mb-3">General Feedback</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Something on your mind? We read every message.
-          </p>
-          <a href="mailto:hello@blizine.com" className="text-accent hover:underline font-medium">hello@blizine.com</a>
+          <p className="text-sm text-muted-foreground mb-4">Something on your mind? We read every message.</p>
+          <a href="mailto:hello@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">hello@blizine.com</a>
         </div>
       </div>
 
       <section className="bg-card border rounded-2xl p-8 mb-12">
-        <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-        <form className="space-y-4">
+        <h2 className="text-2xl font-bold mb-6 text-center">Send Us a Message</h2>
+        <form className="max-w-2xl mx-auto space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
@@ -79,9 +71,7 @@ export default function ContactPage() {
             <label className="block text-sm font-medium mb-1">Message</label>
             <textarea rows={5} className="w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none" placeholder="Write your message..." />
           </div>
-          <button type="submit" className="bg-accent text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm">
-            Send Message
-          </button>
+          <button type="submit" className="bg-accent text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm w-full sm:w-auto">Send Message</button>
         </form>
       </section>
 

@@ -9,131 +9,96 @@ export const metadata: Metadata = {
 
 export default function TermsOfUsePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="Legal documents" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
+        <Image src="https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg" alt="Legal documents" fill className="object-cover" sizes="100vw" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
           <div className="text-5xl mb-4">📜</div>
           <h1 className="text-4xl font-bold mb-2">Terms of Use</h1>
-          <p className="text-lg text-white/80 max-w-2xl">
-            The rules and guidelines governing your use of Blizine.
-          </p>
+          <p className="text-lg text-white/80">The rules and guidelines governing your use of Blizine.</p>
           <p className="text-sm text-white/60 mt-4">Last updated: May 27, 2026</p>
         </div>
       </div>
 
-      <div className="space-y-10">
-        <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-accent">
-        <section className="!mb-0">
-          <h2>1. Acceptance of Terms</h2>
-          <p>
-            By accessing or using Blizine (&quot;the Site&quot;), you agree to be bound by these Terms of Use. If you
-            do not agree with any part of these terms, you must not use the Site.
-          </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
+          <p className="text-muted-foreground leading-relaxed">By accessing or using Blizine (&quot;the Site&quot;), you agree to be bound by these Terms of Use. If you do not agree with any part of these terms, you must not use the Site.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>2. Intellectual Property Rights</h2>
-          <p>
-            All content published on Blizine, including articles, images, graphics, logos, and code, is the
-            property of Blizine or its content providers and is protected by international copyright laws.
-          </p>
-          <p>You may not:</p>
-          <ul>
+        <section className="bg-card border rounded-2xl p-6 md:col-span-2">
+          <div className="relative h-40 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg" alt="Intellectual property" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">2. Intellectual Property Rights</h2>
+          <p className="text-muted-foreground mb-3">All content published on Blizine, including articles, images, graphics, logos, and code, is the property of Blizine or its content providers.</p>
+          <ul className="list-disc pl-5 text-muted-foreground space-y-1">
             <li>Republish material from Blizine without attribution</li>
             <li>Sell, rent, or sub-license content from Blizine</li>
             <li>Reproduce, duplicate, or copy content for commercial purposes</li>
-            <li>Redistribute content from Blizine unless content is expressly made available for redistribution</li>
+            <li>Redistribute content unless expressly made available</li>
           </ul>
         </section>
 
-        <section className="mb-8">
-          <h2>3. User Conduct</h2>
-          <p>When using our Site, you agree to:</p>
-          <ul>
-            <li>Provide accurate information when creating an account or subscribing</li>
-            <li>Not use the Site for any unlawful purpose</li>
-            <li>Not disrupt or interfere with the security of the Site</li>
-            <li>Not post or transmit any harmful or malicious content</li>
-            <li>Respect other users in comments and discussions</li>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">3. User Conduct</h2>
+          <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+            <li>Provide accurate information</li>
+            <li>Not use the Site for unlawful purposes</li>
+            <li>Not disrupt site security</li>
+            <li>Not post harmful content</li>
+            <li>Respect other users</li>
           </ul>
         </section>
 
-        <section className="mb-8">
-          <h2>4. User-Generated Content</h2>
-          <p>
-            By submitting comments, feedback, or other content to Blizine, you grant us a non-exclusive,
-            royalty-free license to use, reproduce, and distribute that content in connection with our Site.
-            You represent that you own the rights to any content you submit.
-          </p>
-          <p>
-            We reserve the right to moderate, edit, or remove user-generated content that violates our policies
-            or applicable law.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg" alt="User content" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">4. User-Generated Content</h2>
+          <p className="text-muted-foreground">By submitting comments or content, you grant us a non-exclusive, royalty-free license. We reserve the right to moderate or remove content that violates our policies.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>5. Affiliate Disclosure</h2>
-          <p>
-            Blizine participates in various affiliate marketing programs. This means we may earn commissions
-            on purchases made through links on our site. These commissions come at no additional cost to you.
-            Our editorial content is never influenced by affiliate partnerships.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/566847/pexels-photo-566847.jpeg" alt="Affiliate" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">5. Affiliate Disclosure</h2>
+          <p className="text-muted-foreground">Blizine participates in affiliate marketing programs. We may earn commissions on purchases through links on our site at no additional cost to you.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>6. Disclaimer</h2>
-          <p>
-            The information provided on Blizine is for general informational purposes only. While we strive
-            to keep the information accurate and up-to-date, we make no representations or warranties of any
-            kind, express or implied, about the completeness, accuracy, reliability, or suitability of the
-            information.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">6. Disclaimer</h2>
+          <p className="text-muted-foreground">Information on Blizine is for general informational purposes only. We make no warranties about completeness, accuracy, or reliability of the information.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>7. Limitation of Liability</h2>
-          <p>
-            Blizine shall not be liable for any damages arising from the use or inability to use our Site,
-            including but not limited to direct, indirect, incidental, punitive, and consequential damages.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">7. Limitation of Liability</h2>
+          <p className="text-muted-foreground">Blizine shall not be liable for any damages arising from the use or inability to use our Site.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>8. External Links</h2>
-          <p>
-            Our Site may contain links to third-party websites. We have no control over the content, privacy
-            policies, or practices of these sites and assume no responsibility for them.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">8. External Links</h2>
+          <p className="text-muted-foreground">Our Site may contain links to third-party websites. We assume no responsibility for their content or practices.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>9. Changes to Terms</h2>
-          <p>
-            We reserve the right to modify these Terms of Use at any time. Changes will be effective immediately
-            upon posting. Your continued use of the Site after changes constitutes acceptance of the new terms.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">9. Changes to Terms</h2>
+          <p className="text-muted-foreground">We reserve the right to modify these terms. Changes are effective immediately upon posting.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>10. Governing Law</h2>
-          <p>
-            These Terms of Use shall be governed by and construed in accordance with the laws of the United
-            States and the State of California, without regard to its conflict of law provisions.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2>11. Contact</h2>
-          <p>
-            For questions about these Terms of Use, please contact us at{' '}
-            <a href="mailto:legal@blizine.com">legal@blizine.com</a>.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">10. Governing Law</h2>
+          <p className="text-muted-foreground">These terms shall be governed by the laws of the United States and the State of California.</p>
         </section>
       </div>
-      </div>
+
+      <section className="bg-card border rounded-2xl p-8 text-center mt-8">
+        <h2 className="text-2xl font-bold mb-3">11. Contact</h2>
+        <p className="text-muted-foreground mb-4">For questions about these Terms of Use, please contact us.</p>
+        <a href="mailto:legal@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">legal@blizine.com</a>
+      </section>
     </div>
   )
 }

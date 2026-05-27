@@ -10,16 +10,13 @@ export const metadata: Metadata = {
 
 export default function AdvertisePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertise with us" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
+        <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertise with us" fill className="object-cover" sizes="100vw" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
           <h1 className="text-4xl font-bold mb-4">Advertise With Us</h1>
-          <p className="text-lg text-white/80 max-w-2xl">
-            Connect your brand with thousands of tech-savvy professionals and enthusiasts who trust Blizine daily.
-          </p>
+          <p className="text-lg text-white/80">Connect your brand with thousands of tech-savvy professionals and enthusiasts who trust Blizine daily.</p>
         </div>
       </div>
 
@@ -41,21 +38,17 @@ export default function AdvertisePage() {
       {/* Ad Formats */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">Available Ad Formats</h2>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { title: "Display Ads", desc: "Banner and sidebar placements in premium positions throughout the site. Available in multiple sizes (728x90, 300x250, 160x600). Flexible pricing for long-term partnerships.", price: "From $99/week" },
-            { title: "Sponsored Content", desc: "Native articles that blend seamlessly with our editorial content. Includes social media promotion and newsletter feature.", price: "From $299/post" },
+            { title: "Display Ads", desc: "Banner and sidebar placements in premium positions. Available in multiple sizes (728x90, 300x250, 160x600). Flexible pricing for long-term partnerships.", price: "From $99/week" },
+            { title: "Sponsored Content", desc: "Native articles that blend seamlessly with editorial content. Includes social media promotion and newsletter feature.", price: "From $299/post" },
             { title: "Newsletter Sponsorship", desc: "Get your brand in front of our engaged email subscribers with a dedicated placement in our weekly newsletter.", price: "From $149/send" },
             { title: "Affiliate Partnerships", desc: "Promote your products through our trusted affiliate network with performance-based pricing.", price: "Commission-based" },
           ].map((fmt) => (
-            <div key={fmt.title} className="bg-card border rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">{fmt.title}</h3>
-                <p className="text-sm text-muted-foreground">{fmt.desc}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <div className="text-accent font-bold">{fmt.price}</div>
-              </div>
+            <div key={fmt.title} className="bg-card border rounded-xl p-6 flex flex-col gap-3">
+              <h3 className="font-bold text-lg">{fmt.title}</h3>
+              <p className="text-sm text-muted-foreground flex-1">{fmt.desc}</p>
+              <div className="text-accent font-bold">{fmt.price}</div>
             </div>
           ))}
         </div>
@@ -63,30 +56,31 @@ export default function AdvertisePage() {
 
       {/* Why Blizine */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-4">Why Advertise With Blizine?</h2>
+        <h2 className="text-2xl font-bold mb-6">Why Advertise With Blizine?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: "Targeted Audience", desc: "Reach decision-makers, developers, and tech enthusiasts actively seeking quality content." },
-            { title: "High Engagement", desc: "Our readers spend an average of 4+ minutes per session, ensuring your message is seen." },
-            { title: "Brand Safety", desc: "Your ads appear alongside professionally curated, family-safe content in a trusted environment." },
+            { title: "Targeted Audience", desc: "Reach decision-makers, developers, and tech enthusiasts actively seeking quality content.", img: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" },
+            { title: "High Engagement", desc: "Our readers spend an average of 4+ minutes per session, ensuring your message is seen.", img: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg" },
+            { title: "Brand Safety", desc: "Your ads appear alongside professionally curated, family-safe content in a trusted environment.", img: "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg" },
           ].map((item) => (
-            <div key={item.title} className="bg-card border rounded-xl p-6">
-              <h3 className="font-bold mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.desc}</p>
+            <div key={item.title} className="bg-card border rounded-xl overflow-hidden">
+              <div className="relative h-40">
+                <Image src={item.img} alt={item.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+              </div>
+              <div className="p-5">
+                <h3 className="font-bold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-accent/5 border border-accent/20 rounded-2xl p-8 text-center">
+      <section className="bg-card border rounded-2xl p-8 text-center">
         <h2 className="text-2xl font-bold mb-3">Ready to Get Started?</h2>
-        <p className="text-muted-foreground mb-6">
-          Contact our advertising team for a customized proposal.
-        </p>
-        <a href="mailto:ads@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
-          ads@blizine.com
-        </a>
+        <p className="text-muted-foreground mb-6">Contact our advertising team for a customized proposal.</p>
+        <a href="mailto:ads@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">ads@blizine.com</a>
       </section>
     </div>
   )

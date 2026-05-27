@@ -9,162 +9,116 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center">
-        <Image src="https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg" alt="Data security" fill className="object-cover" sizes="(max-width: 768px) 100vw, 896px" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0000CD]/90 via-[#0000CD]/70 to-transparent" />
-        <div className="relative z-10 px-8 py-12 text-white max-w-xl">
+    <div className="w-full px-4 md:px-12 py-12 max-w-[1400px] mx-auto">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden mb-12 min-h-[300px] flex items-center">
+        <Image src="https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg" alt="Data security" fill className="object-cover" sizes="100vw" />
+        <div className="relative z-10 px-8 py-16 text-white max-w-3xl">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-4xl font-bold mb-2">Privacy Policy</h1>
-          <p className="text-lg text-white/80 max-w-2xl">
-            How Blizine collects, uses, and protects your personal information.
-          </p>
+          <p className="text-lg text-white/80">How Blizine collects, uses, and protects your personal information.</p>
           <p className="text-sm text-white/60 mt-4">Last updated: May 27, 2026</p>
         </div>
       </div>
 
-      <div className="space-y-10">
-        <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-accent">
-        <section className="!mb-0">
-          <h2>1. Introduction</h2>
-          <p>
-            Blizine (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
-            how we collect, use, disclose, and safeguard your information when you visit our website.
-          </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="bg-card border rounded-2xl p-6 col-span-full">
+          <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
+          <p className="text-muted-foreground leading-relaxed">Blizine (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>2. Information We Collect</h2>
-          <h3>Personal Data</h3>
-          <p>We may collect personally identifiable information such as your name and email address when you:</p>
-          <ul>
+        <section className="bg-card border rounded-2xl p-6 md:col-span-2">
+          <div className="relative h-40 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg" alt="Data collection" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">2. Information We Collect</h2>
+          <h3 className="font-bold mb-2">Personal Data</h3>
+          <p className="text-muted-foreground mb-3">We may collect personally identifiable information such as your name and email address when you:</p>
+          <ul className="list-disc pl-5 text-muted-foreground space-y-1">
             <li>Subscribe to our newsletter</li>
             <li>Submit a contact form</li>
             <li>Leave a comment</li>
             <li>Create an account</li>
           </ul>
-          <h3>Non-Personal Data</h3>
-          <p>We automatically collect certain information when you visit our site, including:</p>
-          <ul>
-            <li>Browser type and version</li>
-            <li>Pages visited and time spent</li>
-            <li>Referral source</li>
-            <li>IP address (anonymized where possible)</li>
-            <li>Device type and operating system</li>
-          </ul>
+          <h3 className="font-bold mb-2 mt-4">Non-Personal Data</h3>
+          <p className="text-muted-foreground">We automatically collect certain information when you visit our site, including browser type, pages visited, referral source, IP address (anonymized), and device type.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>3. Cookies and Tracking Technologies</h2>
-          <p>
-            We use cookies and similar tracking technologies to enhance your browsing experience, analyze site
-            traffic, and serve personalized advertisements. You can control cookie preferences through your
-            browser settings.
-          </p>
-          <h3>Types of Cookies We Use</h3>
-          <ul>
-            <li><strong>Essential Cookies:</strong> Required for the basic functionality of our site.</li>
-            <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with our site.</li>
-            <li><strong>Advertising Cookies:</strong> Used to deliver relevant ads and measure ad performance.</li>
-            <li><strong>Preference Cookies:</strong> Remember your settings and preferences.</li>
-          </ul>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg" alt="Cookies" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">3. Cookies & Tracking</h2>
+          <p className="text-muted-foreground">We use cookies and similar tracking technologies to enhance your experience, analyze traffic, and serve personalized ads. You can control preferences through browser settings.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>4. Google AdSense</h2>
-          <p>
-            We use Google AdSense to display advertisements. Google and its partners use cookies to serve ads
-            based on your previous visits to our site or other websites. You can opt out of personalized
-              advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google&apos;s Ads Settings</a>.
-          </p>
-          <p>
-            As part of Google&apos;s EU user consent policy, we obtain consent for the use of cookies for
-            personalization of ads in compliance with GDPR.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" alt="Advertising" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">4. Google AdSense</h2>
+          <p className="text-muted-foreground">We use Google AdSense to display ads. Google and its partners use cookies to serve personalized ads. You can opt out via <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener" className="text-accent hover:underline">Google&apos;s Ads Settings</a>.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>5. How We Use Your Information</h2>
-          <p>We use the collected information for the following purposes:</p>
-          <ul>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg" alt="Data usage" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">5. How We Use Your Info</h2>
+          <ul className="list-disc pl-5 text-muted-foreground space-y-1">
             <li>To operate and maintain our website</li>
-            <li>To send newsletters and promotional emails (with consent)</li>
-            <li>To respond to your inquiries and comments</li>
-            <li>To analyze usage patterns and improve our content</li>
-            <li>To serve targeted advertisements</li>
+            <li>To send newsletters (with consent)</li>
+            <li>To respond to inquiries</li>
+            <li>To analyze usage patterns</li>
+            <li>To serve targeted ads</li>
             <li>To comply with legal obligations</li>
           </ul>
         </section>
 
-        <section className="mb-8">
-          <h2>6. Data Sharing and Disclosure</h2>
-          <p>We do not sell your personal information. We may share data with:</p>
-          <ul>
-            <li><strong>Service Providers:</strong> Third-party vendors who help us operate our site (analytics, email delivery, hosting).</li>
-            <li><strong>Advertising Partners:</strong> Google AdSense and other ad networks for ad delivery.</li>
-            <li><strong>Legal Authorities:</strong> When required by law or to protect our rights.</li>
-          </ul>
+        <section className="bg-card border rounded-2xl p-6">
+          <div className="relative h-32 rounded-xl overflow-hidden mb-4">
+            <Image src="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg" alt="Data sharing" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">6. Data Sharing</h2>
+          <p className="text-muted-foreground">We do not sell your personal information. We may share data with service providers, advertising partners, and legal authorities when required.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>7. Data Retention</h2>
-          <p>
-            We retain your personal data only as long as necessary for the purposes outlined in this policy.
-            Newsletter subscribers can unsubscribe at any time, and we will delete your data upon request.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">7. Data Retention</h2>
+          <p className="text-muted-foreground">We retain your personal data only as long as necessary. Newsletter subscribers can unsubscribe anytime, and we will delete your data upon request.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>8. Your Rights</h2>
-          <p>Depending on your jurisdiction, you may have the following rights:</p>
-          <ul>
-            <li><strong>Right to Access:</strong> Request a copy of your personal data.</li>
-            <li><strong>Right to Rectification:</strong> Correct inaccurate data.</li>
-            <li><strong>Right to Erasure:</strong> Request deletion of your data (&quot;Right to be Forgotten&quot;).</li>
-            <li><strong>Right to Restrict Processing:</strong> Limit how we use your data.</li>
-            <li><strong>Right to Data Portability:</strong> Receive your data in a structured format.</li>
-            <li><strong>Right to Object:</strong> Object to data processing for marketing purposes.</li>
-          </ul>
-          <p>To exercise these rights, contact us at <a href="mailto:privacy@blizine.com">privacy@blizine.com</a>.</p>
+        <section className="bg-card border rounded-2xl p-6 md:col-span-2">
+          <h2 className="text-2xl font-bold mb-4">8. Your Rights</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {["Right to Access", "Right to Rectification", "Right to Erasure (&quot;Right to be Forgotten&quot;)", "Right to Restrict Processing", "Right to Data Portability", "Right to Object"].map((right) => (
+              <div key={right} className="bg-card border rounded-lg p-3 text-sm text-muted-foreground">{right}</div>
+            ))}
+          </div>
+          <p className="text-muted-foreground mt-4">To exercise these rights, contact us at <a href="mailto:privacy@blizine.com" className="text-accent hover:underline">privacy@blizine.com</a>.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>9. Third-Party Links</h2>
-          <p>
-            Our site may contain links to third-party websites. We are not responsible for the privacy practices
-            of these sites. We encourage you to review their privacy policies before providing any personal
-            information.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">9. Third-Party Links</h2>
+          <p className="text-muted-foreground">Our site may contain links to third-party websites. We are not responsible for their privacy practices.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>10. Children&apos;s Privacy</h2>
-          <p>
-            Our services are not directed to individuals under the age of 13. We do not knowingly collect
-            personal information from children. If we become aware that a child has provided us with personal
-            data, we will take steps to delete it.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">10. Children&apos;s Privacy</h2>
+          <p className="text-muted-foreground">Our services are not directed to individuals under 13. We do not knowingly collect personal information from children.</p>
         </section>
 
-        <section className="mb-8">
-          <h2>11. Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy from time to time. We will notify you of any changes by posting
-            the new policy on this page and updating the &quot;Last updated&quot; date.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2>12. Contact Us</h2>
-          <p>
-            If you have any questions about this Privacy Policy, please contact us at{' '}
-            <a href="mailto:privacy@blizine.com">privacy@blizine.com</a> or through our{' '}
-            <a href="/contact">Contact page</a>.
-          </p>
+        <section className="bg-card border rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">11. Changes to Policy</h2>
+          <p className="text-muted-foreground">We may update this policy. Changes will be posted with an updated &quot;Last updated&quot; date.</p>
         </section>
       </div>
-      </div>
+
+      <section className="bg-card border rounded-2xl p-8 text-center mt-8">
+        <h2 className="text-2xl font-bold mb-3">12. Contact Us</h2>
+        <p className="text-muted-foreground mb-4">If you have any questions about this Privacy Policy, please reach out.</p>
+        <a href="mailto:privacy@blizine.com" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">privacy@blizine.com</a>
+      </section>
     </div>
   )
 }
