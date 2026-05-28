@@ -457,7 +457,7 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: hsl(var(--accent));
+  background: #DC2626;
   color: #fff;
   border: none;
   cursor: pointer;

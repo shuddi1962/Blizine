@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FileText, FolderTree, Rss, Image,
   DollarSign, ShoppingBag, BarChart3, SearchCheck,
   Globe, Settings, Users, MessageSquare, Mail,
-  Bell, Lightbulb, Share2
+  Bell, Lightbulb, Share2, Shield, Mic
 } from "lucide-react"
 
 const links = [
@@ -29,6 +29,8 @@ const links = [
   { href: "/admin/suggest", label: "Content Suggestions", icon: Lightbulb },
   { href: "/admin/settings", label: "Settings", icon: Globe },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/roles", label: "Roles", icon: Shield },
+  { href: "/admin/reporters", label: "Reporters", icon: Mic },
 ]
 
 export function AdminSidebar() {

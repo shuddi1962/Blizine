@@ -13,6 +13,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname?.startsWith("/admin")
   const isHome = pathname === "/"
+  const noLayout = isAdmin || pathname === "/login" || pathname === "/signup" || pathname === "/account" || pathname?.startsWith("/auth/")
   const [categories, setCategories] = useState<any[]>([])
 
   const [recentPosts, setRecentPosts] = useState<any[]>([])
@@ -27,12 +28,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
-  if (isAdmin) {
-    return <>{children}</>
-  }
-
-  if (isHome) {
-    return <>{children}</>
+  if (noLayout) {
+    return <>{children}<BackToTop /></>
   }
 
   return (

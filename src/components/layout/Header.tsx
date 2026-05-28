@@ -15,10 +15,10 @@ export function Header() {
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
   const { theme, setTheme } = useTheme()
+  const supabase = createClient()
 
   useEffect(() => {
     setMounted(true)
-    const supabase = createClient()
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
@@ -98,20 +98,22 @@ export function Header() {
             </div>
             <h2 className="modal-title">Welcome Back</h2>
             <p className="modal-sub">Sign in to save articles, join discussions, and get a personalised feed.</p>
-            <a href="#" className="oauth-btn">
+            <a href="#" className="oauth-btn" onClick={(e) => { e.preventDefault(); supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback` } }) }}>
               <span className="oauth-icon">G</span>
               Continue with Google
             </a>
-            <a href="#" className="oauth-btn">
+            <a href="#" className="oauth-btn" onClick={(e) => { e.preventDefault(); supabase.auth.signInWithOAuth({ provider: "github", options: { redirectTo: `${location.origin}/auth/callback` } }) }}>
               <span className="oauth-icon">⌥</span>
               Continue with GitHub
             </a>
-            <div className="modal-or">or</div>
-            <input type="email" placeholder="Email address" className="modal-input" />
-            <input type="password" placeholder="Password" className="modal-input" />
-            <button className="modal-submit">Sign In</button>
+          <div className="modal-or">or</div>
+            <form onSubmit={async (e) => { e.preventDefault(); const form = e.currentTarget; const email = (form.querySelector('[name="email"]') as HTMLInputElement).value; const password = (form.querySelector('[name="password"]') as HTMLInputElement).value; const { error } = await supabase.auth.signInWithPassword({ email, password }); if (error) { alert(error.message) } else { setLoginOpen(false); router.refresh() } }}>
+              <input name="email" type="email" placeholder="Email address" className="modal-input" required />
+              <input name="password" type="password" placeholder="Password" className="modal-input" required />
+              <button type="submit" className="modal-submit">Sign In</button>
+            </form>
             <p className="modal-footer-text">
-              Don&apos;t have an account? <a href="#">Sign up free</a>
+              Don&apos;t have an account? <a href="/signup" onClick={(e) => { e.preventDefault(); setLoginOpen(false); router.push("/signup") }}>Sign up free</a>
             </p>
           </div>
         </div>
