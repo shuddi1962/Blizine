@@ -125,9 +125,8 @@
 .dark .site-header { background: #111111; }
 .site-header.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,.15); }
 .header-inner { display: flex; align-items: center; gap: 20px; padding: 12px 24px; max-width: 1400px; margin: 0 auto; }
-.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; flex-shrink: 0; }
-.logo-icon { font-size: 22px; line-height: 1; }
-.logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; background: linear-gradient(135deg, #fff 30%, #60A5FA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -.02em; }
+.logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+.logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: #fff; letter-spacing: -.02em; }
 
 .header-search-box { flex: 1; display: flex; align-items: center; background: rgba(255,255,255,.22); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 0 12px; max-width: 480px; margin: 0 auto; transition: border-color .2s, box-shadow .2s, background .2s; }
 .dark .header-search-box { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); }
@@ -143,6 +142,8 @@
 .icon-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
 .login-btn { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color .2s, background .2s; font-family: 'DM Sans', sans-serif; }
 .login-btn:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); }
+.header-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.header-user-name { font-size: 13px; font-weight: 500; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Modal */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn .2s; }
@@ -446,3 +447,27 @@
 /* Mobile sticky ad */
 .mobile-sticky-ad { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 6px 16px; z-index: 90; align-items: center; justify-content: center; }
 @media(max-width:640px) { .mobile-sticky-ad { display: flex; } }
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: hsl(var(--accent));
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  transition: opacity .2s, transform .2s;
+}
+.back-to-top:hover {
+  transform: translateY(-3px);
+  opacity: .9;
+}

@@ -4,16 +4,29 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
+import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 
 export function Header() {
   const [searchQ, setSearchQ] = useState("")
   const [loginOpen, setLoginOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
   const { theme, setTheme } = useTheme()
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60)
@@ -26,7 +39,6 @@ export function Header() {
       <header className={`site-header${scrolled ? " scrolled" : ""}`}>
         <div className="header-inner">
           <Link href="/" className="logo">
-            <span className="logo-icon">⚡</span>
             <span className="logo-text">Blizine</span>
           </Link>
 
@@ -58,10 +70,21 @@ export function Header() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Shop
             </Link>
-            <button className="login-btn" onClick={() => setLoginOpen(true)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
-              Sign In
-            </button>
+            {user ? (
+              <Link href="/account" className="login-btn" style={{ gap: 8, textDecoration: "none" }}>
+                {user.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="" className="header-avatar" />
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                )}
+                <span className="header-user-name">{user.user_metadata?.full_name || user.email?.split("@")[0] || "Account"}</span>
+              </Link>
+            ) : (
+              <button className="login-btn" onClick={() => setLoginOpen(true)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </header>
