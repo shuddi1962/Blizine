@@ -8,7 +8,7 @@ export async function GET() {
     supabase.from("categories").select("slug"),
   ])
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com"
 
   const posts = postsRes.data || []
   const categories = catsRes.data || []

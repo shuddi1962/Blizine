@@ -24,7 +24,7 @@ function buildBlizinePrompt(input: string, inputType: "topic" | "url" | "content
     ? `SOURCE URL TO RESEARCH:\n${input}\n\nUse Google Search to find everything about this story.`
     : `SOURCE CONTENT FROM ${sourceName || "a tech publication"}:\n${input.slice(0, 4000)}`
 
-  return `You are a senior tech journalist writing for Blizine (blizine.com), a premium technology news blog.
+  return `You are a senior tech journalist writing for Blizine (www.blizine.com), a premium technology news blog.
 
 ${sourceSection}
 
@@ -157,7 +157,7 @@ async function openrouterBlizine(prompt: string): Promise<BlizineArticle | null>
       headers: {
         "Authorization": `Bearer ${key}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com",
         "X-Title": "Blizine",
       },
       body: JSON.stringify({
@@ -189,7 +189,7 @@ export async function geminiRewriteContent(title: string, content: string): Prom
   if (!textContent || textContent.length < 50) return content
 
   const rewritePrompt =
-    "You are a senior tech journalist writing for Blizine (blizine.com), a premium technology news blog.\n\n" +
+    "You are a senior tech journalist writing for Blizine (www.blizine.com), a premium technology news blog.\n\n" +
     "Rewrite the following tech article in an engaging, SEO-optimized style. " +
     "Use Google Search to research and verify facts, dates, names, and numbers — enrich the article with real data.\n\n" +
     "INSTRUCTIONS:\n" +
@@ -252,7 +252,7 @@ export async function geminiRewriteContent(title: string, content: string): Prom
         headers: {
           "Authorization": `Bearer ${openRouterKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com",
+          "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com",
           "X-Title": "Blizine",
         },
         body: JSON.stringify({
@@ -313,7 +313,7 @@ export async function manualWriteFromUrl(url: string): Promise<BlizineArticle | 
   let sourceName = new URL(url).hostname.replace("www.", "")
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; Blizine/1.0; +https://blizine.com/bot)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Blizine/1.0; +https://www.blizine.com/bot)" },
       signal: AbortSignal.timeout(10000),
     })
     const html = await res.text()

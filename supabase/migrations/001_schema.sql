@@ -495,7 +495,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 INSERT INTO site_settings (key, value) VALUES
   ('site_name', '"Blizine"'),
   ('site_tagline', '"Tech, decoded. Fast."'),
-  ('site_url', '"https://blizine.com"'),
+  ('site_url', '"https://www.blizine.com"'),
   ('default_meta_description', '"Blizine - Tech, decoded. Fast. Your source for the latest in tech news, web development, programming, cybersecurity, AI, gadgets, and tutorials."'),
   ('default_og_image', '""'),
   ('adsense_publisher_id', '""'),

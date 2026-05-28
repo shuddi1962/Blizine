@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: `%s — ${SITE_NAME}`,
   },
   description: "Blizine - Tech, decoded. Fast. Your source for the latest in tech news, web development, programming, cybersecurity, AI, gadgets, and tutorials.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com"),
   openGraph: {
     type: "website",
     siteName: SITE_NAME,

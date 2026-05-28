@@ -51,7 +51,7 @@ serve(async (req: Request) => {
     const resend = new Resend(resendApiKey);
 
     const fromEmail = Deno.env.get("NEWSLETTER_FROM_EMAIL") || "newsletter@blizine.com";
-    const siteUrl = Deno.env.get("SITE_URL") || "https://blizine.com";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://www.blizine.com";
 
     const { data: post, error: postError } = await supabase
       .from("posts")

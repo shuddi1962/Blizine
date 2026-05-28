@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com",
       },
       body: JSON.stringify({
         model,

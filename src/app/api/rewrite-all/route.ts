@@ -50,7 +50,7 @@ async function callOpenRouter(prompt: string, apiKey: string, maxTokens = 4096):
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + apiKey,
-      "HTTP-Referer": "https://blizine.vercel.app",
+      "HTTP-Referer": `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com"}`,
       "X-Title": "Blizine",
     },
     body: JSON.stringify({

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
   const supabase = createClient()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blizine.com"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blizine.com"
 
   const { data: posts } = await supabase
     .from("posts")
