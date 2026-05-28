@@ -123,13 +123,7 @@ export default async function HomePage() {
     (allTags || []).flatMap((p: any) => p.seo_keywords || [])
   )).slice(0, 20) as string[]
 
-  const postCatSlugs = new Set<string>()
-  for (const post of [...(heroPosts||[]), ...(latestPosts||[]), ...(trendingPosts||[]), ...(popularPosts||[])]) {
-    if (post.categories?.slug) postCatSlugs.add(post.categories.slug)
-  }
-  const cats = (categories || []).filter((cat: any) => postCatSlugs.has(cat.slug)).map((cat: any) => ({
-    ...cat,
-  }))
+  const cats = (categories || []).map((cat: any) => ({ ...cat }))
 
   const featuredPost = (heroPosts || [])[0] || null
   const heroSecondary = (heroPosts || []).slice(1, 5)
