@@ -19,7 +19,7 @@ RETURNS UUID AS $$
   SELECT id FROM categories WHERE slug = slug_val LIMIT 1;
 $$ LANGUAGE SQL;
 
--- TECH NEWS (13 feeds)
+-- TECH NEWS (12 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'The Verge', 'https://www.theverge.com/rss/index.xml', cat('tech-news'), true, true, true, 30, now()),
 (gen_random_uuid(), 'TechCrunch', 'https://techcrunch.com/feed/', cat('tech-news'), true, true, true, 30, now()),
@@ -29,28 +29,25 @@ INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rew
 (gen_random_uuid(), 'CNET', 'https://www.cnet.com/rss/all/', cat('tech-news'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Wired', 'https://www.wired.com/feed/rss', cat('tech-news'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Tom''s Guide', 'https://www.tomsguide.com/feeds/rss2/news.xml', cat('tech-news'), true, true, true, 60, now()),
-(gen_random_uuid(), 'TechRadar', 'https://www.techradar.com/feeds/rss/news.xml', cat('tech-news'), true, true, true, 60, now()),
+(gen_random_uuid(), 'TechRadar', 'https://www.techradar.com/feeds/rss/all', cat('tech-news'), true, true, true, 60, now()),
 (gen_random_uuid(), 'ZDNet', 'https://www.zdnet.com/news/rss.xml', cat('tech-news'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Mashable Tech', 'https://mashable.com/feeds/rss/tech.xml', cat('tech-news'), true, true, true, 60, now()),
-(gen_random_uuid(), 'Digital Trends', 'https://www.digitaltrends.com/feed/', cat('tech-news'), true, true, true, 60, now()),
 (gen_random_uuid(), 'MIT Tech Review', 'https://www.technologyreview.com/stories.rss', cat('tech-news'), true, true, true, 120, now());
 
--- AI & AUTOMATION (6 feeds)
+-- AI & AUTOMATION (5 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'VentureBeat AI', 'https://venturebeat.com/category/ai/feed/', cat('ai-automation'), true, true, true, 30, now()),
-(gen_random_uuid(), 'The Verge – AI', 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', cat('ai-automation'), true, true, true, 30, now()),
 (gen_random_uuid(), 'TechCrunch AI', 'https://techcrunch.com/category/artificial-intelligence/feed/', cat('ai-automation'), true, true, true, 30, now()),
 (gen_random_uuid(), 'Wired AI', 'https://www.wired.com/feed/tag/artificial-intelligence/rss', cat('ai-automation'), true, true, true, 60, now()),
 (gen_random_uuid(), 'MIT Tech Review AI', 'https://www.technologyreview.com/topic/artificial-intelligence/feed/', cat('ai-automation'), true, true, true, 120, now()),
 (gen_random_uuid(), 'Ars Technica AI', 'https://feeds.arstechnica.com/arstechnica/ai', cat('ai-automation'), true, true, true, 60, now());
 
--- CYBERSECURITY (6 feeds)
+-- CYBERSECURITY (5 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'BleepingComputer', 'https://www.bleepingcomputer.com/feed/', cat('cybersecurity'), true, true, true, 30, now()),
 (gen_random_uuid(), 'The Hacker News', 'https://feeds.feedburner.com/TheHackersNews', cat('cybersecurity'), true, true, true, 30, now()),
 (gen_random_uuid(), 'SecurityWeek', 'https://www.securityweek.com/feed/', cat('cybersecurity'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Krebs on Security', 'https://krebsonsecurity.com/feed/', cat('cybersecurity'), true, true, true, 120, now()),
-(gen_random_uuid(), 'Dark Reading', 'https://www.darkreading.com/rss.xml', cat('cybersecurity'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Threatpost', 'https://threatpost.com/feed/', cat('cybersecurity'), true, true, true, 60, now());
 
 -- GADGETS (8 feeds)
@@ -76,36 +73,34 @@ INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rew
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'Smashing Magazine', 'https://www.smashingmagazine.com/feed/', cat('web-development'), true, true, true, 120, now()),
 (gen_random_uuid(), 'CSS-Tricks', 'https://css-tricks.com/feed/', cat('web-development'), true, true, true, 120, now()),
-(gen_random_uuid(), 'web.dev', 'https://web.dev/feed.xml', cat('web-development'), true, true, true, 120, now()),
-(gen_random_uuid(), 'Netlify Blog', 'https://www.netlify.com/blog/index.xml', cat('web-development'), true, true, true, 120, now());
+(gen_random_uuid(), 'web.dev', 'https://web.dev/feed.xml', cat('web-development'), true, true, true, 120, now());
 
--- TUTORIALS (3 feeds)
+-- TUTORIALS (2 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
-(gen_random_uuid(), 'DigitalOcean Tutorials', 'https://www.digitalocean.com/community/tutorials/feed', cat('tutorials'), true, true, true, 120, now()),
 (gen_random_uuid(), 'MakeUseOf', 'https://www.makeuseof.com/feed/', cat('tutorials'), true, true, true, 60, now()),
 (gen_random_uuid(), 'How-To Geek', 'https://www.howtogeek.com/feed/', cat('tutorials'), true, true, true, 60, now());
 
--- DIGITAL BUSINESS (4 feeds)
+-- DIGITAL BUSINESS (3 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'TechCrunch Startups', 'https://techcrunch.com/category/startups/feed/', cat('digital-business'), true, true, true, 30, now()),
 (gen_random_uuid(), 'VentureBeat', 'https://venturebeat.com/feed/', cat('digital-business'), true, true, true, 60, now()),
-(gen_random_uuid(), 'Business Insider Tech', 'https://feeds.businessinsider.com/businessinsider/tech', cat('digital-business'), true, true, true, 60, now()),
 (gen_random_uuid(), 'Fast Company Tech', 'https://www.fastcompany.com/technology/rss', cat('digital-business'), true, true, true, 120, now());
 
--- NETWORKING & IT (4 feeds)
+-- NETWORKING & IT (3 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
-(gen_random_uuid(), 'Network World', 'https://www.networkworld.com/index.rss', cat('networking-it'), true, true, true, 60, now()),
 (gen_random_uuid(), 'The Register', 'https://www.theregister.com/headlines.atom', cat('networking-it'), true, true, true, 60, now()),
 (gen_random_uuid(), 'AWS Blog', 'https://aws.amazon.com/blogs/aws/feed/', cat('networking-it'), true, true, true, 120, now()),
-(gen_random_uuid(), 'Google Cloud Blog', 'https://cloud.google.com/feeds/gcp-news-rss.xml', cat('networking-it'), true, true, true, 120, now());
+(gen_random_uuid(), 'Cloudflare Blog', 'https://blog.cloudflare.com/feed/', cat('networking-it'), true, true, true, 60, now());
 
--- REVIEWS (5 feeds)
+-- REVIEWS (3 feeds)
 INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
 (gen_random_uuid(), 'PCMag Reviews', 'https://www.pcmag.com/feeds/rss/reviews', cat('reviews'), true, true, true, 60, now()),
 (gen_random_uuid(), 'CNET Reviews', 'https://www.cnet.com/rss/reviews/', cat('reviews'), true, true, true, 60, now()),
-(gen_random_uuid(), 'Wirecutter', 'https://www.nytimes.com/wirecutter/feed/', cat('reviews'), true, true, true, 120, now()),
-(gen_random_uuid(), 'Rtings', 'https://www.rtings.com/news/feed', cat('reviews'), true, true, true, 120, now()),
-(gen_random_uuid(), 'NotebookCheck', 'https://www.notebookcheck.net/News.rss', cat('reviews'), true, true, true, 60, now());
+(gen_random_uuid(), 'Wirecutter', 'https://www.nytimes.com/wirecutter/feed/', cat('reviews'), true, true, true, 120, now());
+
+-- DESKTOPS (1 feed)
+INSERT INTO rss_feeds (id, feed_name, feed_url, category_id, is_active, auto_rewrite, auto_publish, fetch_interval_minutes, created_at) VALUES
+(gen_random_uuid(), 'AnandTech', 'https://www.anandtech.com/feed/', cat('desktops'), true, true, true, 60, now());
 
 -- Drop the helper function
 DROP FUNCTION IF EXISTS cat(TEXT);
