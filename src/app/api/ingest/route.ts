@@ -378,13 +378,13 @@ async function run(req: NextRequest) {
             signal: AbortSignal.timeout(10000),
           })
           if (imgRes.ok) {
-            let imgBuf = Buffer.from(await imgRes.arrayBuffer() as ArrayBuffer)
-            imgBuf = await watermarkImage(imgBuf)
+            const rawBuf = await imgRes.arrayBuffer()
+            const imgBuf = await watermarkImage(Buffer.from(rawBuf))
             const ext = finalImage.includes('.png') ? '.png' : '.jpg'
             const filename = `post-${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
             const { error: upErr } = await supabase.storage
               .from('post-images')
-              .upload(filename, imgBuf, {
+              .upload(filename, imgBuf as any, {
                 contentType: imgRes.headers.get('content-type') || 'image/jpeg',
                 upsert: true,
               })

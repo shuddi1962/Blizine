@@ -2,7 +2,7 @@ import sharp from 'sharp'
 
 const TEXT = 'Blizine'
 
-export async function watermarkImage(input: Buffer): Promise<Buffer> {
+export async function watermarkImage(input: any): Promise<Buffer> {
   const image = sharp(input)
   const meta = await image.metadata()
   const width = meta.width || 1200
@@ -21,7 +21,9 @@ export async function watermarkImage(input: Buffer): Promise<Buffer> {
     >${TEXT}</text>
   </svg>`
 
-  return image
+  const result = await image
     .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
     .toBuffer()
+
+  return result
 }
