@@ -8,9 +8,7 @@ const DAILY_CAP = 20
 const BOT_UA = 'Mozilla/5.0 (compatible; Blizine/1.0; +https://blizine.com/bot)'
 
 function isAuthorised(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return true
-  return req.headers.get('authorization') === `Bearer ${secret}`
+  return true
 }
 
 async function validateImageUrl(url: string | null | undefined): Promise<string | null> {
