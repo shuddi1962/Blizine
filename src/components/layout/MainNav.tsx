@@ -27,7 +27,6 @@ export function MainNav({ categories }: { categories: any[] }) {
                 style={{ "--hover-color": cat.color || "var(--accent)" } as React.CSSProperties}
               >
                 {cat.name}
-                {cat.icon && <span>{cat.icon}</span>}
               </Link>
             ))}
           </div>

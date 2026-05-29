@@ -210,18 +210,18 @@ export default async function PostPage({ params }: Props) {
             <div className="mb-10">
               <div
                 className="article-content prose prose-lg max-w-none
-                  prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+                  prose-headings:font-bold prose-headings:tracking-tight
                   prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5
                   prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-                  prose-p:text-[17px] prose-p:leading-[1.8] prose-p:text-foreground/90 prose-p:mb-5
-                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:font-medium
-                  prose-strong:text-foreground prose-strong:font-semibold
-                  prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:text-foreground/80 prose-blockquote:italic
-                  prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                  prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-border prose-pre:rounded-xl
+                  prose-p:text-[17px] prose-p:leading-[1.8] prose-p:text-black prose-p:mb-5
+                  prose-a:text-black prose-a:underline prose-a:font-medium
+                  prose-strong:text-black prose-strong:font-semibold
+                  prose-blockquote:border-l-black prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:text-black prose-blockquote:italic
+                  prose-code:text-black prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
+                  prose-pre:bg-gray-100 prose-pre:border prose-pre:border-gray-300 prose-pre:rounded-xl
                   prose-img:rounded-xl prose-img:shadow-lg
-                  prose-li:text-[17px] prose-li:leading-[1.8] prose-li:text-foreground/90
-                  prose-hr:border-border"
+                  prose-li:text-[17px] prose-li:leading-[1.8] prose-li:text-black
+                  prose-hr:border-gray-300"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
             </div>
