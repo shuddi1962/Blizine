@@ -345,8 +345,8 @@ async function geminiGrounded(
 
   } catch (e: any) {
     const msg = String(e)
-    if (msg.includes('429') || msg.includes('quota') || msg.includes('RATE_LIMIT')) {
-      return { article: null, debug: '429_quota' }
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('RATE_LIMIT') || msg.includes('RESOURCE_EXHAUSTED')) {
+      return { article: null, debug: `429:${msg.slice(0, 120)}` }
     }
     return { article: null, debug: `error:${msg.slice(0, 150)}` }
   }
