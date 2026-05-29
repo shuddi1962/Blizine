@@ -1,15 +1,11 @@
-name: Fetch RSS Feeds
+name: Fetch RSS Feeds (DISABLED)
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Call fetch-rss API
-        run: |
-          SITE="${{ secrets.SITE_URL || 'https://www.blizine.com' }}"
-          curl -s -o /dev/null -w "%{http_code}" "$SITE/api/fetch-rss"
+      - name: Disabled
+        run: echo "This workflow is disabled"
