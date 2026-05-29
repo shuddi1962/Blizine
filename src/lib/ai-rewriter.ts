@@ -211,7 +211,7 @@ function validate(raw: string, model: BlizineArticle['modelUsed']): BlizineArtic
   }
 
   if (!p.headline || !p.content) return null
-  if (typeof p.content !== 'string' || p.content.length < 300) return null
+  if (typeof p.content !== 'string' || p.content.length < 100) return null
 
   if (!p.content.includes('<h2')) return null
 
@@ -231,13 +231,13 @@ function validate(raw: string, model: BlizineArticle['modelUsed']): BlizineArtic
         .filter((f: any) => f.question.length > 5 && f.answer.length > 10)
     : []
 
-  if (faq.length < 2) return null
+  if (faq.length < 1) return null
 
   const keyPoints = Array.isArray(p.keyPoints)
     ? (p.keyPoints as string[]).slice(0, 5).map(String).filter(k => k.length > 10)
     : []
 
-  if (keyPoints.length < 2) return null
+  if (keyPoints.length < 1) return null
 
   return {
     headline:          String(p.headline).trim().slice(0, 150),
@@ -322,7 +322,7 @@ async function geminiGrounded(
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature:     0.45,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
         tools:           [{ googleSearch: {} }],
       },
     })
