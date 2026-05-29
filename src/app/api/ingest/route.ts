@@ -2,6 +2,7 @@ import { NextRequest, NextResponse }      from 'next/server'
 import { RSS_FEEDS }                       from '@/lib/rss-feeds'
 import { rewriteArticle, type BlizineArticle }      from '@/lib/ai-rewriter'
 import { createClient }                    from '@/lib/supabase/admin'
+import { watermarkImage }                  from '@/lib/watermark'
 
 const DAILY_CAP = 20
 
@@ -370,19 +371,20 @@ async function run(req: NextRequest) {
           finalImage = CATEGORY_FALLBACKS[catSlug] || CATEGORY_FALLBACKS['tech-news']
         }
 
-        // Upload image to Supabase Storage to prevent hotlink breakage
+        // Upload image to Supabase Storage with watermark
         try {
           const imgRes = await fetch(finalImage, {
             headers: { 'User-Agent': BOT_UA },
             signal: AbortSignal.timeout(10000),
           })
           if (imgRes.ok) {
-            const imgBuf = await imgRes.arrayBuffer()
+            let imgBuf = Buffer.from(await imgRes.arrayBuffer())
+            imgBuf = await watermarkImage(imgBuf)
             const ext = finalImage.includes('.png') ? '.png' : '.jpg'
             const filename = `post-${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
             const { error: upErr } = await supabase.storage
               .from('post-images')
-              .upload(filename, Buffer.from(imgBuf), {
+              .upload(filename, imgBuf, {
                 contentType: imgRes.headers.get('content-type') || 'image/jpeg',
                 upsert: true,
               })
