@@ -306,7 +306,7 @@ export default function AnalyticsPage() {
             { label: 'Google Analytics 4', ok: !!data?.ga4, configured: data?.googleConfigured },
             { label: 'Search Console', ok: !!data?.gsc, configured: data?.googleConfigured },
             { label: 'PageSpeed Insights', ok: !!data?.pagespeed, configured: !!process.env.NEXT_PUBLIC_PAGESPEED_KEY || !!data?.pagespeed },
-          ].map(s => (
+          ].map((s: any) => (
             <div key={s.label} className="flex items-center gap-2">
               <span className={`h-2 w-2 rounded-full ${s.ok ? 'bg-[#34A853]' : s.configured === false ? 'bg-[#FBBC04]' : 'bg-[#EA4335]'}`} />
               <span className="text-[#8B9EC7]">{s.label}</span>
