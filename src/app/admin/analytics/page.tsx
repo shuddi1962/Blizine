@@ -353,7 +353,7 @@ export default function AnalyticsPage() {
               Traffic overview
             </SectionLabel>
             <div className="flex items-center gap-4 mb-4 text-xs text-[#8B9EC7]">
-              {[['Users', '#4285F4'], ['Sessions', '#34A853'], ['New users', '#EA4335']].map(([l, c]) => (
+              {[['Users', '#4285F4'], ['Sessions', '#34A853'], ['New users', '#EA4335']].map(([l, c]: string[]) => (
                 <div key={l} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
                   {l}
@@ -451,7 +451,7 @@ export default function AnalyticsPage() {
                 { label: 'Total Clicks', value: fmt(gscClicks), color: '#34A853' },
                 { label: 'Average CTR', value: gscCtr + '%', color: '#FBBC04' },
                 { label: 'Average Position', value: gscPosition, color: '#EA4335' },
-              ].map(c => (
+              ].map((c: any) => (
                 <div key={c.label} className="bg-[#080D1A] rounded-lg p-4 text-center">
                   <div className="text-xl font-bold text-[#F0F4FF]">{c.value}</div>
                   <div className="text-xs text-[#8B9EC7] mt-1">{c.label}</div>
@@ -485,7 +485,7 @@ export default function AnalyticsPage() {
                   <div className="w-16 text-right">Views</div>
                   <div className="w-16 text-right">% New</div>
                 </div>
-                {pageData.slice(0, 8).map((p) => (
+                {pageData.slice(0, 8).map((p: any) => (
                   <div key={p.path} className="flex items-center text-xs py-2 border-b border-[#1E2D42]/50">
                     <div className="flex-1 truncate text-[#F0F4FF]">{p.path}</div>
                     <div className="w-16 text-right text-[#F0F4FF]">{fmt(p.views)}</div>
@@ -505,7 +505,7 @@ export default function AnalyticsPage() {
                   <div className="w-14 text-right">Clicks</div>
                   <div className="w-14 text-right">Pos.</div>
                 </div>
-                {kwData.slice(0, 8).map((k) => (
+                {kwData.slice(0, 8).map((k: any) => (
                   <div key={k.keyword} className="flex items-center text-xs py-2 border-b border-[#1E2D42]/50">
                     <div className="flex-1 truncate text-[#F0F4FF]">{k.keyword}</div>
                     <div className="w-14 text-right text-[#F0F4FF]">{k.clicks}</div>
@@ -554,7 +554,7 @@ export default function AnalyticsPage() {
                   { icon: <Monitor className="h-4 w-4" />, label: 'Desktop', val: rtData.desktop },
                   { icon: <Smartphone className="h-4 w-4" />, label: 'Mobile', val: rtData.mobile },
                   { icon: <Tablet className="h-4 w-4" />, label: 'Tablet', val: rtData.tablet },
-                ].map(d => (
+                ].map((d: any) => (
                   <div key={d.label} className="bg-[#080D1A] rounded-lg p-3 text-center">
                     <div className="flex justify-center text-[#8B9EC7] mb-1">{d.icon}</div>
                     <div className="text-lg font-bold text-[#F0F4FF]">{d.val}</div>
@@ -579,7 +579,7 @@ export default function AnalyticsPage() {
                   { label: 'LCP', val: ps.lcp, isScore: false },
                   { label: 'INP', val: ps.inp, isScore: false },
                   { label: 'CLS', val: ps.cls, isScore: false },
-                ].map(m => {
+                ].map((m: any) => {
                   const color = m.isScore
                     ? (m.val >= 90 ? '#1D9E75' : m.val >= 50 ? '#BA7517' : '#D85A30')
                     : '#6366F1'
