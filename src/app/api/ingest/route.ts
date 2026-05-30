@@ -266,19 +266,24 @@ async function run(req: NextRequest) {
   const catMap: Record<string, string> = {}
   for (const c of cats || []) catMap[c.slug] = c.id
 
-  const since72h = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString()
-  const { data: recentPosts } = await supabase
+  // Load all existing posts' fingerprints and URLs for dedup (no date limit)
+  const { data: existingPosts } = await supabase
     .from('posts')
-    .select('content_fingerprint, source_url, source_urls')
-    .gte('published_at', since72h)
-    .limit(3000)
+    .select('content_fingerprint, source_url, source_urls, title')
+    .not('source_url', 'is', null)
+    .limit(5000)
 
   const seenFingerprints = new Set<string>()
   const seenUrls         = new Set<string>()
-  for (const p of recentPosts || []) {
+  const seenTitles       = new Map<string, string>() // normalized -> original
+  for (const p of existingPosts || []) {
     if (p.content_fingerprint) seenFingerprints.add(p.content_fingerprint)
     if (p.source_url)          seenUrls.add(p.source_url)
     for (const u of (p.source_urls || [])) seenUrls.add(u)
+    if (p.title) {
+      const norm = p.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim()
+      if (norm.length > 15) seenTitles.set(norm, p.title)
+    }
   }
 
   const p1 = RSS_FEEDS.filter(f => f.priority === 1).sort(() => Math.random() - 0.5)
@@ -330,6 +335,23 @@ async function run(req: NextRequest) {
         skipped++
         log.push(`[DUPE fp] ${item.title.slice(0,50)}`)
         continue
+      }
+
+      // Cross-feed title similarity check
+      const itemNorm = item.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim()
+      if (itemNorm.length > 15) {
+        let isDupTitle = false
+        for (const existingNorm of seenTitles.keys()) {
+          if (itemNorm === existingNorm || itemNorm.includes(existingNorm) || existingNorm.includes(itemNorm)) {
+            isDupTitle = true
+            break
+          }
+        }
+        if (isDupTitle) {
+          skipped++
+          log.push(`[DUPE title] ${item.title.slice(0,50)}`)
+          continue
+        }
       }
 
       const sourceText = item.content.length > 80 ? item.content : item.description
@@ -441,6 +463,7 @@ async function run(req: NextRequest) {
 
         runUrls.add(item.link)
         if (fp) runFingerprints.add(fp)
+        if (itemNorm.length > 15) seenTitles.set(itemNorm, item.title)
 
         ingested++
         log.push(`[✓ ${ingested}/${canPublish}][gemini-grounded] ${ai.headline.slice(0,60)}`)
