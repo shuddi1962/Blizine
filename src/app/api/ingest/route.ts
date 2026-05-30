@@ -341,7 +341,7 @@ async function run(req: NextRequest) {
       const itemNorm = item.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim()
       if (itemNorm.length > 15) {
         let isDupTitle = false
-        for (const existingNorm of seenTitles.keys()) {
+        for (const existingNorm of Array.from(seenTitles.keys())) {
           if (itemNorm === existingNorm || itemNorm.includes(existingNorm) || existingNorm.includes(itemNorm)) {
             isDupTitle = true
             break
