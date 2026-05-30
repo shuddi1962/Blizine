@@ -38,7 +38,7 @@ async function fetchGA4Data(auth: any, days: number) {
     const { google } = require('googleapis')
     const analyticsData = google.analyticsdata({ version: 'v1beta', auth })
     const { startDate, endDate } = getDateRange(days)
-    const propertyId = process.env.GOOGLE_GA4_PROPERTY_ID!
+    const propertyId = `properties/${process.env.GOOGLE_GA4_PROPERTY_ID!}`
 
     const [overview, daily, sources, devices, pages, geo, realtime] = await Promise.allSettled([
       analyticsData.properties.runReport({

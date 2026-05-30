@@ -7,3 +7,5 @@ node_modules
 dev_output.txt
 dev_errors.txt
 supabase/.temp
+
+.env*.local
