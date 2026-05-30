@@ -393,7 +393,7 @@ export default function AnalyticsPage() {
                   </ResponsiveContainer>
                 </div>
                 <div className="flex-1 space-y-2 w-full">
-                  {sourceData.map((s, i) => (
+                  {sourceData.map((s: any, i: number) => (
                     <div key={s.name} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="h-2.5 w-2.5 rounded-sm" style={{ background: sourceColors[i % sourceColors.length] }} />
@@ -426,7 +426,7 @@ export default function AnalyticsPage() {
                     { icon: <Monitor className="h-4 w-4" />, name: 'Desktop' },
                     { icon: <Smartphone className="h-4 w-4" />, name: 'Mobile' },
                     { icon: <Tablet className="h-4 w-4" />, name: 'Tablet' },
-                  ].map((d, i) => (
+                  ].map((d: any, i: number) => (
                     <div key={d.name} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 text-[#F0F4FF]">
                         {d.icon}
@@ -523,7 +523,7 @@ export default function AnalyticsPage() {
                 Top countries
               </SectionLabel>
               <div className="space-y-3">
-                {geoData.map((g, i) => (
+                {geoData.map((g: any, i: number) => (
                   <div key={g.country}>
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-[#F0F4FF]">{g.country}</span>
