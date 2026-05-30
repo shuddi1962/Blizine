@@ -318,6 +318,20 @@ export default function AnalyticsPage() {
         </div>
       </Card>
 
+      {/* BLIZINE INTERNAL STATS — top for quick reference */}
+      {data?.blizine && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiCard label="Articles Today" value={data.blizine.todayArticles || 0}
+            icon={<FileText className="h-5 w-5" style={{ color: '#6366F1' }} />} iconColor="#6366F1" />
+          <KpiCard label="Gemini Used Today" value={`${data.blizine.geminiToday || 0}/20`}
+            icon={<Activity className="h-5 w-5" style={{ color: '#FBBC04' }} />} iconColor="#FBBC04" />
+          <KpiCard label="Published Posts" value={data.blizine.publishedPosts || 0}
+            icon={<FileText className="h-5 w-5" style={{ color: '#1D9E75' }} />} iconColor="#1D9E75" />
+          <KpiCard label="Total Views" value={fmt(data.blizine.totalViews || 0)}
+            icon={<Eye className="h-5 w-5" style={{ color: '#14B8A6' }} />} iconColor="#14B8A6" />
+        </div>
+      )}
+
       {loading && !data ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1,2,3,4,5,6,7,8].map(i => <Card key={i} className="p-5"><Skeleton /></Card>)}
@@ -598,19 +612,7 @@ export default function AnalyticsPage() {
             </Card>
           )}
 
-          {/* BLIZINE INTERNAL STATS */}
-          {blizine && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <KpiCard label="Articles Today" value={blizine.todayArticles || 0}
-                icon={<FileText className="h-5 w-5" style={{ color: '#6366F1' }} />} iconColor="#6366F1" />
-              <KpiCard label="Gemini Used Today" value={`${blizine.geminiToday || 0}/20`}
-                icon={<Activity className="h-5 w-5" style={{ color: '#FBBC04' }} />} iconColor="#FBBC04" />
-              <KpiCard label="Published Posts" value={blizine.publishedPosts || 0}
-                icon={<FileText className="h-5 w-5" style={{ color: '#1D9E75' }} />} iconColor="#1D9E75" />
-              <KpiCard label="Total Views" value={fmt(blizine.totalViews || 0)}
-                icon={<Eye className="h-5 w-5" style={{ color: '#14B8A6' }} />} iconColor="#14B8A6" />
-            </div>
-          )}
+
         </>
       )}
     </div>
