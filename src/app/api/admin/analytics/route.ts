@@ -28,9 +28,11 @@ async function fetchPageSpeed() {
 async function fetchBlizineStats(supabase: any) {
   const today = new Date().toISOString().slice(0, 10)
 
-  const [postsRes, draftCountRes, todayCountRes, feedsRes, geminiRes] = await Promise.allSettled([
+  const [postsRes, draftCountRes, scheduledRes, archivedRes, todayCountRes, feedsRes, geminiRes] = await Promise.allSettled([
     supabase.from('posts').select('id, views, title, slug, published_at').eq('status', 'published'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'scheduled'),
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'archived'),
     supabase.from('daily_article_count').select('count').eq('date', today).single(),
     supabase.from('rss_feeds').select('posts_fetched').not('posts_fetched', 'is', null),
     supabase.from('gemini_usage_log').select('*', { count: 'exact', head: true }).gte('created_at', today),
@@ -41,10 +43,22 @@ async function fetchBlizineStats(supabase: any) {
 
   const sorted = [...posts].sort((a: any, b: any) => (b.views || 0) - (a.views || 0)).slice(0, 5)
 
+  const draftCount = draftCountRes.status === 'fulfilled' ? draftCountRes.value.count || 0 : 0
+  const scheduledCount = scheduledRes.status === 'fulfilled' ? scheduledRes.value.count || 0 : 0
+  const archivedCount = archivedRes.status === 'fulfilled' ? archivedRes.value.count || 0 : 0
+
   return {
     publishedPosts: posts.length,
     totalViews,
-    draftPosts: draftCountRes.status === 'fulfilled' ? draftCountRes.value.count || 0 : 0,
+    draftPosts: draftCount,
+    scheduledPosts: scheduledCount,
+    archivedPosts: archivedCount,
+    postStatusDist: [
+      { name: 'Published', value: posts.length },
+      { name: 'Draft', value: draftCount },
+      { name: 'Scheduled', value: scheduledCount },
+      { name: 'Archived', value: archivedCount },
+    ].filter(s => s.value > 0),
     todayArticles: todayCountRes.status === 'fulfilled' ? todayCountRes.value.data?.count || 0 : 0,
     geminiToday: geminiRes.status === 'fulfilled' ? geminiRes.value.count || 0 : 0,
     totalFeedPosts: feedsRes.status === 'fulfilled'
@@ -100,8 +114,8 @@ async function fetchAnalyticsEvents(supabase: any, days: number) {
 
   const countByKey = (rows: any[], field: string) => {
     const map: Record<string, number> = {}
-    const data = referrersRes.status === 'fulfilled' ? rows : []
-    ;(rows || []).forEach((r: any) => {
+    const referrerRows = rows
+    referrerRows.forEach((r: any) => {
       let val = r[field] || 'Unknown'
       if (field === 'referrer') {
         if (!val || val === '') val = 'Direct'
@@ -115,12 +129,27 @@ async function fetchAnalyticsEvents(supabase: any, days: number) {
       .map(([name, value]) => ({ name, value }))
   }
 
+  const referrerRows = referrersRes.status === 'fulfilled' ? referrersRes.value.data || [] : []
+
+  let directCount = 0
+  let referredCount = 0
+  referrerRows.forEach((r: any) => {
+    const ref = r.referrer
+    if (!ref || ref === '') directCount++
+    else referredCount++
+  })
+
+  const trafficSourceDist = []
+  if (directCount > 0) trafficSourceDist.push({ name: 'Direct', value: directCount })
+  if (referredCount > 0) trafficSourceDist.push({ name: 'Referred', value: referredCount })
+
   return {
     totalPageViews: dailyRows.length,
     viewsOverTime: Object.entries(dailyMap).map(([date, views]) => ({ date, views })),
     topPages: countByKey(pagesRes.status === 'fulfilled' ? pagesRes.value.data || [] : [], 'page_url'),
-    topReferrers: countByKey(referrersRes.status === 'fulfilled' ? referrersRes.value.data || [] : [], 'referrer'),
+    topReferrers: countByKey(referrerRows, 'referrer'),
     topCountries: countByKey(countriesRes.status === 'fulfilled' ? countriesRes.value.data || [] : [], 'country'),
+    trafficSourceDist,
   }
 }
 
