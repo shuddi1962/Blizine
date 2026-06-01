@@ -4,7 +4,7 @@ import { rewriteArticle, type BlizineArticle }      from '@/lib/ai-rewriter'
 import { createClient }                    from '@/lib/supabase/admin'
 import { watermarkImage }                  from '@/lib/watermark'
 
-const DAILY_CAP = 20
+const DAILY_CAP = 150
 
 const BOT_UA = 'Mozilla/5.0 (compatible; Blizine/1.0; +https://blizine.com/bot)'
 
@@ -79,7 +79,7 @@ async function fetchOgImage(url: string): Promise<string | null> {
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': BOT_UA, 'Accept': 'text/html' },
-        signal:  AbortSignal.timeout(8000),
+        signal:  AbortSignal.timeout(4000),
       })
       const html = await res.text()
       const og = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
@@ -100,7 +100,7 @@ async function fetchArticleContent(url: string): Promise<string | null> {
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': BOT_UA, 'Accept': 'text/html' },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(4000),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const html = await res.text()
@@ -268,9 +268,9 @@ async function run(req: NextRequest) {
   const url = new URL(req.url)
   const feedLimit = parseInt(url.searchParams.get('limit') || '0', 10) || 0
 
-  // Vercel Hobby serverless timeout is 10s — stop after 8s to return cleanly
+  // Vercel Hobby serverless timeout is 10s — stop at 9500ms to return cleanly
   const startedAt = Date.now()
-  const DEADLINE_MS = 8000
+  const DEADLINE_MS = 9500
   function isOutOfTime() { return Date.now() - startedAt >= DEADLINE_MS }
 
   const supabase = createClient()
@@ -352,7 +352,7 @@ async function run(req: NextRequest) {
       continue
     }
 
-    for (const item of items.slice(0, 10)) {
+    for (const item of items.slice(0, 5)) {
 
       if (ingested >= canPublish) break
       if (!item.title || item.title.length < 10) { skipped++; continue }
@@ -506,8 +506,6 @@ async function run(req: NextRequest) {
         ingested++
         log.push(`[✓ ${ingested}/${canPublish}][gemini-grounded] ${ai.headline.slice(0,60)}`)
 
-        await new Promise(r => setTimeout(r, 1200))
-
       } catch (err) {
         failed++
         log.push(`[ERR] ${String(err).slice(0,60)}`)
@@ -569,7 +567,6 @@ async function run(req: NextRequest) {
           await supabase.rpc('increment_daily_count')
           ingested++
           log.push(`[✓ FALLBACK ${ingested}/${canPublish}][gemini-grounded] ${article.headline.slice(0, 60)}`)
-          await new Promise(r => setTimeout(r, 1200))
         } catch (err) {
           log.push(`[FALLBACK ERR] ${String(err).slice(0, 60)}`)
         }

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/admin'
 
-const GEMINI_DAILY_CAP = 20
-const GEMINI_RATE_MS = 10_000
+const GEMINI_DAILY_CAP = 150
+const GEMINI_RATE_MS = 1000
 
 export interface BlizineArticle {
   headline:          string
@@ -313,50 +313,65 @@ async function geminiGrounded(
   }
   lastGeminiCallTime = Date.now()
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
-    const body = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature:     0.45,
-        maxOutputTokens: 8192,
-      },
-      tools: [{ googleSearch: {} }],
+  const maxRetries = 1
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
+      const body = {
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature:     0.45,
+          maxOutputTokens: 8192,
+        },
+        tools: [{ googleSearch: {} }],
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(9000),
+      })
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '')
+        if (attempt < maxRetries && res.status >= 500) {
+          console.warn(`[Gemini retry ${attempt + 1}] HTTP ${res.status}`)
+          await new Promise(r => setTimeout(r, 1000))
+          continue
+        }
+        return { article: null, debug: `http_${res.status}:${errText.slice(0, 150)}` }
+      }
+
+      const data = await res.json()
+      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      if (!raw || raw.length < 100) {
+        const reason = data?.candidates?.[0]?.finishReason || 'NO_CANDIDATE'
+        return { article: null, debug: `empty:${reason}/len=${raw.length}` }
+      }
+
+      const article = validate(raw, 'gemini-grounded')
+
+      if (article) {
+        await logGeminiUsage(article.headline, usedFor)
+        console.log(`[✓ Gemini+Search ${todayCount + 1}/${GEMINI_DAILY_CAP}] ${article.headline.slice(0, 60)}`)
+        return { article, debug: 'ok' }
+      }
+
+      return { article: null, debug: `validate_fail:len=${raw.length}` }
+
+    } catch (e: any) {
+      const msg = String(e)
+      if (attempt < maxRetries && (msg.includes('Timeout') || msg.includes('timeout') || msg.includes('aborted'))) {
+        console.warn(`[Gemini retry ${attempt + 1}] ${msg.slice(0, 80)}`)
+        await new Promise(r => setTimeout(r, 1000))
+        continue
+      }
+      return { article: null, debug: `error:${msg.slice(0, 150)}` }
     }
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(25000),
-    })
-
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '')
-      return { article: null, debug: `http_${res.status}:${errText.slice(0, 150)}` }
-    }
-
-    const data = await res.json()
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    if (!raw || raw.length < 100) {
-      const reason = data?.candidates?.[0]?.finishReason || 'NO_CANDIDATE'
-      return { article: null, debug: `empty:${reason}/len=${raw.length}` }
-    }
-
-    const article = validate(raw, 'gemini-grounded')
-
-    if (article) {
-      await logGeminiUsage(article.headline, usedFor)
-      console.log(`[✓ Gemini+Search ${todayCount + 1}/${GEMINI_DAILY_CAP}] ${article.headline.slice(0, 60)}`)
-      return { article, debug: 'ok' }
-    }
-
-    return { article: null, debug: `validate_fail:len=${raw.length}` }
-
-  } catch (e: any) {
-    const msg = String(e)
-    return { article: null, debug: `error:${msg.slice(0, 150)}` }
   }
+
+  return { article: null, debug: 'retries_exhausted' }
 }
 
 // ── MAIN EXPORT ───────────────────────────────────────────────────────────
