@@ -593,9 +593,9 @@
 
 /* ── QUICK BRIEF WIDGET ── */
 .quick-brief-widget {
-  background: rgba(99,102,241,.08);
-  border: 1px solid rgba(99,102,241,.25);
-  border-left: 4px solid #6366F1;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-left: 4px solid #000;
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 2rem;
@@ -613,7 +613,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .1em;
-  color: #818CF8;
+  color: #000;
 }
 .qb-list {
   list-style: none;
@@ -625,7 +625,7 @@
 }
 .qb-item {
   font-size: 14px;
-  color: #C7D2FE;
+  color: #000;
   padding-left: 20px;
   position: relative;
   line-height: 1.5;
@@ -634,35 +634,35 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #6366F1;
+  color: #000;
   font-weight: 700;
 }
 
 /* ── KEY POINTS WIDGET ── */
 .key-points-widget {
-  background: rgba(245,158,11,.06);
-  border: 1px solid rgba(245,158,11,.2);
-  border-left: 4px solid #F59E0B;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-left: 4px solid #000;
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 24px;
 }
 .kp-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
 .kp-icon { font-size:15px; }
-.kp-title { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#F59E0B; }
+.kp-title { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#000; }
 .kp-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
-.kp-item { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:#FDE68A; line-height:1.5; }
-.kp-bullet { background:#F59E0B; color:#000; font-size:10px; font-weight:800; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.kp-item { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:#000; line-height:1.5; }
+.kp-bullet { background:#000; color:#fff; font-size:10px; font-weight:800; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 
 /* ── FAQ WIDGET ── */
-.faq-widget { margin-top:40px; padding-top:32px; border-top:1px solid #1E2D42; }
-.faq-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; margin-bottom:20px; color:#F9FAFB; }
+.faq-widget { margin-top:40px; padding-top:32px; border-top:1px solid #D1D5DB; }
+.faq-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; margin-bottom:20px; color:#000; }
 .faq-icon { font-size:20px; }
 .faq-list { display:flex; flex-direction:column; gap:10px; }
-.faq-item { background:#111827; border:1px solid #1E2D42; border-radius:8px; overflow:hidden; transition:border-color .2s; }
-.faq-item[open] { border-color:#6366F1; }
-.faq-question { padding:16px 18px; font-size:15px; font-weight:600; color:#F0F4FF; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; line-height:1.4; }
+.faq-item { background:#fff; border:1px solid #D1D5DB; border-radius:8px; overflow:hidden; transition:border-color .2s; }
+.faq-item[open] { border-color:#000; }
+.faq-question { padding:16px 18px; font-size:15px; font-weight:600; color:#000; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; line-height:1.4; }
 .faq-question::-webkit-details-marker { display:none; }
-.faq-question::after { content:'▼'; font-size:12px; color:#6B7280; transition:transform .2s; flex-shrink:0; margin-left:12px; }
-.faq-item[open] .faq-question::after { transform:rotate(180deg); color:#6366F1; }
-.faq-answer { padding:0 18px 16px; font-size:14px; color:#9CA3AF; line-height:1.7; border-top:1px solid #1E2D42; padding-top:14px; }
+.faq-question::after { content:'▼'; font-size:12px; color:#000; transition:transform .2s; flex-shrink:0; margin-left:12px; }
+.faq-item[open] .faq-question::after { transform:rotate(180deg); color:#000; }
+.faq-answer { padding:0 18px 16px; font-size:14px; color:#000; line-height:1.7; border-top:1px solid #D1D5DB; padding-top:14px; }
