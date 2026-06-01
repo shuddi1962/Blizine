@@ -95,6 +95,39 @@ async function fetchOgImage(url: string): Promise<string | null> {
   return null
 }
 
+async function fetchArticleContent(url: string): Promise<string | null> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': BOT_UA, 'Accept': 'text/html' },
+        signal: AbortSignal.timeout(8000),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const html = await res.text()
+      const article = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i)
+      const main = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i)
+      const body = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
+      const section = article || main || body
+      const text = (section?.[1] || html)
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+        .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+        .replace(/<header[\s\S]*?<\/header>/gi, '')
+        .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&[^;]+;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+      if (text.length >= 80) return text.slice(0, 5000)
+      return null
+    } catch {
+      if (attempt < 2) await new Promise(r => setTimeout(r, 2000))
+    }
+  }
+  return null
+}
+
 const CATEGORY_FALLBACKS: Record<string, string> = {
   'tech-news':        'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
   'ai-automation':    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80',
@@ -354,11 +387,17 @@ async function run(req: NextRequest) {
         }
       }
 
-      const sourceText = item.content.length > 80 ? item.content : item.description
+      let sourceText = item.content.length > 80 ? item.content : item.description
       if (!sourceText || sourceText.length < 30) {
-        skipped++
-        log.push(`[THIN] ${item.title.slice(0,50)}`)
-        continue
+        const fetched = await fetchArticleContent(item.link)
+        if (fetched && fetched.length >= 80) {
+          sourceText = fetched
+          log.push(`[FETCHED] ${item.title.slice(0,50)}`)
+        } else {
+          skipped++
+          log.push(`[THIN] ${item.title.slice(0,50)}`)
+          continue
+        }
       }
 
       try {
