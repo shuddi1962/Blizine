@@ -411,7 +411,7 @@ export default function AnalyticsPage() {
                 <GaugeCard label="Performance" value={ps.performance} max={100} />
                 <GaugeCard label="Accessibility" value={ps.accessibility} max={100} />
                 <GaugeCard label="SEO score" value={ps.seo} max={100} />
-                <GaugeCard label="Best Practices" value={ps.bestPractices ?? 85} max={100} />
+                <GaugeCard label="Best Practices" value={ps.bestPractices ?? 0} max={100} />
                 <div className="rounded-xl p-4 text-center shadow-sm border border-indigo-100" style={{ background: '#EEF2FF' }}>
                   <div className="text-xs mb-2 font-semibold uppercase tracking-wider" style={{ color: '#4F46E5' }}>LCP</div>
                   <div className="text-2xl font-extrabold mb-1" style={{ background: 'linear-gradient(90deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{ps.lcp}</div>

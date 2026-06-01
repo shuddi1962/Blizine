@@ -14,13 +14,14 @@ async function fetchPageSpeed() {
     const cats = data.lighthouseResult?.categories
     const audits = data.lighthouseResult?.audits
     return {
-      performance: Math.round((cats?.performance?.score || 0) * 100),
+      performance:   Math.round((cats?.performance?.score || 0) * 100),
       accessibility: Math.round((cats?.accessibility?.score || 0) * 100),
-      seo: Math.round((cats?.seo?.score || 0) * 100),
-      lcp: audits?.['largest-contentful-paint']?.displayValue || 'N/A',
-      inp: audits?.['interaction-to-next-paint']?.displayValue || 'N/A',
-      cls: audits?.['cumulative-layout-shift']?.displayValue || 'N/A',
-      fcp: audits?.['first-contentful-paint']?.displayValue || 'N/A',
+      seo:           Math.round((cats?.seo?.score || 0) * 100),
+      bestPractices: Math.round((cats?.['best-practices']?.score || 0) * 100),
+      lcp:           audits?.['largest-contentful-paint']?.displayValue || 'N/A',
+      inp:           audits?.['interaction-to-next-paint']?.displayValue || 'N/A',
+      cls:           audits?.['cumulative-layout-shift']?.displayValue || 'N/A',
+      fcp:           audits?.['first-contentful-paint']?.displayValue || 'N/A',
     }
   } catch {
     return null
