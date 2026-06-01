@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingBag, Search, Plus, ExternalLink, RefreshCw, Check, X, Link } from "lucide-react"
+import { ShoppingBag, Search, Plus, RefreshCw, Check, X, Settings, Save, Eye, EyeOff } from "lucide-react"
 import type { AffiliateProduct } from "@/types/database"
 
 interface AffiliateConfig {
@@ -15,11 +15,115 @@ interface AffiliateConfig {
   program_key: string
   program_name: string
   logo_url: string | null
+  api_type: string
+  credentials: Record<string, string>
   is_connected: boolean
   search_enabled: boolean
   total_products_imported: number
   total_clicks: number
   total_estimated_earnings: number
+}
+
+function ConfigDialog({ prog, open, onClose }: { prog: AffiliateConfig | null; open: boolean; onClose: () => void }) {
+  const [apiKey, setApiKey] = useState("")
+  const [apiSecret, setApiSecret] = useState("")
+  const [trackingId, setTrackingId] = useState("")
+  const [showSecret, setShowSecret] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (prog) {
+      setApiKey(prog.credentials?.api_key || "")
+      setApiSecret(prog.credentials?.api_secret || "")
+      setTrackingId(prog.credentials?.tracking_id || "")
+    }
+  }, [prog])
+
+  if (!open || !prog) return null
+
+  const handleSave = async () => {
+    setSaving(true)
+    const supabase = createClient()
+    const credentials: Record<string, string> = {}
+    if (apiKey) credentials.api_key = apiKey
+    if (apiSecret) credentials.api_secret = apiSecret
+    if (trackingId) credentials.tracking_id = trackingId
+
+    await supabase.from("affiliate_program_configs").update({
+      credentials,
+      is_connected: !!(apiKey || apiSecret || trackingId),
+      search_enabled: !!(apiKey || apiSecret || trackingId),
+    }).eq("id", prog.id)
+    setSaving(false)
+    onClose()
+  }
+
+  const handleDisconnect = async () => {
+    setSaving(true)
+    const supabase = createClient()
+    await supabase.from("affiliate_program_configs").update({
+      credentials: {},
+      is_connected: false,
+      search_enabled: false,
+    }).eq("id", prog.id)
+    setSaving(false)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-2xl border border-gray-200 dark:border-[#374151] w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#374151]">
+          <div className="flex items-center gap-3">
+            {prog.logo_url ? (
+              <img src={prog.logo_url} alt="" className="h-8 w-8 rounded object-contain" />
+            ) : (
+              <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+            )}
+            <div>
+              <h2 className="text-lg font-bold">{prog.program_name}</h2>
+              <p className="text-xs text-muted-foreground">{prog.program_key} &middot; {prog.api_type}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-[#1F2937] rounded">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5 space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">API Key</label>
+            <Input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Enter API key" />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">API Secret</label>
+            <div className="relative">
+              <Input value={apiSecret} onChange={e => setApiSecret(e.target.value)} type={showSecret ? "text" : "password"} placeholder="Enter API secret" className="pr-10" />
+              <button onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Tracking ID (optional)</label>
+            <Input value={trackingId} onChange={e => setTrackingId(e.target.value)} placeholder="e.g. affiliate tag or ID" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between p-5 border-t border-gray-200 dark:border-[#374151]">
+          {prog.is_connected ? (
+            <Button variant="outline" size="sm" onClick={handleDisconnect} disabled={saving} className="text-red-500 border-red-200 hover:bg-red-50">
+              <X className="h-4 w-4 mr-1" />Disconnect
+            </Button>
+          ) : <div />}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              <Save className="h-4 w-4 mr-1" />{saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AdminAffiliatePage() {
@@ -30,6 +134,7 @@ export default function AdminAffiliatePage() {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [selectedProgram, setSelectedProgram] = useState("")
   const [searchLoading, setSearchLoading] = useState(false)
+  const [configProg, setConfigProg] = useState<AffiliateConfig | null>(null)
 
   const loadData = useCallback(async () => {
     const supabase = createClient()
@@ -45,12 +150,6 @@ export default function AdminAffiliatePage() {
   useEffect(() => {
     loadData()
   }, [loadData])
-
-  const toggleConnect = async (prog: AffiliateConfig) => {
-    const supabase = createClient()
-    await supabase.from("affiliate_program_configs").update({ is_connected: !prog.is_connected, search_enabled: !prog.is_connected }).eq("id", prog.id)
-    loadData()
-  }
 
   const handleSearch = async () => {
     if (!selectedProgram || !searchQuery) return
@@ -90,6 +189,8 @@ export default function AdminAffiliatePage() {
 
   return (
     <div>
+      <ConfigDialog prog={configProg} open={!!configProg} onClose={() => { setConfigProg(null); loadData() }} />
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Affiliate Manager</h1>
@@ -117,7 +218,7 @@ export default function AdminAffiliatePage() {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-2">
                       {prog.logo_url ? (
-                        <img src={prog.logo_url} alt={prog.program_name} className="h-8 w-8 rounded object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden") }} />
+                        <img src={prog.logo_url} alt={prog.program_name} className="h-8 w-8 rounded object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement)?.nextElementSibling?.classList.remove("hidden") }} />
                       ) : null}
                       <ShoppingBag className={`h-8 w-8 text-muted-foreground ${prog.logo_url ? "hidden" : ""}`} />
                       <div className="min-w-0">
@@ -142,17 +243,9 @@ export default function AdminAffiliatePage() {
                         <span>{prog.total_clicks} clicks</span>
                       </div>
                     )}
-                    <div className="flex gap-2 mt-2">
-                      {prog.is_connected ? (
-                        <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => toggleConnect(prog)}>
-                          <Link className="h-3 w-3 mr-1" />Configure
-                        </Button>
-                      ) : (
-                        <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => toggleConnect(prog)}>
-                          <ExternalLink className="h-3 w-3 mr-1" />Connect
-                        </Button>
-                      )}
-                    </div>
+                    <Button variant="outline" size="sm" className="w-full mt-2 text-xs" onClick={() => setConfigProg(prog)}>
+                      <Settings className="h-3 w-3 mr-1" />{prog.is_connected ? "Configure" : "Connect"}
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -178,7 +271,7 @@ export default function AdminAffiliatePage() {
 
               {programs.filter(p => p.is_connected).length === 0 && !searchResults.length && (
                 <div className="text-sm text-muted-foreground text-center py-8">
-                  Connect a program to search live products.
+                  Connect a program with API keys to search live products.
                 </div>
               )}
 
