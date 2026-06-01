@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { formatDate, formatDateFull, readingTime } from "@/lib/utils"
-import { Clock, Eye, ArrowLeft, ExternalLink, Bookmark, ChevronRight } from "lucide-react"
+import { Clock, Eye, ArrowLeft, Bookmark, ChevronRight } from "lucide-react"
 import type { Metadata } from "next"
 import { ReadingProgress } from "@/components/post/reading-progress"
 import { ShareButtons } from "@/components/social/share-buttons"
@@ -74,8 +74,7 @@ export default async function PostPage({ params }: Props) {
   const quickBrief = (post as any).quick_brief
   const keyPoints = (post as any).key_points
   const faq = (post as any).faq
-  const sourceUrl = post.source_url || (post as any).original_source_url
-  const sourceName = post.source_name
+  // source link intentionally removed
   const popularPosts = popularRes.data || []
   const sidebarCategories = categoriesRes.data || []
   const recentPosts = recentRes.data || []
@@ -257,25 +256,6 @@ export default async function PostPage({ params }: Props) {
                     </Badge>
                   </Link>
                 ))}
-              </div>
-            )}
-
-            {/* Source Attribution */}
-            {sourceUrl && (
-              <div className="mb-8 p-5 rounded-xl bg-muted/50 border border-border">
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <span className="text-lg">📰</span>
-                  {sourceName ? `${sourceName} — ` : "Originally published at "}
-                  <a
-                    href={sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
-                  >
-                    {new URL(sourceUrl).hostname.replace("www.", "")}
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </p>
               </div>
             )}
 
