@@ -29,13 +29,15 @@ export default async function CategoryPage({ params }: Props) {
 
   if (!category) notFound()
 
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("posts")
-    .select("*, category:categories(*), author:profiles(*)")
+    .select("*, category:categories(*), author:profiles(*)", { count: "exact", head: false })
     .eq("status", "published")
     .eq("category_id", category.id)
     .order("published_at", { ascending: false })
     .limit(20)
+
+  if (!count || count === 0) notFound()
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
 

@@ -16,13 +16,15 @@ export default async function AuthorPage({ params }: Props) {
 
   if (!author) notFound()
 
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("posts")
-    .select("*, category:categories(*)")
+    .select("*, category:categories(*)", { count: "exact", head: false })
     .eq("status", "published")
     .eq("author_id", author.id)
     .order("published_at", { ascending: false })
     .limit(30)
+
+  if (!count || count === 0) notFound()
 
   return (
     <div className="container py-6">

@@ -26,13 +26,15 @@ export default async function SubcategoryPage({ params }: Props) {
 
   if (!subcategory) notFound()
 
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("posts")
-    .select("*, author:profiles(*)")
+    .select("*, author:profiles(*)", { count: "exact", head: false })
     .eq("status", "published")
     .eq("subcategory_id", subcategory.id)
     .order("published_at", { ascending: false })
     .limit(20)
+
+  if (!count || count === 0) notFound()
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { Suspense, useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { Suspense, useState, useEffect, useRef } from "react"
+import { useSearchParams, notFound } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { Post } from "@/types/database"
@@ -17,10 +17,22 @@ function SearchContent() {
   const [results, setResults] = useState<Post[]>([])
   const [loading, setLoading] = useState(false)
   const [searchInput, setSearchInput] = useState(query)
+  const [done, setDone] = useState(false)
+  const noindexInjected = useRef(false)
 
   useEffect(() => {
-    if (!query) return
+    if (noindexInjected.current) return
+    noindexInjected.current = true
+    const meta = document.createElement("meta")
+    meta.name = "robots"
+    meta.content = "noindex, follow"
+    document.head.appendChild(meta)
+  }, [])
+
+  useEffect(() => {
+    if (!query) { setDone(false); return }
     setLoading(true)
+    setDone(false)
     const supabase = createClient()
     supabase
       .from("posts")
@@ -35,8 +47,11 @@ function SearchContent() {
       .then(({ data }) => {
         if (data) setResults(data)
         setLoading(false)
+        setDone(true)
       })
   }, [query])
+
+  if (done && results.length === 0) notFound()
 
   return (
     <div className="container py-6">
@@ -84,9 +99,6 @@ function SearchContent() {
                 </div>
               </Link>
             ))}
-            {!loading && query && results.length === 0 && (
-              <p className="text-center py-12 text-muted-foreground">No results found. Try a different search term.</p>
-            )}
           </div>
         </div>
       )}

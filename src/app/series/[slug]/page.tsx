@@ -17,12 +17,14 @@ export default async function SeriesPage({ params }: Props) {
 
   if (!series) notFound()
 
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("posts")
-    .select("*")
+    .select("*", { count: "exact", head: false })
     .eq("status", "published")
     .eq("series_id", series.id)
     .order("published_at", { ascending: true })
+
+  if (!count || count === 0) notFound()
 
   return (
     <div className="container py-6">
