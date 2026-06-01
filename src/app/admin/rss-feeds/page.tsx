@@ -11,22 +11,31 @@ import { Rss, Plus, RefreshCw } from "lucide-react"
 import type { RssFeed, Category } from "@/types/database"
 
 export default function AdminRssFeedsPage() {
-  const [feeds, setFeeds] = useState<RssFeed[]>([])
+  const [feeds, setFeeds] = useState<(RssFeed & { post_count: number })[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [feedUrl, setFeedUrl] = useState("")
   const [feedName, setFeedName] = useState("")
   const [categoryId, setCategoryId] = useState("")
 
-  useEffect(() => {
+  const loadData = async () => {
     const supabase = createClient()
-    Promise.all([
+    const [feedsRes, catsRes, postsRes] = await Promise.all([
       supabase.from("rss_feeds").select("*, category:categories(name)").order("feed_name"),
       supabase.from("categories").select("*").order("name"),
-    ]).then(([feedsRes, catsRes]) => {
-      if (feedsRes.data) setFeeds(feedsRes.data as any)
-      if (catsRes.data) setCategories(catsRes.data)
-    })
-  }, [])
+      supabase.from("posts").select("source_name").eq("status", "published"),
+    ])
+    if (catsRes.data) setCategories(catsRes.data)
+    if (feedsRes.data && postsRes.data) {
+      const counts: Record<string, number> = {}
+      for (const p of postsRes.data) {
+        const name = p.source_name
+        counts[name] = (counts[name] || 0) + 1
+      }
+      setFeeds(feedsRes.data.map((f: any) => ({ ...f, post_count: counts[f.feed_name] || 0 })) as any)
+    }
+  }
+
+  useEffect(() => { loadData() }, [])
 
   const addFeed = async () => {
     if (!feedUrl || !feedName || !categoryId) return
@@ -39,8 +48,7 @@ export default function AdminRssFeedsPage() {
     setFeedUrl("")
     setFeedName("")
     setCategoryId("")
-    const { data } = await supabase.from("rss_feeds").select("*, category:categories(name)").order("feed_name")
-    if (data) setFeeds(data as any)
+    loadData()
   }
 
   const toggleActive = async (id: string, active: boolean) => {
@@ -56,11 +64,7 @@ export default function AdminRssFeedsPage() {
       const res = await fetch("/api/fetch-rss?feed_id=" + feed.id)
       const data = await res.json()
       alert(data.message || data.error || "Done")
-      const { data: refreshed } = await createClient()
-        .from("rss_feeds")
-        .select("*, category:categories(name)")
-        .order("feed_name")
-      if (refreshed) setFeeds(refreshed as any)
+      loadData()
     } catch (err: any) {
       alert("Error: " + err.message)
     }
@@ -73,11 +77,7 @@ export default function AdminRssFeedsPage() {
       const res = await fetch("/api/fetch-rss")
       const data = await res.json()
       alert(data.message || data.error || "Done")
-      const { data: refreshed } = await createClient()
-        .from("rss_feeds")
-        .select("*, category:categories(name)")
-        .order("feed_name")
-      if (refreshed) setFeeds(refreshed as any)
+      loadData()
     } catch (err: any) {
       alert("Error: " + err.message)
     }
@@ -123,7 +123,7 @@ export default function AdminRssFeedsPage() {
                   <p className="text-sm text-muted-foreground">{feed.feed_url}</p>
                   <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                     <Badge variant="secondary">{feed.category?.name}</Badge>
-                    <span>{feed.posts_fetched} posts</span>
+                    <span>{feed.post_count} posts</span>
                     {feed.last_fetched_at && <span>Last fetched: {new Date(feed.last_fetched_at).toLocaleDateString()}</span>}
                   </div>
                   {feed.last_error && <p className="text-xs text-red-400 mt-1 truncate max-w-[500px]" title={feed.last_error}>Error: {feed.last_error}</p>}
