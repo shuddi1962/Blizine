@@ -190,6 +190,21 @@ const BANNED_PHRASES = [
   "to summarize",
 ]
 
+const CORRECTIVE_PROMPTS: Record<string, string> = {
+  no_h2_in_content:
+    "Your previous response was rejected because there were no <h2> section headings in the content. You MUST include at least one <h2> heading (e.g. `<h2>Key Developments</h2>`) to structure the article. Please regenerate with proper HTML section headings.",
+  faq_too_few:
+    "Your previous response was rejected because there weren't enough FAQ entries. You MUST include at least 2 FAQ items — each with a question longer than 5 characters and an answer longer than 10 characters.",
+  keyPoints_too_few:
+    "Your previous response was rejected because there weren't enough key points. You MUST include at least 2 key points, each longer than 10 characters.",
+  content_too_short:
+    "Your previous response was rejected because the content was too short. Please write a more comprehensive article (at least 300 characters).",
+  missing_headline:
+    "Your previous response was rejected because the 'headline' field was missing. Please include a headline.",
+  missing_content:
+    "Your previous response was rejected because the 'content' field was missing. Please include article content.",
+}
+
 function validate(raw: string, model: BlizineArticle['modelUsed']): { article: BlizineArticle | null; reason: string } {
   if (!raw || raw.length < 100) { return { article: null, reason: `raw_too_short:${raw?.length || 0}` } }
 
@@ -212,42 +227,65 @@ function validate(raw: string, model: BlizineArticle['modelUsed']): { article: B
 
   if (!p.headline) { return { article: null, reason: 'missing_headline' } }
   if (!p.content) { return { article: null, reason: 'missing_content' } }
-  if (typeof p.content !== 'string' || p.content.length < 100) { return { article: null, reason: `content_too_short:${p.content?.length || 0}` } }
-  if (!p.content.includes('<h2')) { return { article: null, reason: 'no_h2_in_content' } }
 
-  const contentLower = (p.content + ' ' + p.headline).toLowerCase()
+  // Normalize content: markdown headings → <h2>, <h3> → <h2>
+  let content = String(p.content)
+    .replace(/^##\s+/gm, '<h2>')
+    .replace(/<h3>/gi, '<h2>')
+    .replace(/<\/h3>/gi, '</h2>')
+    .trim()
+
+  if (content.length < 100) { return { article: null, reason: `content_too_short:${content.length}` } }
+  if (!content.includes('<h2')) { return { article: null, reason: 'no_h2_in_content' } }
+
+  // Soft banned phrases: strip from content instead of rejecting
+  const headline = String(p.headline).trim()
+  let combined = (content + ' ' + headline).toLowerCase()
   for (const b of BANNED_PHRASES) {
-    if (contentLower.includes(b)) { return { article: null, reason: `banned_phrase:${b}` } }
+    if (combined.includes(b)) {
+      const escaped = b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      content = content.replace(new RegExp(escaped, 'gi'), '').trim()
+      // Re-check after removal
+      combined = (content + ' ' + headline).toLowerCase()
+    }
   }
 
-  const faq = Array.isArray(p.faq)
-    ? (p.faq as Array<any>)
+  // Accept alternate field names
+  const rawFaq = p.faq ?? p.questions ?? p.FAQ ?? []
+  const faq = Array.isArray(rawFaq)
+    ? (rawFaq as Array<any>)
         .slice(0, 5)
         .map((f: any) => ({
-          question: String(f?.question || '').trim(),
-          answer:   String(f?.answer   || '').trim(),
+          question: String(f?.question || f?.q || '').trim(),
+          answer:   String(f?.answer   || f?.a || '').trim(),
         }))
         .filter((f: any) => f.question.length > 5 && f.answer.length > 10)
     : []
 
   if (faq.length < 1) { return { article: null, reason: `faq_too_few:${faq.length}` } }
 
-  const keyPoints = Array.isArray(p.keyPoints)
-    ? (p.keyPoints as string[]).slice(0, 5).map(String).filter(k => k.length > 10)
+  const rawKeyPoints = p.keyPoints ?? p.key_points ?? p.keypoints ?? []
+  const keyPoints = Array.isArray(rawKeyPoints)
+    ? (rawKeyPoints as string[]).slice(0, 5).map(String).filter(k => k.length > 10)
     : []
 
   if (keyPoints.length < 1) { return { article: null, reason: `keyPoints_too_few:${keyPoints.length}` } }
 
+  const rawQuickBrief = p.quickBrief ?? p.quick_brief ?? []
+  const quickBrief = Array.isArray(rawQuickBrief)
+    ? (rawQuickBrief as string[]).slice(0, 3).map(String)
+    : []
+
   return {
     article: {
-      headline:          String(p.headline).trim().slice(0, 150),
-      content:           String(p.content).trim(),
+      headline,
+      content,
       seoTitle:          String(p.seoTitle || p.headline).slice(0, 60),
       seoDescription:    String(p.seoDescription || '').slice(0, 155),
       seoKeywords:       Array.isArray(p.seoKeywords) ? (p.seoKeywords as string[]).slice(0, 5).map(String) : [],
       tags:              Array.isArray(p.tags) ? (p.tags as string[]).slice(0, 5).map(String) : [],
       keyPoints,
-      quickBrief:        Array.isArray(p.quickBrief) ? (p.quickBrief as string[]).slice(0, 3).map(String) : [],
+      quickBrief,
       faq,
       blizineScore:      Math.min(100, Math.max(1, Number(p.blizineScore) || 70)),
       isBreaking:        Boolean(p.isBreaking),
@@ -327,6 +365,7 @@ async function geminiGrounded(
   lastGeminiCallTime = Date.now()
 
   const maxRetries = 2
+  let lastDebug = ''
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
@@ -371,7 +410,17 @@ async function geminiGrounded(
         return { article, debug: 'ok' }
       }
 
-      return { article: null, debug: `validate:${reason}` }
+      // Corrective retry: if validate had a fixable issue, give Gemini a second chance
+      lastDebug = `validate:${reason}`
+      const corrective = CORRECTIVE_PROMPTS[reason]
+      if (corrective && attempt < maxRetries) {
+        console.warn(`[Gemini corrective ${attempt + 1}/${maxRetries}] ${reason} — retrying`)
+        prompt = prompt + '\n\n⚠️ CORRECTION: ' + corrective
+        await new Promise(r => setTimeout(r, 1500))
+        continue
+      }
+
+      return { article: null, debug: lastDebug }
 
     } catch (e: any) {
       const msg = String(e)
@@ -384,7 +433,7 @@ async function geminiGrounded(
     }
   }
 
-  return { article: null, debug: 'retries_exhausted' }
+  return { article: null, debug: lastDebug || 'retries_exhausted' }
 }
 
 // ── MAIN EXPORT ───────────────────────────────────────────────────────────
