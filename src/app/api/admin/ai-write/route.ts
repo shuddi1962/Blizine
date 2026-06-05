@@ -84,16 +84,16 @@ export async function POST(req: NextRequest) {
 
     const startTime = Date.now()
 
-    const article = mode === "topic"
+    const result = mode === "topic"
       ? await manualWriteFromTopic(input)
       : await manualWriteFromUrl(input)
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
 
-    if (!article) {
+    if (!result.article) {
       return NextResponse.json({
-        error: "AI writing failed. All models returned no content. Please try again.",
-        suggestion: "Try making your topic more specific, or check your API keys.",
+        error: `AI writing failed. Debug: ${result.debug}. Suggestions: try a more specific topic, check API keys, or check server logs.`,
+        debug: result.debug,
       }, { status: 500 })
     }
 
@@ -101,13 +101,13 @@ export async function POST(req: NextRequest) {
       supabase,
       mode,
       input,
-      article.headline,
+      result.article.headline,
       "gemini-2.5-flash",
     )
 
     return NextResponse.json({
       ok: true,
-      article,
+      article: result.article,
       meta: {
         elapsed_seconds:   elapsed,
         quota_used:        usedThisMonth + 1,

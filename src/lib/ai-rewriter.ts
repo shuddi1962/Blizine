@@ -528,8 +528,8 @@ export async function manualWriteFromTopic(topic: string): Promise<{ article: Bl
   return result
 }
 
-export async function manualWriteFromUrl(url: string): Promise<BlizineArticle | null> {
-  if (!url || !url.startsWith("http")) return null
+export async function manualWriteFromUrl(url: string): Promise<{ article: BlizineArticle | null; debug: string }> {
+  if (!url || !url.startsWith("http")) return { article: null, debug: 'invalid_url' }
   console.log(`[Blizine Manual] Writing from URL: ${url.slice(0, 80)}`)
 
   let sourceContent = ""
@@ -568,14 +568,14 @@ export async function manualWriteFromUrl(url: string): Promise<BlizineArticle | 
   const inputType = sourceContent.length > 200 ? "content" : "url"
 
   const prompt = buildBlizinePrompt(input, inputType, sourceName)
-  const { article } = await geminiGrounded(prompt, 'manual', MANUAL_GEMINI_DAILY_CAP)
-  if (article) {
-    console.log(`[✓ Gemini+Search] ${article.headline.slice(0, 55)}`)
-    return article
+  const result = await geminiGrounded(prompt, 'manual', MANUAL_GEMINI_DAILY_CAP)
+  if (result.article) {
+    console.log(`[✓ Gemini+Search] ${result.article.headline.slice(0, 55)}`)
+    return result
   }
 
-  console.error(`[✗ ALL FAILED] URL: ${url.slice(0, 60)}`)
-  return null
+  console.error(`[✗ ALL FAILED] URL: ${url.slice(0, 60)} — ${result.debug}`)
+  return result
 }
 
 export async function geminiRewriteContent(title: string, content: string): Promise<string> {
