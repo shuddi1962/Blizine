@@ -122,7 +122,7 @@ export default async function HomePage() {
       popularPosts = extract(results[4], 4)
       categories = extract(results[5], 5)
 
-      const shuffleCat = (data: any[]) => shuffle(data || []).slice(0, 4)
+      const shuffleCat = (data: any[] | null) => shuffle(data || []).slice(0, 4)
       aiPosts = shuffleCat(extract(results[6], 6))
       cyberPosts = shuffleCat(extract(results[7], 7))
       gadgetPosts = shuffleCat(extract(results[8], 8))
