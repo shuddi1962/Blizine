@@ -591,6 +591,98 @@
   color: #000;
 }
 
+.dark .article-content {
+  color: #D1D5DB;
+}
+
+.dark .article-content h2 {
+  color: #F3F4F6;
+  border-bottom-color: #4B5563;
+}
+
+.dark .article-content h3 {
+  color: #F3F4F6;
+}
+
+.dark .article-content li {
+  color: #D1D5DB;
+}
+
+.dark .article-content ul li::marker {
+  color: #D1D5DB;
+}
+
+.dark .article-content ol li::marker {
+  color: #D1D5DB;
+}
+
+.dark .article-content strong {
+  color: #F9FAFB;
+}
+
+.dark .article-content blockquote {
+  border-left-color: #60A5FA;
+}
+
+.dark .article-content blockquote p {
+  color: #D1D5DB;
+}
+
+.dark .article-content code {
+  background: #1F2937;
+  color: #D1D5DB;
+}
+
+.dark .article-content pre {
+  background: #111827;
+  border-color: #374151;
+}
+
+.dark .article-content pre code {
+  color: #D1D5DB;
+}
+
+.dark .article-content a {
+  color: #60A5FA;
+}
+.dark .article-content a:hover { color: #93C5FD; }
+
+.dark .article-content > p:first-child {
+  color: #D1D5DB;
+}
+
+.dark .article-content h2:last-of-type {
+  border-bottom-color: #4B5563;
+  color: #F3F4F6;
+}
+
+.dark .quick-brief-widget {
+  background: #1F2937;
+  border-color: #374151;
+  border-left-color: #60A5FA;
+}
+.dark .qb-title { color: #F3F4F6; }
+.dark .qb-item { color: #D1D5DB; }
+.dark .qb-item::before { color: #60A5FA; }
+
+.dark .key-points-widget {
+  background: #1F2937;
+  border-color: #374151;
+  border-left-color: #60A5FA;
+}
+.dark .kp-title { color: #F3F4F6; }
+.dark .kp-item { color: #D1D5DB; }
+.dark .kp-bullet { background: #60A5FA; color: #111827; }
+
+.dark .faq-widget { border-top-color: #374151; }
+.dark .faq-title { color: #F3F4F6; }
+.dark .faq-item { background: #1F2937; border-color: #374151; }
+.dark .faq-item[open] { border-color: #60A5FA; }
+.dark .faq-question { color: #F3F4F6; }
+.dark .faq-question::after { color: #9CA3AF; }
+.dark .faq-item[open] .faq-question::after { color: #60A5FA; }
+.dark .faq-answer { color: #D1D5DB; border-top-color: #374151; }
+
 /* ── QUICK BRIEF WIDGET ── */
 .quick-brief-widget {
   background: #F9FAFB;
