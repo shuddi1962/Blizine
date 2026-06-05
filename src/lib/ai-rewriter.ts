@@ -190,33 +190,34 @@ const BANNED_PHRASES = [
   "to summarize",
 ]
 
-function validate(raw: string, model: BlizineArticle['modelUsed']): BlizineArticle | null {
-  if (!raw || raw.length < 100) { console.log('[VAL] too short'); return null }
+function validate(raw: string, model: BlizineArticle['modelUsed']): { article: BlizineArticle | null; reason: string } {
+  if (!raw || raw.length < 100) { return { article: null, reason: `raw_too_short:${raw?.length || 0}` } }
 
   const clean = raw
     .replace(/^```(?:json)?\s*/im, '')
     .replace(/\s*```\s*$/im, '')
     .trim()
 
+  let jsonStr = clean
   let p: Record<string, any>
   try {
     p = JSON.parse(clean)
   } catch {
     const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) { console.log('[VAL] no JSON match'); return null }
+    if (!jsonMatch) { return { article: null, reason: 'no_json_object_found' } }
+    jsonStr = jsonMatch[0]
     try { p = JSON.parse(jsonMatch[0]) }
-    catch { console.log('[VAL] JSON parse fail'); return null }
+    catch { return { article: null, reason: 'json_parse_fail_after_object_extract' } }
   }
 
-  if (!p.headline || !p.content) { console.log(`[VAL] missing headline=${!!p.headline} content=${!!p.content}`); return null }
-  if (typeof p.content !== 'string' || p.content.length < 100) { console.log(`[VAL] content too short (${p.content?.length})`); return null }
-
-  if (!p.content.includes('<h2')) { console.log('[VAL] no h2'); return null }
+  if (!p.headline) { return { article: null, reason: 'missing_headline' } }
+  if (!p.content) { return { article: null, reason: 'missing_content' } }
+  if (typeof p.content !== 'string' || p.content.length < 100) { return { article: null, reason: `content_too_short:${p.content?.length || 0}` } }
+  if (!p.content.includes('<h2')) { return { article: null, reason: 'no_h2_in_content' } }
 
   const contentLower = (p.content + ' ' + p.headline).toLowerCase()
-  if (BANNED_PHRASES.some(b => contentLower.includes(b))) {
-    console.warn('[Blizine AI] Banned phrase detected — rejecting article')
-    return null
+  for (const b of BANNED_PHRASES) {
+    if (contentLower.includes(b)) { return { article: null, reason: `banned_phrase:${b}` } }
   }
 
   const faq = Array.isArray(p.faq)
@@ -229,28 +230,31 @@ function validate(raw: string, model: BlizineArticle['modelUsed']): BlizineArtic
         .filter((f: any) => f.question.length > 5 && f.answer.length > 10)
     : []
 
-  if (faq.length < 1) { console.log(`[VAL] faq short (${faq.length})`); return null }
+  if (faq.length < 1) { return { article: null, reason: `faq_too_few:${faq.length}` } }
 
   const keyPoints = Array.isArray(p.keyPoints)
     ? (p.keyPoints as string[]).slice(0, 5).map(String).filter(k => k.length > 10)
     : []
 
-  if (keyPoints.length < 1) { console.log(`[VAL] keyPoints short (${keyPoints.length})`); return null }
+  if (keyPoints.length < 1) { return { article: null, reason: `keyPoints_too_few:${keyPoints.length}` } }
 
   return {
-    headline:          String(p.headline).trim().slice(0, 150),
-    content:           String(p.content).trim(),
-    seoTitle:          String(p.seoTitle || p.headline).slice(0, 60),
-    seoDescription:    String(p.seoDescription || '').slice(0, 155),
-    seoKeywords:       Array.isArray(p.seoKeywords) ? (p.seoKeywords as string[]).slice(0, 5).map(String) : [],
-    tags:              Array.isArray(p.tags) ? (p.tags as string[]).slice(0, 5).map(String) : [],
-    keyPoints,
-    quickBrief:        Array.isArray(p.quickBrief) ? (p.quickBrief as string[]).slice(0, 3).map(String) : [],
-    faq,
-    blizineScore:      Math.min(100, Math.max(1, Number(p.blizineScore) || 70)),
-    isBreaking:        Boolean(p.isBreaking),
-    suggestedCategory: String(p.suggestedCategory || 'tech-news'),
-    modelUsed:         model,
+    article: {
+      headline:          String(p.headline).trim().slice(0, 150),
+      content:           String(p.content).trim(),
+      seoTitle:          String(p.seoTitle || p.headline).slice(0, 60),
+      seoDescription:    String(p.seoDescription || '').slice(0, 155),
+      seoKeywords:       Array.isArray(p.seoKeywords) ? (p.seoKeywords as string[]).slice(0, 5).map(String) : [],
+      tags:              Array.isArray(p.tags) ? (p.tags as string[]).slice(0, 5).map(String) : [],
+      keyPoints,
+      quickBrief:        Array.isArray(p.quickBrief) ? (p.quickBrief as string[]).slice(0, 3).map(String) : [],
+      faq,
+      blizineScore:      Math.min(100, Math.max(1, Number(p.blizineScore) || 70)),
+      isBreaking:        Boolean(p.isBreaking),
+      suggestedCategory: String(p.suggestedCategory || 'tech-news'),
+      modelUsed:         model,
+    },
+    reason: 'ok',
   }
 }
 
@@ -359,7 +363,7 @@ async function geminiGrounded(
         return { article: null, debug: `empty:${reason}/len=${raw.length}` }
       }
 
-      const article = validate(raw, 'gemini-grounded')
+      const { article, reason } = validate(raw, 'gemini-grounded')
 
       if (article) {
         await logGeminiUsage(article.headline, usedFor)
@@ -367,7 +371,7 @@ async function geminiGrounded(
         return { article, debug: 'ok' }
       }
 
-      return { article: null, debug: `validate_fail:len=${raw.length}` }
+      return { article: null, debug: `validate:${reason}` }
 
     } catch (e: any) {
       const msg = String(e)
@@ -509,19 +513,19 @@ Return ONLY valid JSON — no markdown, no code blocks, no explanation:
 }`
 }
 
-export async function manualWriteFromTopic(topic: string): Promise<BlizineArticle | null> {
-  if (!topic || topic.length < 5) return null
+export async function manualWriteFromTopic(topic: string): Promise<{ article: BlizineArticle | null; debug: string }> {
+  if (!topic || topic.length < 5) return { article: null, debug: 'topic_too_short' }
   console.log(`[Blizine Manual] Writing from topic: ${topic.slice(0, 60)}`)
 
   const prompt = buildBlizinePrompt(topic, "topic")
-  const { article } = await geminiGrounded(prompt, 'manual', MANUAL_GEMINI_DAILY_CAP)
-  if (article) {
-    console.log(`[✓ Gemini+Search] ${article.headline.slice(0, 55)}`)
-    return article
+  const result = await geminiGrounded(prompt, 'manual', MANUAL_GEMINI_DAILY_CAP)
+  if (result.article) {
+    console.log(`[✓ Gemini+Search] ${result.article.headline.slice(0, 55)}`)
+    return result
   }
 
-  console.error(`[✗ ALL FAILED] Topic: ${topic.slice(0, 50)}`)
-  return null
+  console.error(`[✗ ALL FAILED] Topic: ${topic.slice(0, 50)} — ${result.debug}`)
+  return result
 }
 
 export async function manualWriteFromUrl(url: string): Promise<BlizineArticle | null> {
