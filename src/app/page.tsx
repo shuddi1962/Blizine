@@ -119,14 +119,36 @@ export default async function HomePage() {
     }
   }
 
+  const hasContent = heroPosts && heroPosts.length > 0
+
+  if (!hasContent) {
+    return (
+      <div>
+        <TopBar />
+        <Header />
+        <MainNav categories={[]} />
+        <main className="min-h-[60vh] flex items-center justify-center px-4">
+          <div className="text-center max-w-lg">
+            <h1 className="text-3xl font-bold mb-4" style={{ fontFamily: "'Syne', sans-serif" }}>Welcome to Blizine</h1>
+            <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
+              Tech, decoded. Fast. We&apos;re preparing the latest tech news and articles for you. Check back soon.
+            </p>
+          </div>
+        </main>
+        <NewsletterStrip />
+        <Footer categories={[]} recentPosts={[]} />
+      </div>
+    )
+  }
+
   const tags = Array.from(new Set(
     (allTags || []).flatMap((p: any) => p.seo_keywords || [])
   )).slice(0, 20) as string[]
 
   const cats = (categories || []).map((cat: any) => ({ ...cat }))
 
-  const featuredPost = (heroPosts || [])[0] || null
-  const heroSecondary = (heroPosts || []).slice(1, 5)
+  const featuredPost = heroPosts[0] || null
+  const heroSecondary = heroPosts.slice(1, 5)
 
   const subcatsByCat: Record<string, any[]> = {}
   for (const sub of (subcategories || [])) {

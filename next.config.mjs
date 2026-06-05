@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/cgi-sys/:path*",
+        destination: "/",
+        permanent: false,
+        statusCode: 410,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.theverge.com' },
