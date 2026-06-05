@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/admin'
 
-const GEMINI_DAILY_CAP = 150
+const GEMINI_DAILY_CAP = 30
 const GEMINI_RATE_MS = 1000
 
 export interface BlizineArticle {

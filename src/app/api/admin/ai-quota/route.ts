@@ -17,7 +17,7 @@ export async function GET() {
   const tomorrow = new Date(todayStart)
   tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
 
-  const GEMINI_CAP = 150
+  const GEMINI_CAP = 30
 
   return NextResponse.json({
     gemini: {

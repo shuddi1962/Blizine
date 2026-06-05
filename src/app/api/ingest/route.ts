@@ -4,7 +4,7 @@ import { rewriteArticle, type BlizineArticle }      from '@/lib/ai-rewriter'
 import { createClient }                    from '@/lib/supabase/admin'
 import { watermarkImage }                  from '@/lib/watermark'
 
-const DAILY_CAP = 150
+const DAILY_CAP = 30
 
 const BOT_UA = 'Mozilla/5.0 (compatible; Blizine/1.0; +https://blizine.com/bot)'
 
