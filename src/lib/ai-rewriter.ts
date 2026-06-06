@@ -205,6 +205,16 @@ const CORRECTIVE_PROMPTS: Record<string, string> = {
     "Your previous response was rejected because the 'content' field was missing. Please include article content.",
 }
 
+function repairJson(str: string): string {
+  return str
+    .replace(/\/\/.*$/gm, '')               // strip // comments
+    .replace(/\/\*[\s\S]*?\*\//g, '')       // strip /* */ comments
+    .replace(/,\s*([}\]])/g, '$1')           // trailing commas before ] or }
+    .replace(/([{,])\s*'([^']+?)'\s*:/g, '$1"$2":')  // single-quoted keys → double-quoted
+    .replace(/:\s*'([^']*?)'\s*([,}])/g, ':"$1"$2')  // single-quoted strings → double-quoted
+    .trim()
+}
+
 function validate(raw: string, model: BlizineArticle['modelUsed']): { article: BlizineArticle | null; reason: string } {
   if (!raw || raw.length < 100) { return { article: null, reason: `raw_too_short:${raw?.length || 0}` } }
 
@@ -222,7 +232,11 @@ function validate(raw: string, model: BlizineArticle['modelUsed']): { article: B
     if (!jsonMatch) { return { article: null, reason: 'no_json_object_found' } }
     jsonStr = jsonMatch[0]
     try { p = JSON.parse(jsonMatch[0]) }
-    catch { return { article: null, reason: 'json_parse_fail_after_object_extract' } }
+    catch {
+      const repaired = repairJson(jsonMatch[0])
+      try { p = JSON.parse(repaired) }
+      catch { return { article: null, reason: 'json_parse_fail_after_object_extract' } }
+    }
   }
 
   if (!p.headline) { return { article: null, reason: 'missing_headline' } }
