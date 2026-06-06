@@ -303,7 +303,6 @@ async function run(req: NextRequest) {
   }
 
   const canPublish = dailyCap - todayCount
-  console.log(`[Ingest] Today: ${todayCount}/${dailyCap}. Can publish ${canPublish} more.`)
 
   const { data: cats } = await supabase.from('categories').select('id, slug')
   const catMap: Record<string, string> = {}
@@ -591,14 +590,6 @@ async function run(req: NextRequest) {
     const sitemapUrl = `${SITE_URL}/sitemap.xml`
     fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`).catch(() => {})
     fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`).catch(() => {})
-    fetch(`${SITE_URL}/api/revalidate`, {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${process.env.REVALIDATION_SECRET}`,
-      },
-      body: JSON.stringify({ paths: ['/'] }),
-    }).catch(() => {})
   }
 
   return NextResponse.json({

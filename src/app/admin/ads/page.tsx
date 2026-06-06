@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { DollarSign, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { AD_POSITIONS } from "@/lib/constants"
 import type { Ad } from "@/types/database"
 
@@ -27,7 +27,7 @@ export default function AdminAdsPage() {
   const addAd = async () => {
     if (!name || !position) return
     const supabase = createClient()
-    await supabase.from("ads").insert({ name, position: position as any, ad_code: adCode })
+    await supabase.from("ads").insert({ name, type: "banner", position: position as any, ad_code: adCode })
     setName("")
     setPosition("")
     setAdCode("")

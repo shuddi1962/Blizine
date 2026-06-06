@@ -90,9 +90,8 @@ async function logGeminiCall(): Promise<boolean> {
   if (usedToday >= GEMINI_DAILY_CAP) return false
 
   await supabase.from("gemini_usage_log").insert({
+    used_for: "write-keyword-article",
     model: "gemini-2.5-flash",
-    action: "write-keyword-article",
-    tokens_used: 0,
   })
 
   return true
