@@ -31,12 +31,13 @@ async function fetchPageSpeed() {
 async function fetchBlizineStats(supabase: any) {
   const today = new Date().toISOString().slice(0, 10)
 
-  const [postsRes, draftCountRes, scheduledRes, archivedRes, todayCountRes, feedsRes, geminiRes] = await Promise.allSettled([
+  const [postsRes, draftCountRes, scheduledRes, archivedRes, todayCountRes, todayAllPostsRes, totalFeedRes, geminiRes] = await Promise.allSettled([
     supabase.from('posts').select('id, views, title, slug, published_at').eq('status', 'published'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'scheduled'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'archived'),
     supabase.from('daily_article_count').select('count').eq('date', today).maybeSingle(),
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'published').gte('published_at', `${today}T00:00:00Z`),
     supabase.from('rss_feeds').select('posts_fetched').not('posts_fetched', 'is', null),
     supabase.from('gemini_usage_log').select('*', { count: 'exact', head: true }).gte('created_at', today),
   ])
@@ -62,10 +63,11 @@ async function fetchBlizineStats(supabase: any) {
       { name: 'Scheduled', value: scheduledCount },
       { name: 'Archived', value: archivedCount },
     ].filter(s => s.value > 0),
-    todayArticles: todayCountRes.status === 'fulfilled' ? todayCountRes.value.data?.count || 0 : 0,
+    todayArticles: todayAllPostsRes.status === 'fulfilled' ? todayAllPostsRes.value.count || 0 : 0,
+    rssArticlesToday: todayCountRes.status === 'fulfilled' ? todayCountRes.value.data?.count || 0 : 0,
     geminiToday: geminiRes.status === 'fulfilled' ? geminiRes.value.count || 0 : 0,
-    totalFeedPosts: feedsRes.status === 'fulfilled'
-      ? (feedsRes.value.data || []).reduce((s: number, f: any) => s + (f.posts_fetched || 0), 0) : 0,
+    totalFeedPosts: totalFeedRes.status === 'fulfilled'
+      ? (totalFeedRes.value.data || []).reduce((s: number, f: any) => s + (f.posts_fetched || 0), 0) : 0,
     topPosts: sorted.map((p: any) => ({
       id: p.id, title: p.title, slug: p.slug, views: p.views || 0,
     })),

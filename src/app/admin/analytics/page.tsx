@@ -343,10 +343,16 @@ export default function AnalyticsPage() {
                 <KpiCard label="Draft Posts" value={b.draftPosts || 0}
                   icon={<FileText className="h-5 w-5 text-white" />}
                   gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" />
-                <KpiCard label="Articles Today" value={b.todayArticles || 0}
+                <KpiCard label="Published Today" value={b.todayArticles || 0}
                   icon={<TrendingUp className="h-5 w-5 text-white" />}
                   gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" />
-                <KpiCard label="Feed Posts" value={fmt(b.totalFeedPosts || 0)}
+                <KpiCard label="Manual Today" value={Math.max(0, (b.todayArticles || 0) - (b.rssArticlesToday || 0))}
+                  icon={<FileText className="h-5 w-5 text-white" />}
+                  gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" />
+                <KpiCard label="RSS Today" value={b.rssArticlesToday || 0}
+                  icon={<Rss className="h-5 w-5 text-white" />}
+                  gradient="linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" />
+                <KpiCard label="All Feed Posts" value={fmt(b.totalFeedPosts || 0)}
                   icon={<Rss className="h-5 w-5 text-white" />}
                   gradient="linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" />
                 <KpiCard label="Gemini Today" value={`${b.geminiToday || 0}/20`}
