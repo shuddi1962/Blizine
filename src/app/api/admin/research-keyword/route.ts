@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       seo_description: article.seoDescription,
       seo_keywords: article.seoKeywords,
       tags: article.tags,
-      quick_brief: article.quickBrief.map(t => ({ text: t })),
+      quick_brief: article.quickBrief,
       key_points: article.keyPoints.map((k: string, i: number) => `${i + 1}. ${k}`),
       faq: article.faq,
       answer_capsule: answerCapsule,

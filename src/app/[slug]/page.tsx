@@ -71,7 +71,10 @@ export default async function PostPage({ params }: Props) {
     supabase.from("posts").select("seo_keywords").eq("status", "published").limit(100),
   ])
 
-  const quickBrief = (post as any).quick_brief
+  const rawQuickBrief = (post as any).quick_brief
+  const quickBrief = Array.isArray(rawQuickBrief)
+    ? rawQuickBrief.map((p: any) => typeof p === 'string' ? p : p?.text || p?.name || String(p))
+    : []
   const keyPoints = (post as any).key_points
   const faq = (post as any).faq
   // source link intentionally removed
