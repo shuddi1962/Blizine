@@ -13,7 +13,7 @@ import { ShareButtons } from "@/components/social/share-buttons"
 import { PostComments } from "@/components/post/post-comments"
 import { ViewTracker } from "@/components/post/view-tracker"
 import { LiveViewCount } from "@/components/post/live-view-count"
-import { SITE_URL } from "@/lib/constants"
+import { SITE_NAME, SITE_URL } from "@/lib/constants"
 
 export const dynamic = "force-dynamic"
 
@@ -110,6 +110,29 @@ export default async function PostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": (post as any).schema_type || "Article",
+            headline: post.title,
+            description: (post.seo_description || post.content?.replace(/<[^>]+>/g, "").slice(0, 155)),
+            image: post.featured_image || undefined,
+            datePublished: post.published_at || undefined,
+            dateModified: post.updated_at || undefined,
+            author: {
+              "@type": "Person",
+              name: (post as any).author?.full_name || (post as any).author?.username || "Blizine",
+            },
+            publisher: {
+              "@type": "Organization",
+              name: SITE_NAME,
+              logo: `${SITE_URL}/icon.svg`,
+            },
+          }),
+        }}
       />
 
       <article className="container py-8">
