@@ -155,70 +155,6 @@ serve(async () => {
       )
     }
 
-    function autoCluster(keyword: string): string | null {
-      const t = keyword.toLowerCase()
-      const clusters: Array<{ words: string[]; name: string }> = [
-        { words: ["ai", "artificial intelligence", "machine learning", "chatgpt", "openai", "gemini", "claude", "copilot", "llm", "gpt", "deep learning", "neural"], name: "AI & ML" },
-        { words: ["hack", "cyber", "vulnerability", "malware", "ransomware", "breach", "phishing", "zero-day", "security", "privacy", "vpn", "encryption", "firewall"], name: "Cybersecurity" },
-        { words: ["python", "javascript", "typescript", "react", "node", "rust", "programming", "coding", "developer", "software", "git", "github", "api"], name: "Programming" },
-        { words: ["web", "css", "html", "frontend", "backend", "next.js", "tailwind", "react", "vue", "angular", "design", "responsive", "ux", "ui"], name: "Web Development" },
-        { words: ["iphone", "android", "smartphone", "mac", "laptop", "tablet", "wearable", "gadget", "airpods", "smartwatch", "phone", "device"], name: "Gadgets & Devices" },
-        { words: ["cloud", "aws", "azure", "google cloud", "kubernetes", "docker", "devops", "server", "infrastructure", "deploy"], name: "Cloud & DevOps" },
-        { words: ["crypto", "blockchain", "bitcoin", "ethereum", "nft", "web3", "defi"], name: "Crypto & Web3" },
-        { words: ["tutorial", "how to", "guide", "learn", "beginner", "step by step", "getting started"], name: "Tutorials" },
-        { words: ["review", "best", "vs", "comparison", "top", "rated", "buying guide"], name: "Reviews & Comparisons" },
-        { words: ["startup", "funding", "saas", "venture", "series a", "ipo", "valuation", "revenue"], name: "Startups & Business" },
-        { words: ["data", "database", "sql", "analytics", "big data", "data science"], name: "Data & Analytics" },
-      ]
-      for (const c of clusters) {
-        if (c.words.some(w => t.includes(w))) return c.name
-      }
-      return null
-    }
-
-    function estimateCPC(cluster: string | null, searchVolume: number): number {
-      const cpcByCluster: Record<string, [number, number]> = {
-        "Cybersecurity": [3.50, 8.00],
-        "AI & ML": [2.50, 6.00],
-        "Cloud & DevOps": [3.00, 7.00],
-        "Programming": [2.00, 5.00],
-        "Startups & Business": [4.00, 9.00],
-        "Data & Analytics": [2.50, 5.50],
-        "Reviews & Comparisons": [1.50, 4.00],
-        "Web Development": [2.00, 4.50],
-        "Gadgets & Devices": [1.50, 3.50],
-        "Crypto & Web3": [3.00, 7.00],
-        "Tutorials": [1.00, 3.00],
-      }
-      if (cluster && cpcByCluster[cluster]) {
-        const [min, max] = cpcByCluster[cluster]
-        const volFactor = Math.min(searchVolume / 10000, 1)
-        return parseFloat((min + (max - min) * volFactor).toFixed(2))
-      }
-      return parseFloat((1.00 + Math.random() * 2.00).toFixed(2))
-    }
-
-    function estimateCompetition(searchVolume: number): { competition: number; level: string } {
-      if (searchVolume > 10000) return { competition: 0.85, level: "high" }
-      if (searchVolume > 5000) return { competition: 0.70, level: "high" }
-      if (searchVolume > 1000) return { competition: 0.50, level: "medium" }
-      if (searchVolume > 100) return { competition: 0.30, level: "low" }
-      return { competition: 0.15, level: "low" }
-    }
-
-    function estimateImpressions(searchVolume: number): number {
-      return Math.round(searchVolume * (50 + Math.random() * 100))
-    }
-
-    function computeRankingProb(searchVolume: number, competition: number, hasCluster: boolean): number {
-      const volScore = Math.min(searchVolume / 5000, 1) * 35
-      const compScore = (1 - competition) * 30
-      const wordCount = 0
-      const lenScore = 15
-      const clusterScore = hasCluster ? 10 : 0
-      return Math.round(Math.min(volScore + compScore + lenScore + clusterScore, 99))
-    }
-
     let inserted = 0
     let skipped = 0
 
@@ -237,12 +173,6 @@ serve(async () => {
         continue
       }
 
-      const cluster = autoCluster(kw.keyword)
-      const cpc = estimateCPC(cluster, kw.search_volume)
-      const { competition, level } = estimateCompetition(kw.search_volume)
-      const impressions = estimateImpressions(kw.search_volume)
-      const rankProb = computeRankingProb(kw.search_volume, competition, !!cluster)
-
       const { error } = await supabase
         .from("keyword_articles")
         .insert({
@@ -251,12 +181,6 @@ serve(async () => {
           search_volume: kw.search_volume,
           author_id: authorId,
           status: "draft",
-          cpc,
-          competition,
-          competition_level: level,
-          impressions,
-          ranking_probability: rankProb,
-          cluster,
         })
 
       if (!error) inserted++

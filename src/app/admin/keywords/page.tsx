@@ -7,8 +7,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   Search, RefreshCw, TrendingUp, TrendingDown, Clock, CheckCircle,
-  Loader2, Sparkles, ExternalLink, X, Hash, DollarSign, BarChart3,
-  Target, Filter, Globe, Layers, Zap, Eye
+  Loader2, Sparkles, ExternalLink, X, Hash,
+  Filter, Globe, Layers, Eye
 } from "lucide-react"
 import Link from "next/link"
 
@@ -21,11 +21,6 @@ interface KeywordArticle {
   source: string
   search_volume: number
   trend_direction: string | null
-  cpc: number
-  competition: number
-  competition_level: string
-  impressions: number
-  ranking_probability: number
   cluster: string | null
   category: { name: string; slug: string } | null
   created_at: string
@@ -33,43 +28,9 @@ interface KeywordArticle {
   views: number
 }
 
-function computeRankingProbability(kw: KeywordArticle): number {
-  const volScore = Math.min((kw.search_volume || 0) / 5000, 1) * 35
-  const compScore = (1 - (kw.competition || 0)) * 30
-  const wordCount = kw.keyword.split(/\s+/).length
-  const lenScore = wordCount >= 2 && wordCount <= 5 ? 20 : wordCount > 5 ? 15 : 10
-  const clusterScore = kw.cluster ? 10 : 0
-  const trendScore = kw.trend_direction === "up" ? 5 : kw.trend_direction === "stable" ? 2 : 0
-  return Math.round(Math.min(volScore + compScore + lenScore + clusterScore + trendScore, 99))
-}
-
-function rankColor(prob: number): string {
-  if (prob >= 70) return "text-green-600 bg-green-100 dark:bg-green-900/40 dark:text-green-400"
-  if (prob >= 40) return "text-amber-600 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400"
-  return "text-red-600 bg-red-100 dark:bg-red-900/40 dark:text-red-400"
-}
-
-function rankBarColor(prob: number): string {
-  if (prob >= 70) return "bg-green-500"
-  if (prob >= 40) return "bg-amber-500"
-  return "bg-red-500"
-}
-
-function compColor(level: string): string {
-  const map: Record<string, string> = {
-    low: "text-green-600 bg-green-100 dark:bg-green-900/40 dark:text-green-400",
-    medium: "text-amber-600 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400",
-    high: "text-red-600 bg-red-100 dark:bg-red-900/40 dark:text-red-400",
-  }
-  return map[level] || "text-muted-foreground bg-muted"
-}
-
-function sourceLabel(s: string): string {
-  const labels: Record<string, string> = {
-    google_trends: "Google Trends", google_autocomplete: "Autocomplete",
-    gsc: "GSC", reddit: "Reddit", manual: "Manual",
-  }
-  return labels[s] || s
+const SOURCE_LABELS: Record<string, string> = {
+  google_trends: "Google Trends", google_autocomplete: "Autocomplete",
+  gsc: "GSC", reddit: "Reddit", manual: "Manual",
 }
 
 export default function AdminKeywordsPage() {
@@ -175,7 +136,6 @@ export default function AdminKeywordsPage() {
     setGeneratingAll(true)
     try {
       const res = await fetch("/api/admin/trigger-keyword-write")
-      const data = await res.json()
       fetchData()
     } catch {}
     setGeneratingAll(false)
@@ -190,27 +150,16 @@ export default function AdminKeywordsPage() {
     if (clusterFilter !== "all" && a.cluster !== clusterFilter) return false
     if (searchInput.trim()) {
       const q = searchInput.toLowerCase()
-      const matches = (a.keyword?.toLowerCase().includes(q)) ||
-        (a.title?.toLowerCase().includes(q)) ||
-        (a.cluster?.toLowerCase().includes(q))
-      if (!matches) return false
+      if (!(a.keyword?.toLowerCase().includes(q) || a.title?.toLowerCase().includes(q) || a.cluster?.toLowerCase().includes(q))) return false
     }
     return true
   })
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "volume") return (b.search_volume || 0) - (a.search_volume || 0)
-    if (sortBy === "cpc") return (b.cpc || 0) - (a.cpc || 0)
-    if (sortBy === "competition") return (b.competition || 0) - (a.competition || 0)
-    if (sortBy === "ranking") return computeRankingProbability(b) - computeRankingProbability(a)
-    if (sortBy === "impressions") return (b.impressions || 0) - (a.impressions || 0)
+    if (sortBy === "views") return (b.views || 0) - (a.views || 0)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
-
-  const avgCpc = articles.length > 0
-    ? articles.reduce((s, a) => s + (a.cpc || 0), 0) / articles.length : 0
-  const avgComp = articles.length > 0
-    ? articles.reduce((s, a) => s + (a.competition || 0), 0) / articles.length : 0
 
   return (
     <div>
@@ -218,7 +167,7 @@ export default function AdminKeywordsPage() {
         <div>
           <h1 className="text-3xl font-bold">Keyword Management</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            SEO/GEO/AEO keyword pipeline &mdash; {stats.draft} drafts awaiting generation
+            {stats.draft} drafts awaiting article generation
           </p>
         </div>
         <div className="flex gap-2">
@@ -243,7 +192,7 @@ export default function AdminKeywordsPage() {
                   onChange={(e) => { setSearchInput(e.target.value); fetchSuggestions(e.target.value) }}
                   onKeyDown={(e) => { if (e.key === "Enter") { setShowSuggestions(false); doResearch() } }}
                   onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                  placeholder="Search keywords, add new keyword to research & write..."
+                  placeholder="Search keywords or add a new topic to research with Gemini..."
                   className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
@@ -303,7 +252,7 @@ export default function AdminKeywordsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <Hash className="h-8 w-8 text-blue-500 shrink-0" />
@@ -325,19 +274,7 @@ export default function AdminKeywordsPage() {
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <TrendingUp className="h-8 w-8 text-purple-500 shrink-0" />
-            <div><p className="text-2xl font-bold">{stats.volume.toLocaleString()}</p><p className="text-xs text-muted-foreground">Total Vol.</p></div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <DollarSign className="h-8 w-8 text-emerald-500 shrink-0" />
-            <div><p className="text-2xl font-bold">${avgCpc.toFixed(2)}</p><p className="text-xs text-muted-foreground">Avg CPC</p></div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <BarChart3 className="h-8 w-8 text-rose-500 shrink-0" />
-            <div><p className="text-2xl font-bold">{(avgComp * 100).toFixed(0)}%</p><p className="text-xs text-muted-foreground">Avg Competition</p></div>
+            <div><p className="text-2xl font-bold">{stats.volume.toLocaleString()}</p><p className="text-xs text-muted-foreground">Search Vol.</p></div>
           </CardContent>
         </Card>
       </div>
@@ -355,7 +292,7 @@ export default function AdminKeywordsPage() {
             <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm">
               <option value="all">All Sources</option>
-              {sources.map(s => <option key={s} value={s}>{sourceLabel(s)}</option>)}
+              {sources.map(s => <option key={s} value={s}>{SOURCE_LABELS[s] || s}</option>)}
             </select>
             {clusters.length > 0 && (
               <select value={clusterFilter} onChange={(e) => setClusterFilter(e.target.value)}
@@ -370,10 +307,7 @@ export default function AdminKeywordsPage() {
               className="h-9 rounded-md border border-input bg-background px-3 text-sm">
               <option value="created_at">Newest</option>
               <option value="volume">Search Volume</option>
-              <option value="cpc">CPC</option>
-              <option value="competition">Competition</option>
-              <option value="ranking">Ranking Prob.</option>
-              <option value="impressions">Impressions</option>
+              <option value="views">Views</option>
             </select>
             <span className="text-xs text-muted-foreground ml-auto">{sorted.length} of {articles.length}</span>
           </div>
@@ -392,97 +326,75 @@ export default function AdminKeywordsPage() {
         </Card>
       ) : (
         <div className="space-y-2">
-          {sorted.map((a) => {
-            const rankProb = a.ranking_probability || computeRankingProbability(a)
-            return (
-              <Card key={a.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold truncate max-w-md">{a.title || a.keyword}</p>
-                        {a.status === "published" ? (
-                          <Badge variant="default" className="bg-green-500 shrink-0">Published</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="shrink-0">Draft</Badge>
-                        )}
-                        {a.cluster && (
-                          <Badge variant="outline" className="text-xs shrink-0 flex items-center gap-1">
-                            <Layers className="h-3 w-3" /> {a.cluster}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
-                        <Badge variant="outline" className="text-xs">{sourceLabel(a.source)}</Badge>
-                        {a.category && <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {a.category.name}</span>}
-
-                        <span className="flex items-center gap-1 font-medium text-foreground">
-                          <TrendingUp className="h-3 w-3 text-purple-500" />
-                          {a.search_volume > 0 ? a.search_volume.toLocaleString() : "—"}
-                          {a.trend_direction === "up" && <TrendingUp className="h-3 w-3 text-green-500" />}
-                          {a.trend_direction === "down" && <TrendingDown className="h-3 w-3 text-red-500" />}
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          <DollarSign className="h-3 w-3 text-emerald-500" />
-                          {a.cpc > 0 ? `$${a.cpc.toFixed(2)}` : "—"}
-                        </span>
-
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${compColor(a.competition_level || (a.competition > 0.7 ? "high" : a.competition > 0.3 ? "medium" : "low"))}`}>
-                          Comp: {a.competition > 0 ? (a.competition * 100).toFixed(0) : "—"}%
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3 text-blue-500" />
-                          {a.impressions > 0 ? a.impressions.toLocaleString() : "—"}
-                        </span>
-
-                        <span>{new Date(a.created_at).toLocaleDateString()}</span>
-                      </div>
-
-                      <div className="flex items-center gap-4 mt-2">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${rankColor(rankProb)}`}>
-                            Rank: {rankProb}%
-                          </span>
-                          <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-all ${rankBarColor(rankProb)}`} style={{ width: `${rankProb}%` }} />
-                          </div>
-                        </div>
-                      </div>
+          {sorted.map((a) => (
+            <Card key={a.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold truncate max-w-md">{a.title || a.keyword}</p>
+                      {a.status === "published" ? (
+                        <Badge variant="default" className="bg-green-500 shrink-0">Published</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="shrink-0">Draft</Badge>
+                      )}
+                      {a.cluster && (
+                        <Badge variant="outline" className="text-xs shrink-0 flex items-center gap-1">
+                          <Layers className="h-3 w-3" /> {a.cluster}
+                        </Badge>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 mt-1">
-                      {a.status === "draft" && (
-                        <>
-                          <Button size="sm" onClick={() => generateArticle(a.id)} disabled={generatingId === a.id}
-                            variant="default" className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white">
-                            {generatingId === a.id ? (
-                              <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Writing</>
-                            ) : (
-                              <><Sparkles className="h-3.5 w-3.5 mr-1.5" /> Generate</>
-                            )}
-                          </Button>
-                          {generationMsg && generationMsg.id === a.id && (
-                            <span className={`text-xs ${generationMsg.ok ? "text-green-500" : "text-red-500"}`}>
-                              {generationMsg.text}
-                            </span>
-                          )}
-                        </>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
+                      <Badge variant="outline" className="text-xs">{SOURCE_LABELS[a.source] || a.source}</Badge>
+                      {a.category && <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {a.category.name}</span>}
+
+                      <span className="flex items-center gap-1 font-medium text-foreground">
+                        <TrendingUp className="h-3 w-3 text-purple-500" />
+                        {a.search_volume > 0 ? a.search_volume.toLocaleString() : "—"}
+                        {a.trend_direction === "up" && <TrendingUp className="h-3 w-3 text-green-500" />}
+                        {a.trend_direction === "down" && <TrendingDown className="h-3 w-3 text-red-500" />}
+                      </span>
+
+                      {a.views > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3 text-blue-500" /> {a.views}
+                        </span>
                       )}
-                      {a.slug && (
-                        <a href={`/${a.slug}`} target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1">
-                          <ExternalLink className="h-3 w-3" /> View
-                        </a>
-                      )}
+
+                      <span>{new Date(a.created_at).toLocaleDateString()}</span>
+                      {a.published_at && <span>Published: {new Date(a.published_at).toLocaleDateString()}</span>}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+
+                  <div className="flex items-center gap-2 shrink-0 mt-1">
+                    {a.status === "draft" && (
+                      <>
+                        <Button size="sm" onClick={() => generateArticle(a.id)} disabled={generatingId === a.id}
+                          variant="default">
+                          {generatingId === a.id ? (
+                            <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Writing</>
+                          ) : (
+                            <><Sparkles className="h-3.5 w-3.5 mr-1.5" /> Generate</>
+                          )}
+                        </Button>
+                        {generationMsg && generationMsg.id === a.id && (
+                          <span className={`text-xs ${generationMsg.ok ? "text-green-500" : "text-red-500"}`}>
+                            {generationMsg.text}
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {a.slug && (
+                      <a href={`/${a.slug}`} target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1">
+                        <ExternalLink className="h-3 w-3" /> View
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>
