@@ -1,51 +1,131 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Trash2, FileText, Download } from "lucide-react"
-import { formatDate } from "@/lib/utils"
+import { Upload, Trash2, FileText, Download, Copy, Check, Search, Image, File, FileArchive, X } from "lucide-react"
+
+type MediaFile = {
+  name: string
+  id: string
+  created_at: string
+  updated_at: string
+  metadata: {
+    mimetype: string
+    size: number
+    cacheControl: string
+  } | null
+}
+
+type FileType = "all" | "images" | "documents" | "other"
+
+const FILE_TYPE_LABELS: Record<FileType, string> = {
+  all: "All",
+  images: "Images",
+  documents: "Documents",
+  other: "Other",
+}
+
+function getFileType(file: MediaFile): FileType {
+  const mime = file.metadata?.mimetype || ""
+  if (mime.startsWith("image/")) return "images"
+  if (mime.includes("pdf") || mime.includes("document") || mime.includes("text") || mime.includes("sheet") || mime.includes("presentation")) return "documents"
+  return "other"
+}
+
+function getFileIcon(file: MediaFile) {
+  const type = getFileType(file)
+  if (type === "images") return Image
+  if (type === "documents") return File
+  return FileArchive
+}
 
 export default function AdminMediaPage() {
-  const [files, setFiles] = useState<any[]>([])
+  const [files, setFiles] = useState<MediaFile[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [search, setSearch] = useState("")
+  const [fileTypeFilter, setFileTypeFilter] = useState<FileType>("all")
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
 
-  useEffect(() => {
-    supabase.storage.from("media").list().then(({ data }) => {
-      if (data) setFiles(data)
-      setLoading(false)
-    })
+  const loadFiles = useCallback(async () => {
+    const allFiles: MediaFile[] = []
+    let offset = 0
+    const limit = 100
+    while (true) {
+      const { data, error } = await supabase.storage.from("media").list("", { limit, offset })
+      if (error) break
+      if (!data || data.length === 0) break
+      allFiles.push(...data as MediaFile[])
+      if (data.length < limit) break
+      offset += limit
+    }
+    setFiles(allFiles)
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    loadFiles()
+  }, [loadFiles])
 
   const uploadFiles = async (fileList: FileList) => {
     setUploading(true)
-    await Promise.all(
+    const results = await Promise.allSettled(
       Array.from(fileList).map(async (file) => {
         const path = `${Date.now()}-${file.name}`
-        await supabase.storage.from("media").upload(path, file)
+        const { error } = await supabase.storage.from("media").upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+        })
+        if (error) throw error
       })
     )
-    const { data } = await supabase.storage.from("media").list()
-    if (data) setFiles(data)
+    const errors = results.filter((r) => r.status === "rejected")
+    if (errors.length > 0) {
+      console.error("Upload errors:", errors)
+    }
+    await loadFiles()
     setUploading(false)
   }
 
   const deleteFile = async (name: string) => {
     if (!confirm("Delete this file?")) return
-    await supabase.storage.from("media").remove([name])
+    const { error } = await supabase.storage.from("media").remove([name])
+    if (error) {
+      console.error("Delete error:", error)
+      return
+    }
     setFiles((prev) => prev.filter((f) => f.name !== name))
   }
 
   const getUrl = (path: string) => {
     const { data } = supabase.storage.from("media").getPublicUrl(path)
     return data.publicUrl
+  }
+
+  const copyUrl = async (name: string) => {
+    const url = getUrl(name)
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedIndex(name)
+      setTimeout(() => setCopiedIndex(null), 2000)
+    } catch {
+      const el = document.createElement("textarea")
+      el.value = url
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand("copy")
+      document.body.removeChild(el)
+      setCopiedIndex(name)
+      setTimeout(() => setCopiedIndex(null), 2000)
+    }
   }
 
   const formatSize = (bytes: number | undefined) => {
@@ -55,23 +135,68 @@ export default function AdminMediaPage() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  const isImage = (f: any) => f.metadata?.mimetype?.startsWith("image/")
+  const isImage = (f: MediaFile) => f.metadata?.mimetype?.startsWith("image/")
+
+  const filteredFiles = files.filter((file) => {
+    if (search && !file.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (fileTypeFilter !== "all" && getFileType(file) !== fileTypeFilter) return false
+    return true
+  })
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Media Library</h1>
-        <Button onClick={() => inputRef.current?.click()} disabled={uploading}>
-          <Upload className="h-4 w-4 mr-2" />
-          {uploading ? "Uploading..." : "Upload"}
-        </Button>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">{files.length} file{files.length !== 1 ? "s" : ""}</span>
+          <Button onClick={() => inputRef.current?.click()} disabled={uploading}>
+            <Upload className="h-4 w-4 mr-2" />
+            {uploading ? "Uploading..." : "Upload"}
+          </Button>
+        </div>
         <input
           ref={inputRef}
           type="file"
           multiple
+          accept="image/*,.pdf,.doc,.docx,.zip,.txt,.svg"
           className="hidden"
           onChange={(e) => e.target.files && uploadFiles(e.target.files)}
         />
+      </div>
+
+      <div className="flex items-center gap-3 mb-6">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search files..."
+            className="pl-9"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-1">
+          {(Object.entries(FILE_TYPE_LABELS) as [FileType, string][]).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setFileTypeFilter(key)}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                fileTypeFilter === key
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Card
@@ -88,73 +213,114 @@ export default function AdminMediaPage() {
           <div className="flex flex-col items-center gap-2 text-center">
             <Upload className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Drop files here or click Upload</p>
+            <p className="text-xs text-muted-foreground/60">PNG, JPG, GIF, WebP, SVG, PDF, DOC, ZIP (max 10 MB)</p>
           </div>
         </CardContent>
       </Card>
 
       {loading ? (
-        <p className="text-muted-foreground">Loading...</p>
-      ) : files.length === 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i}>
+              <div className="aspect-video bg-muted animate-pulse" />
+              <CardContent className="p-3 space-y-2">
+                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredFiles.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-lg font-medium">No files yet</p>
-            <p className="text-sm text-muted-foreground">Upload your first file</p>
+            {search || fileTypeFilter !== "all" ? (
+              <>
+                <Search className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-lg font-medium">No files match your search</p>
+                <p className="text-sm text-muted-foreground">Try a different filter or search term</p>
+              </>
+            ) : (
+              <>
+                <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-lg font-medium">No files yet</p>
+                <p className="text-sm text-muted-foreground">Upload your first file</p>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {files.map((file) => (
-            <Card key={file.name} className="overflow-hidden group">
-              <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden">
-                {isImage(file) ? (
-                  <img
-                    src={getUrl(file.name)}
-                    alt={file.name}
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <FileText className="h-10 w-10 text-muted-foreground/50" />
-                )}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:text-white hover:bg-white/20"
-                    onClick={() => window.open(getUrl(file.name), "_blank")}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:text-white hover:bg-white/20"
-                    onClick={() => deleteFile(file.name)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <CardContent className="p-3 space-y-1">
-                <p className="text-sm font-medium truncate" title={file.name}>
-                  {file.name}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {formatSize(file.metadata?.size)}
-                  </span>
-                  {file.metadata?.mimetype && (
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                      {file.metadata.mimetype.split("/").pop()}
-                    </Badge>
+          {filteredFiles.map((file) => {
+            const Icon = getFileIcon(file)
+            return (
+              <Card key={file.name} className="overflow-hidden group">
+                <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden">
+                  {isImage(file) ? (
+                    <img
+                      src={getUrl(file.name)}
+                      alt={file.name}
+                      className="object-cover w-full h-full"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Icon className="h-10 w-10 text-muted-foreground/50" />
                   )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-white hover:text-white hover:bg-white/20"
+                      onClick={() => window.open(getUrl(file.name), "_blank")}
+                      title="Open"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-white hover:text-white hover:bg-white/20"
+                      onClick={() => copyUrl(file.name)}
+                      title="Copy URL"
+                    >
+                      {copiedIndex === file.name ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-white hover:text-white hover:bg-white/20"
+                      onClick={() => deleteFile(file.name)}
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {formatDate(file.created_at)}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+                <CardContent className="p-3 space-y-1">
+                  <p className="text-sm font-medium truncate" title={file.name}>
+                    {file.name}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {formatSize(file.metadata?.size)}
+                    </span>
+                    {file.metadata?.mimetype && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        {file.metadata.mimetype.split("/").pop()}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(file.created_at).toLocaleDateString()}
+                    </p>
+                    {copiedIndex === file.name && (
+                      <span className="text-xs text-green-500">Copied!</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
     </div>
