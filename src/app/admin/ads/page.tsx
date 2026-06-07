@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Image, Code, DollarSign, Eye, MousePointer, Calendar, Copy, Check, X, Upload, Monitor, Video, FileText as FileTextIcon, Search as SearchIcon, ExternalLink } from "lucide-react"
+import { Plus, Image, Code, DollarSign, Eye, MousePointer, Calendar, Copy, Check, X, Upload, Monitor, Video, FileText as FileTextIcon, Search as SearchIcon, ExternalLink, Play } from "lucide-react"
 import { AD_POSITIONS } from "@/lib/constants"
+import { AdSlot } from "@/components/ads/AdSlot"
 import type { Ad } from "@/types/database"
 
 type AdFormat = "banner_image" | "custom_code" | "adsense"
@@ -399,6 +400,10 @@ export default function AdminAdsPage() {
           <TabsTrigger value="campaigns">
             <DollarSign className="h-4 w-4 mr-2" />
             Client Campaigns
+          </TabsTrigger>
+          <TabsTrigger value="preview">
+            <Play className="h-4 w-4 mr-2" />
+            Preview
           </TabsTrigger>
         </TabsList>
 
@@ -920,6 +925,31 @@ export default function AdminAdsPage() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* ═══════════════════════════════════════════════════════════════
+           TAB 3 — PREVIEW
+           ═══════════════════════════════════════════════════════════════ */}
+        <TabsContent value="preview">
+          <p className="text-sm text-muted-foreground mb-4">
+            Preview how ads and campaigns render on the frontend for each position.
+          </p>
+          <div className="space-y-6">
+            {Object.entries(AD_POSITIONS).map(([key, label]) => (
+              <Card key={key}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Monitor className="h-4 w-4 text-muted-foreground" />
+                    {label}
+                    <Badge variant="outline" className="text-[10px] font-mono">{key}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AdSlot positionKey={key as keyof typeof AD_POSITIONS} preview />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

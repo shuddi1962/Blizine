@@ -189,11 +189,11 @@ export default async function HomePage() {
 
             <CategoryTabSection categories={cats} posts={latestPosts || []} />
 
-            <AdSlot position="Between Tabs And Latest" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_1" className="ad-mid" />
 
             <LatestGrid posts={latestPosts || []} />
 
-            <AdSlot position="Between Latest And Categories" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_2" className="ad-mid" />
 
             <CategoryStrip
               categoryName="AI & Automation"
@@ -203,7 +203,7 @@ export default async function HomePage() {
               subcategories={subcatsByCat["ai-automation"] || []}
             />
 
-            <AdSlot position="Between AI And Cybersecurity" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_3" className="ad-mid" />
 
             <CategoryStrip
               categoryName="Cybersecurity"
@@ -213,7 +213,7 @@ export default async function HomePage() {
               subcategories={subcatsByCat["cybersecurity"] || []}
             />
 
-            <AdSlot position="Between Cyber And Gadgets" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_4" className="ad-mid" />
 
             <CategoryStrip
               categoryName="Gadgets"
@@ -223,7 +223,7 @@ export default async function HomePage() {
               subcategories={subcatsByCat["gadgets"] || []}
             />
 
-            <AdSlot position="Between Gadgets And Tech News" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_5" className="ad-mid" />
 
             <CategoryStrip
               categoryName="Tech News"
@@ -233,7 +233,7 @@ export default async function HomePage() {
               subcategories={subcatsByCat["tech-news"] || []}
             />
 
-            <AdSlot position="Between Tech News And Desktops" width={728} height={90} className="ad-mid" />
+            <AdSlot positionKey="home_infeed_6" className="ad-mid" />
 
             <CategoryStrip
               categoryName="Desktops"

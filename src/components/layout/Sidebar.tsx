@@ -16,11 +16,11 @@ export function Sidebar({ trending, popular, categories, tags }: SidebarProps) {
   return (
     <aside className="sidebar">
       <TrendingWidget posts={trending} />
-      <AdSlot position="Sidebar Top" width={300} height={250} />
+      <AdSlot positionKey="home_sidebar_top" />
       <SocialWidget />
       <NewsletterWidget />
       <PopularWidget posts={popular} />
-      <AdSlot position="Sidebar Mid" width={300} height={250} />
+      <AdSlot positionKey="home_sidebar_mid" />
       <TagsWidget tags={tags} />
     </aside>
   )

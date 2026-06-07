@@ -6,7 +6,7 @@ export type AdPosition =
   | "sidebar" | "post_top" | "post_mid" | "post_bottom"
   | "category_top"
   | "home_top_banner" | "home_sticky_top" | "home_hero_mid"
-  | "home_infeed_1" | "home_infeed_2" | "home_sidebar_top"
+  | "home_infeed_1" | "home_infeed_2" | "home_infeed_3" | "home_infeed_4" | "home_infeed_5" | "home_infeed_6" | "home_sidebar_top"
   | "home_sidebar_mid" | "home_bottom_banner" | "home_sticky_bottom"
   | "post_in_content_1" | "post_in_content_2" | "post_in_content_3"
   | "post_sidebar_top" | "post_sidebar_mid" | "post_sidebar_bottom"
