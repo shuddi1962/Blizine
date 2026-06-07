@@ -91,7 +91,7 @@ export function AdSlot({ positionKey, className, preview }: AdSlotProps) {
     if (!slotAd || recordedRef.current) return
     recordedRef.current = true
     const supabase = createClient()
-    supabase.rpc("increment_ad_impressions", { ad_id: slotAd.id }).catch(() => {})
+    supabase.rpc("increment_ad_impressions", { ad_id: slotAd.id }).then()
   }, [slotAd])
 
   const showAutoAds = settings.enable_auto_ads && settings.adsense_publisher_id
