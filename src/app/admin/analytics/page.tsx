@@ -9,10 +9,30 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area,
+  ComposedChart, Line, RadialBarChart, RadialBar,
 } from 'recharts'
 
 const WARM = ['#FF6B6B', '#FFA07A', '#FFD700', '#98FB98', '#00CED1', '#9370DB', '#FF69B4', '#20B2AA', '#F97316', '#84CC16']
 const PIE_VIBRANT = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#6BCB77', '#45B7D1', '#DDA0DD', '#FF8C94', '#96CEB4', '#F97316', '#A855F7']
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "🇺🇸", "US": "🇺🇸", "India": "🇮🇳", "United Kingdom": "🇬🇧", "UK": "🇬🇧",
+  "Germany": "🇩🇪", "France": "🇫🇷", "Canada": "🇨🇦", "Australia": "🇦🇺", "Brazil": "🇧🇷",
+  "Japan": "🇯🇵", "China": "🇨🇳", "Russia": "🇷🇺", "South Korea": "🇰🇷", "Netherlands": "🇳🇱",
+  "Spain": "🇪🇸", "Italy": "🇮🇹", "Sweden": "🇸🇪", "Norway": "🇳🇴", "Denmark": "🇩🇰",
+  "Finland": "🇫🇮", "Poland": "🇵🇱", "Turkey": "🇹🇷", "Indonesia": "🇮🇩", "Mexico": "🇲🇽",
+  "Argentina": "🇦🇷", "Nigeria": "🇳🇬", "South Africa": "🇿🇦", "Egypt": "🇪🇬", "Kenya": "🇰🇪",
+  "Saudi Arabia": "🇸🇦", "UAE": "🇦🇪", "United Arab Emirates": "🇦🇪", "Singapore": "🇸🇬",
+  "Hong Kong": "🇭🇰", "Switzerland": "🇨🇭", "Belgium": "🇧🇪", "Austria": "🇦🇹", "Ireland": "🇮🇪",
+  "New Zealand": "🇳🇿", "Portugal": "🇵🇹", "Greece": "🇬🇷", "Czech Republic": "🇨🇿", "Romania": "🇷🇴",
+  "Ukraine": "🇺🇦", "Hungary": "🇭🇺", "Israel": "🇮🇱", "Thailand": "🇹🇭", "Vietnam": "🇻🇳",
+  "Philippines": "🇵🇭", "Malaysia": "🇲🇾", "Pakistan": "🇵🇰", "Bangladesh": "🇧🇩", "Colombia": "🇨🇴",
+  "Chile": "🇨🇱", "Peru": "🇵🇪",
+}
+
+function flag(name: string): string {
+  return COUNTRY_FLAGS[name] || ""
+}
 
 function KpiCard({ label, value, icon, gradient }: { label: string; value: string | number; icon: React.ReactNode; gradient: string }) {
   return (
@@ -116,7 +136,7 @@ function BarListCard({ title, icon, data, valueLabel, accent }: { title: string;
           <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" horizontal={false} />
             <XAxis type="number" tick={{ fill: accent, fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="name" tick={{ fill: accent, fontSize: 11 }} axisLine={false} tickLine={false} width={130} />
+            <YAxis type="category" dataKey="name" tick={{ fill: accent, fontSize: 11 }} axisLine={false} tickLine={false} width={160} />
             <Tooltip {...tooltipStyle} formatter={(v: any) => [v, valueLabel]} />
             <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={22}>
               {data.map((_, i) => (
@@ -130,7 +150,7 @@ function BarListCard({ title, icon, data, valueLabel, accent }: { title: string;
   )
 }
 
-function RainbowAreaChart({ data }: { data: { date: string; views: number }[] | undefined }) {
+function RainbowComposedChart({ data }: { data: { date: string; views: number }[] | undefined }) {
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-sm text-indigo-500">
@@ -141,20 +161,15 @@ function RainbowAreaChart({ data }: { data: { date: string; views: number }[] | 
   }
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data}>
+      <ComposedChart data={data}>
         <defs>
-          <linearGradient id="rainbowGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FF6B6B" stopOpacity={0.5} />
-            <stop offset="25%" stopColor="#FFD93D" stopOpacity={0.5} />
-            <stop offset="50%" stopColor="#6BCB77" stopOpacity={0.5} />
-            <stop offset="75%" stopColor="#45B7D1" stopOpacity={0.5} />
-            <stop offset="100%" stopColor="#A855F7" stopOpacity={0.5} />
+          <linearGradient id="rainbowBar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FF6B6B" stopOpacity={0.8} />
+            <stop offset="50%" stopColor="#FFD93D" stopOpacity={0.8} />
+            <stop offset="100%" stopColor="#6BCB77" stopOpacity={0.8} />
           </linearGradient>
-          <linearGradient id="rainbowLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FF6B6B" />
-            <stop offset="25%" stopColor="#FFD93D" />
-            <stop offset="50%" stopColor="#6BCB77" />
-            <stop offset="75%" stopColor="#45B7D1" />
+          <linearGradient id="composedLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#45B7D1" />
             <stop offset="100%" stopColor="#A855F7" />
           </linearGradient>
         </defs>
@@ -162,8 +177,9 @@ function RainbowAreaChart({ data }: { data: { date: string; views: number }[] | 
         <XAxis dataKey="date" tick={{ fill: '#6366F1', fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: '#6366F1', fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip {...tooltipStyle} />
-        <Area type="monotone" dataKey="views" stroke="url(#rainbowLine)" fill="url(#rainbowGrad)" strokeWidth={2.5} />
-      </AreaChart>
+        <Bar dataKey="views" fill="url(#rainbowBar)" radius={[4, 4, 0, 0]} barSize={20} />
+        <Line type="monotone" dataKey="views" stroke="url(#composedLine)" strokeWidth={2.5} dot={false} />
+      </ComposedChart>
     </ResponsiveContainer>
   )
 }
@@ -370,15 +386,31 @@ export default function AnalyticsPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <ChartCard title="Views over time" icon={<Activity className="h-4 w-4" />} accent="#667eea">
-                  <RainbowAreaChart data={a.viewsOverTime} />
+                  <RainbowComposedChart data={a.viewsOverTime} />
                 </ChartCard>
 
-                <DonutCard
-                  title="Traffic sources"
-                  icon={<Globe className="h-4 w-4" />}
-                  data={a.trafficSourceDist}
-                  accent="#4ECDC4"
-                />
+                <ColorCard accent="#4ECDC4">
+                  <SectionLabel icon={<Globe className="h-4 w-4" style={{ color: '#4ECDC4' }} />} accent="#4ECDC4">Traffic sources</SectionLabel>
+                  <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
+                    <div className="h-52 w-52">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadialBarChart innerRadius="20%" outerRadius="90%" data={(a.trafficSourceDist || []).map((d: any, i: number) => ({ ...d, fill: ['#4ECDC4', '#FF6B6B'][i] }))} startAngle={90} endAngle={-270}>
+                          <RadialBar dataKey="value" cornerRadius={8} background={{ fill: '#E0E7FF' }} />
+                          <Tooltip formatter={(v: any) => [`${v.toLocaleString()} visits`, '']} contentStyle={{ background: '#4C1D95', border: 'none', borderRadius: 8, color: '#EDE9FE' }} />
+                        </RadialBarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex justify-center gap-4 mt-2">
+                      {(a.trafficSourceDist || []).map((d: any, i: number) => (
+                        <div key={d.name} className="flex items-center gap-2 text-sm">
+                          <span className="h-3 w-3 rounded-full" style={{ background: ['#4ECDC4', '#FF6B6B'][i] }} />
+                          <span className="font-medium" style={{ color: '#4F46E5' }}>{d.name}</span>
+                          <span className="opacity-60" style={{ color: '#4F46E5' }}>{d.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </ColorCard>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -402,7 +434,7 @@ export default function AnalyticsPage() {
                 <BarListCard
                   title="Top countries"
                   icon={<Globe className="h-4 w-4" />}
-                  data={a.topCountries}
+                  data={(a.topCountries || []).map((c: any) => ({ ...c, name: flag(c.name) ? `${flag(c.name)} ${c.name}` : c.name }))}
                   valueLabel="Visitors"
                   accent="#48C774"
                 />

@@ -9,11 +9,31 @@ import {
   BarChart3, PieChart, Activity, Globe, MousePointerClick, Smartphone,
 } from "lucide-react"
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  ComposedChart, Line, Bar, BarChart, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart as RePie, Pie, Cell,
+  RadialBarChart, RadialBar,
 } from "recharts"
 
 const COLORS = ["#F59E0B", "#10B981", "#F59E0B", "#EF4444", "#F59E0B", "#EC4899", "#06B6D4", "#84CC16"]
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "🇺🇸", "US": "🇺🇸", "India": "🇮🇳", "United Kingdom": "🇬🇧", "UK": "🇬🇧",
+  "Germany": "🇩🇪", "France": "🇫🇷", "Canada": "🇨🇦", "Australia": "🇦🇺", "Brazil": "🇧🇷",
+  "Japan": "🇯🇵", "China": "🇨🇳", "Russia": "🇷🇺", "South Korea": "🇰🇷", "Netherlands": "🇳🇱",
+  "Spain": "🇪🇸", "Italy": "🇮🇹", "Sweden": "🇸🇪", "Norway": "🇳🇴", "Denmark": "🇩🇰",
+  "Finland": "🇫🇮", "Poland": "🇵🇱", "Turkey": "🇹🇷", "Indonesia": "🇮🇩", "Mexico": "🇲🇽",
+  "Argentina": "🇦🇷", "Nigeria": "🇳🇬", "South Africa": "🇿🇦", "Egypt": "🇪🇬", "Kenya": "🇰🇪",
+  "Saudi Arabia": "🇸🇦", "UAE": "🇦🇪", "United Arab Emirates": "🇦🇪", "Singapore": "🇸🇬",
+  "Hong Kong": "🇭🇰", "Switzerland": "🇨🇭", "Belgium": "🇧🇪", "Austria": "🇦🇹", "Ireland": "🇮🇪",
+  "New Zealand": "🇳🇿", "Portugal": "🇵🇹", "Greece": "🇬🇷", "Czech Republic": "🇨🇿", "Romania": "🇷🇴",
+  "Ukraine": "🇺🇦", "Hungary": "🇭🇺", "Israel": "🇮🇱", "Thailand": "🇹🇭", "Vietnam": "🇻🇳",
+  "Philippines": "🇵🇭", "Malaysia": "🇲🇾", "Pakistan": "🇵🇰", "Bangladesh": "🇧🇩", "Colombia": "🇨🇴",
+  "Chile": "🇨🇱", "Peru": "🇵🇪",
+}
+
+function flag(name: string): string {
+  return COUNTRY_FLAGS[name] || ""
+}
 
 export default function AdminDashboard() {
   const supabaseRef = useRef(createClient())
@@ -101,7 +121,7 @@ export default function AdminDashboard() {
         const name = r.country || "Unknown"
         regionMap[name] = (regionMap[name] || 0) + 1
       })
-      setRegions(Object.entries(regionMap).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value })))
+      setRegions(Object.entries(regionMap).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name: flag(name) ? `${flag(name)} ${name}` : name, value })))
 
       const pageMap: Record<string, number> = {}
       ;(pageRes.data || []).forEach((r: any) => {
@@ -181,13 +201,14 @@ export default function AdminDashboard() {
             <div className="h-64 flex items-center justify-center text-sm text-gray-400">Loading...</div>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={viewsOverTime}>
+              <ComposedChart data={viewsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
                 <XAxis dataKey="date" tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={{ stroke: "#374151" }} tickLine={false} />
                 <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: "#111827", border: "2px solid #374151", borderRadius: "12px", color: "#F9FAFB" }} labelStyle={{ color: "#9CA3AF" }} />
-                <Line type="monotone" dataKey="views" stroke="#F59E0B" strokeWidth={3} dot={{ fill: "#F59E0B", stroke: "#111827", strokeWidth: 2, r: 4 }} activeDot={{ r: 6, fill: "#818CF8" }} />
-              </LineChart>
+                <Bar dataKey="views" fill="#F59E0B" radius={[4, 4, 0, 0]} barSize={24} opacity={0.7} />
+                <Line type="monotone" dataKey="views" stroke="#10B981" strokeWidth={2.5} dot={{ fill: "#10B981", stroke: "#111827", strokeWidth: 2, r: 3 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           )}
         </div>
@@ -201,15 +222,11 @@ export default function AdminDashboard() {
             <div className="h-64 flex items-center justify-center text-sm text-gray-400">Loading...</div>
           ) : (
             <div className="flex flex-col items-center">
-              <ResponsiveContainer width="100%" height={180}>
-                <RePie>
-                  <Pie data={statusDist} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value" stroke="none">
-                    {statusDist.map((_, i) => (
-                      <Cell key={i} fill={[COLORS[0], COLORS[2], COLORS[1], COLORS[3]][i]} />
-                    ))}
-                  </Pie>
+              <ResponsiveContainer width="100%" height={220}>
+                <RadialBarChart innerRadius="30%" outerRadius="90%" data={statusDist.map((d, i) => ({ ...d, fill: [COLORS[0], COLORS[2], COLORS[1], COLORS[3]][i] }))} startAngle={180} endAngle={0}>
+                  <RadialBar dataKey="value" cornerRadius={8} background={{ fill: "#1F2937" }} />
                   <Tooltip contentStyle={{ background: "#111827", border: "2px solid #374151", borderRadius: "12px", color: "#F9FAFB" }} />
-                </RePie>
+                </RadialBarChart>
               </ResponsiveContainer>
               <div className="flex flex-wrap justify-center gap-4 mt-2">
                 {statusDist.map((s, i) => s.value > 0 && (
